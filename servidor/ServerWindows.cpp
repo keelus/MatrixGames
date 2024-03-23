@@ -13,7 +13,7 @@
 #pragma comment(lib, "Ws2_32.lib")
 // #pragma comment (lib, "Mswsock.lib")
 
-#define DEFAULT_BUFLEN 512
+#define TAMANO_BUFFER 512
 #define DEFAULT_PORT "3000"
 
 int __cdecl main(void) {
@@ -27,8 +27,6 @@ int __cdecl main(void) {
 	struct addrinfo hints;
 
 	int iSendResult;
-	char recvbuf[DEFAULT_BUFLEN];
-	int recvbuflen = DEFAULT_BUFLEN;
 
 	// Initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -94,26 +92,38 @@ int __cdecl main(void) {
 	// No longer need server socket
 	closesocket(ListenSocket);
 
-	// Receive until the peer shuts down the connection
+	// Texto de ejemplo a mandar. Podriamos hacerlo de formato "codigo;menu, informacion o lo que sea a imprimir antes del input del cliente;mensaje preinput del cliente"
+	const char *bufferSaliente = "3000;El menu o lo que sea;Selecciona el juego";
+
+	// Mandar un mensaje de ejemplo, si no se quedara still en ambas partes
+	iSendResult = send(ClientSocket, bufferSaliente, strlen(bufferSaliente), 0);
+	if (iSendResult == SOCKET_ERROR) {
+		printf("Error al mandar al cliente: %d\n", WSAGetLastError());
+		closesocket(ClientSocket);
+		WSACleanup();
+		return 1;
+	}
+	printf("Enviado.\n\n");
+
+	char bufferEntrante[TAMANO_BUFFER];
 	do {
-		printf("Se ha recibido desde cliente: \"%s\"\n", recvbuf);
-
 		// Vaciar buffer de recepcion
-		memset(recvbuf, '\0', 512);
+		memset(bufferEntrante, '\0', TAMANO_BUFFER);
 
-		iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+		iResult = recv(ClientSocket, bufferEntrante, TAMANO_BUFFER, 0);
 		if (iResult > 0) {
-			// printf("Bytes received: %d\n", iResult);
+			printf("Se ha recibido desde cliente: \"%s\"\n", bufferEntrante);
+			printf("Enviando mensaje de ejemplo...\n");
 
 			// Echo the buffer back to the sender
-			// iSendResult = send(ClientSocket, recvbuf, iResult, 0);
-			// if (iSendResult == SOCKET_ERROR) {
-			// 	printf("send failed with error: %d\n", WSAGetLastError());
-			// 	closesocket(ClientSocket);
-			// 	WSACleanup();
-			// 	return 1;
-			// }
-			// printf("Bytes sent: %d\n", iSendResult);
+			iSendResult = send(ClientSocket, bufferSaliente, strlen(bufferSaliente), 0);
+			if (iSendResult == SOCKET_ERROR) {
+				printf("Error al mandar al cliente: %d\n", WSAGetLastError());
+				closesocket(ClientSocket);
+				WSACleanup();
+				return 1;
+			}
+			printf("Enviado.\n\n");
 		} else if (iResult == 0)
 			printf("Cerrando conexion...\n");
 		else {

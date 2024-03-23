@@ -24,9 +24,9 @@ int __cdecl main() {
 	SOCKET socketConexion = INVALID_SOCKET;
 	struct addrinfo *result = NULL, *ptr = NULL, hints;
 
-	char recvbuf[TAMANO_BUFFER];
+	char bufferEntrante[TAMANO_BUFFER];
+	char *bufferSaliente;
 	int iResult;
-	int recvbuflen = TAMANO_BUFFER;
 
 	// Inicializar WINSOCK
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -75,22 +75,35 @@ int __cdecl main() {
 		return 1;
 	}
 
-	// Bucle principal
 	char *textoAMostrar = "Introduce algo: "; // Esto luego cambiara con la respuesta del servidor
-	while (1) {
-		char *entrada = leerInput(modoDeEntrada, textoAMostrar);
-		iResult = send(socketConexion, entrada, (int)strlen(entrada), 0);
+	// Bucle principal
+	do {
+		iResult = recv(socketConexion, bufferEntrante, TAMANO_BUFFER, 0);
+		if (iResult > 0) {
+			printf("Bytes received: %d\n", iResult);
+			// Aqui es donde tendriamos que leer lo que recibimos desde el servidor.
+			// Ver el codigo, texto... del mensaje y hacer algo dependiendo este
 
-		if (iResult == SOCKET_ERROR) {
-			printf("fallo al mandar. error: %d\n", WSAGetLastError());
-			closesocket(socketConexion);
-			WSACleanup();
-			return 1;
-		}
+			// if(codigo == 3000") por ejemplo pues queremos texto
+			modoDeEntrada = TEXTO;
+			bufferSaliente = leerInput(modoDeEntrada, textoAMostrar);
 
-		free(entrada);
-	}
-	free(textoAMostrar);
+			iResult = send(socketConexion, bufferSaliente, TAMANO_BUFFER, 0);
+			if (iResult == SOCKET_ERROR) {
+				printf("fallo al mandar. error: %d\n", WSAGetLastError());
+				closesocket(socketConexion);
+				WSACleanup();
+				return 1;
+			}
+
+			free(bufferSaliente);
+			bufferSaliente = NULL;
+		} else if (iResult == 0)
+			printf("Conexion cerrada\n");
+		else
+			printf("recv falla with error: %d\n", WSAGetLastError());
+
+	} while (iResult > 0);
 
 	// Cerrar la conexion
 	iResult = shutdown(socketConexion, SD_SEND);
@@ -100,19 +113,6 @@ int __cdecl main() {
 		WSACleanup();
 		return 1;
 	}
-
-	// Esperar hasta que la conexion se cierre desde servidor
-	do {
-
-		iResult = recv(socketConexion, recvbuf, recvbuflen, 0);
-		if (iResult > 0)
-			printf("Bytes received: %d\n", iResult);
-		else if (iResult == 0)
-			printf("Connection closed\n");
-		else
-			printf("recv failed with error: %d\n", WSAGetLastError());
-
-	} while (iResult > 0);
 
 	// Limpieza
 	closesocket(socketConexion);
