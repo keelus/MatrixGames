@@ -18,8 +18,14 @@
 #define IP "localhost"
 
 int __cdecl main() {
+	struct entrantes
+	{
+		int codigo;
+		char menu[200];
+		char peticion[200];
+	};
+	
 	ModosEntrada modoDeEntrada = PULSACION;
-
 	WSADATA wsaData;
 	SOCKET socketConexion = INVALID_SOCKET;
 	struct addrinfo *result = NULL, *ptr = NULL, hints;
@@ -76,19 +82,61 @@ int __cdecl main() {
 	}
 
 	char *textoAMostrar = "Introduce algo: "; // Esto luego cambiara con la respuesta del servidor
+	
+	struct entrantes datos;
 	// Bucle principal
 	do {
 		iResult = recv(socketConexion, bufferEntrante, TAMANO_BUFFER, 0);
 		if (iResult > 0) {
-			printf("Bytes received: %d\n", iResult);
 			// Aqui es donde tendriamos que leer lo que recibimos desde el servidor.
 			// Ver el codigo, texto... del mensaje y hacer algo dependiendo este
+			const char *delimiter = ";";
+			struct entrantes datos = {0, "", ""};
+			// Inicializar el puntero de token
+			char *token = strtok(bufferEntrante, delimiter);
+
+			// Contador para llevar el seguimiento de los tokens
+			int contador = 0;
+
+			// Mientras haya tokens disponibles y no se haya alcanzado el límite de elementos en la estructura
+			while (token != NULL && contador < MAX_NUM_REASONS) {
+					// Procesar el token actual y guardarlo en la estructura 'datos'
+				switch (contador) {
+					case 0:
+						datos.codigo = atoi(token);
+						break;
+					case 1:
+						strncpy(datos.menu, token, sizeof(datos.menu) - 1);
+						datos.menu[sizeof(datos.menu) - 1] = '\0'; // Asegurarse de que la cadena esté terminada en nulo
+						break;
+					case 2:
+						strncpy(datos.peticion, token, sizeof(datos.peticion) - 1);
+						datos.peticion[sizeof(datos.peticion) - 1] = '\0'; // Asegurarse de que la cadena esté terminada en nulo
+						break;
+					}
+					contador++;
+					token = strtok(NULL, delimiter);
+				}
+		
 
 			// if(codigo == 3000") por ejemplo pues queremos texto
-			modoDeEntrada = TEXTO;
+			if(datos.codigo == 2000){
+				modoDeEntrada = TEXTO;
+				
+			}
+			
+
+			if (datos.codigo == 3000){
+				modoDeEntrada=TEXTO;
+				
+			}
+			
+			char *textoAMostrar = datos.peticion;
+			printf("%s\n", datos.menu );
 			bufferSaliente = leerInput(modoDeEntrada, textoAMostrar);
 
 			iResult = send(socketConexion, bufferSaliente, TAMANO_BUFFER, 0);
+
 			if (iResult == SOCKET_ERROR) {
 				printf("fallo al mandar. error: %d\n", WSAGetLastError());
 				closesocket(socketConexion);
