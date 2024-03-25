@@ -92,33 +92,40 @@ int __cdecl main() {
 			// Ver el codigo, texto... del mensaje y hacer algo dependiendo este
 			const char *delimiter = ";";
 			struct entrantes datos = {0, "", ""};
-			// Inicializar el puntero de token
-			char *token = strtok(bufferEntrante, delimiter);
-
-			// Contador para llevar el seguimiento de los tokens
-			int contador = 0;
-
-			// Mientras haya tokens disponibles y no se haya alcanzado el límite de elementos en la estructura
-			while (token != NULL && contador < MAX_NUM_REASONS) {
-					// Procesar el token actual y guardarlo en la estructura 'datos'
-				switch (contador) {
-					case 0:
-						datos.codigo = atoi(token);
-						break;
-					case 1:
-						strncpy(datos.menu, token, sizeof(datos.menu) - 1);
-						datos.menu[sizeof(datos.menu) - 1] = '\0'; // Asegurarse de que la cadena esté terminada en nulo
-						break;
-					case 2:
-						strncpy(datos.peticion, token, sizeof(datos.peticion) - 1);
-						datos.peticion[sizeof(datos.peticion) - 1] = '\0'; // Asegurarse de que la cadena esté terminada en nulo
-						break;
-					}
-					contador++;
-					token = strtok(NULL, delimiter);
+			int x = 0;
+			int numdel = 0;
+			char numtexto[10] ="";
+			char numtexto1[200] ="";
+			char numtexto2[200] ="";
+						printf("i");
+			
+			while(numdel < 2){
+				if(bufferEntrante[x] == ';'){
+					numdel = numdel + 1;
+					printf("%i", numdel);
+					continue;
 				}
-		
+				if(numdel == 0){
+					char cadena[2] = {bufferEntrante[x], '\0'};
+    				strcat(numtexto,cadena);
+				}
+				printf("%i", numdel);
+				if(numdel == 1){
+					char cadena1[2] = {bufferEntrante[x], '\0'};
+					strcat(numtexto1 , cadena1);
+					
 
+				}
+				if(numdel == 2){
+					char cadena2[2] = {bufferEntrante[x], '\0'};
+					strcat(numtexto2 , cadena2);
+
+				}
+				x = x+1;
+			}
+			datos.codigo = atoi(numtexto);
+			printf("%i",datos.codigo);
+			printf(numtexto2);
 			// if(codigo == 3000") por ejemplo pues queremos texto
 			if(datos.codigo == 2000){
 				modoDeEntrada = TEXTO;

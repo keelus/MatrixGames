@@ -93,7 +93,7 @@ int __cdecl main(void) {
 	closesocket(ListenSocket);
 
 	// Texto de ejemplo a mandar. Podriamos hacerlo de formato "codigo;menu, informacion o lo que sea a imprimir antes del input del cliente;mensaje preinput del cliente"
-	const char *bufferSaliente = "3000;Bienvenido a MatrixGames, inicie sesion por favor;Digame el usuario";
+	const char *bufferSaliente = "3000;Bienvenido a MatrixGames, inicie sesion por favor;Digame el usuario;";
 
 	// Mandar un mensaje de ejemplo, si no se quedara still en ambas partes
 	iSendResult = send(ClientSocket, bufferSaliente, strlen(bufferSaliente), 0);
@@ -120,8 +120,7 @@ int __cdecl main(void) {
    				 int *pr = verificarUsuario(bufferEntrante,database);
 				printf("ID de usuario: %d\n", *pr);
 				session = *pr;
-				 sprintf(bufferEntrante, "2000;usuario:%s dime la contrasena: ", bufferEntrante);
-
+				 sprintf(bufferEntrante, "2000;usuario:%s dime la contrasena: ; ", bufferEntrante);
 				
 			}
 			printf("Enviando mensaje de ejemplo...\n");
