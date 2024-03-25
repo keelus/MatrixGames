@@ -3,9 +3,9 @@
 #define WIN32_LEAN_AND_MEAN
 #define _WIN32_WINNT 0x501
 #include "sql.h"
+#include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sqlite3.h>
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -18,6 +18,15 @@
 #define DEFAULT_PORT "3000"
 
 int __cdecl main(void) {
+	printf("__ __  __ _____ ___ ___   __ \n"
+	       "|  V  |/  \\_   _| _ \\ \\ \\_/ / \n"
+	       "| \\_/ | /\\ || | | v / |> , <  \n"
+	       "|_|_|_|_||_||_| |_|_\\_/_/ \\_\\ \n"
+	       " / _]/  \\|  V  | __/' _/      \n"
+	       "| [/\\ /\\ | \\_/ | _|`._`.      \n"
+	       " \\__/_||_|_| |_|___|___/\n"
+	       "  ====  SERVIDOR  ====  \n");
+
 	WSADATA wsaData;
 	int iResult;
 	SOCKET ListenSocket = INVALID_SOCKET;
@@ -93,7 +102,7 @@ int __cdecl main(void) {
 	closesocket(ListenSocket);
 
 	// Texto de ejemplo a mandar. Podriamos hacerlo de formato "codigo;menu, informacion o lo que sea a imprimir antes del input del cliente;mensaje preinput del cliente"
-	const char *bufferSaliente = "3000;Bienvenido a MatrixGames, inicie sesion por favor;Digame el usuario;";
+	const char *bufferSaliente = "3000;Bienvenido a MatrixGames, inicie sesion por favor;Digame el usuario: ;";
 
 	// Mandar un mensaje de ejemplo, si no se quedara still en ambas partes
 	iSendResult = send(ClientSocket, bufferSaliente, strlen(bufferSaliente), 0);
@@ -106,7 +115,7 @@ int __cdecl main(void) {
 	printf("Enviado.\n\n");
 	int session = -1;
 	char bufferEntrante[TAMANO_BUFFER];
-	const  char *database = "baseDeDatos.db";
+	const char *database = "baseDeDatos.db";
 	do {
 		// Vaciar buffer de recepcion
 		memset(bufferEntrante, '\0', TAMANO_BUFFER);
@@ -114,25 +123,23 @@ int __cdecl main(void) {
 		iResult = recv(ClientSocket, bufferEntrante, TAMANO_BUFFER, 0);
 		if (iResult > 0) {
 			printf("Se ha recibido desde cliente: \"%s\"\n", bufferEntrante);
-			if(session == -1){
+			if (session == -1) {
 				// session == -1 significa que no ha iniciado sesion. en sesion guardaremos el id de usuario.
-				
-   				 int *pr = verificarUsuario(bufferEntrante,database);
+
+				int *pr = verificarUsuario(bufferEntrante, database);
 				printf("ID de usuario: %d\n", *pr);
 				session = *pr;
-				 sprintf(bufferEntrante, "2000;usuario:%s dime la contrasena: ; ", bufferEntrante);
-				
+				sprintf(bufferEntrante, "2000;usuario:%s dime la contrasena: ; ", bufferEntrante);
 			}
 			printf("Enviando mensaje de ejemplo...\n");
-			if(bufferEntrante)
+			if (bufferEntrante)
 
-			// Echo the buffer back to the sender
-			if(session !=-1){
-				iSendResult = send(ClientSocket, bufferEntrante, strlen(bufferSaliente), 0);
-			}else{
-			iSendResult = send(ClientSocket, bufferSaliente, strlen(bufferSaliente), 0);
-
-			}
+				// Echo the buffer back to the sender
+				if (session != -1) {
+					iSendResult = send(ClientSocket, bufferEntrante, strlen(bufferSaliente), 0);
+				} else {
+					iSendResult = send(ClientSocket, bufferSaliente, strlen(bufferSaliente), 0);
+				}
 			if (iSendResult == SOCKET_ERROR) {
 				printf("Error al mandar al cliente: %d\n", WSAGetLastError());
 				closesocket(ClientSocket);
