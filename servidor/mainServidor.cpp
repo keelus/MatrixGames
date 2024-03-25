@@ -114,6 +114,7 @@ int __cdecl main(void) {
 	}
 	printf("Enviado.\n\n");
 	int session = -1;
+	
 	char bufferEntrante[TAMANO_BUFFER];
 	const char *database = "baseDeDatos.db";
 	do {
@@ -127,9 +128,11 @@ int __cdecl main(void) {
 				// session == -1 significa que no ha iniciado sesion. en sesion guardaremos el id de usuario.
 
 				int *pr = verificarUsuario(bufferEntrante, database);
-				printf("ID de usuario: %d\n", *pr);
 				session = *pr;
-				sprintf(bufferEntrante, "2000;usuario:%s dime la contrasena: ; ", bufferEntrante);
+				char *user = (char*)malloc(strlen(bufferEntrante) + 1);
+				strcpy(user, bufferEntrante);
+				sprintf(bufferEntrante, "2000;usuario:%s; dime la contrasena: ; ", user);
+				
 			}
 			printf("Enviando mensaje de ejemplo...\n");
 			if (bufferEntrante)

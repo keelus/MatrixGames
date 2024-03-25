@@ -89,7 +89,6 @@ int __cdecl main() {
 		iResult = recv(socketConexion, bufferEntrante, TAMANO_BUFFER, 0);
 		if (iResult > 0) {
 			Mensaje mensaje = deserializarMesaje(bufferEntrante);
-
 			// Aqui es donde tendriamos que leer lo que recibimos desde el servidor.
 			if (mensaje.codigo == 2000) {
 				modoDeEntrada = TEXTO;
@@ -99,7 +98,7 @@ int __cdecl main() {
 				modoDeEntrada = TEXTO;
 			}
 
-			printf("%s\n", mensaje.menu);
+			printf("%s \n", mensaje.menu);
 
 			bufferSaliente = leerInput(modoDeEntrada, mensaje.peticion);
 
