@@ -3,8 +3,8 @@
 
 #include <stdbool.h>
 
-enum EstadosLogin { SIN_INICIAR, ESPERANDO_PASSWORD, INICIADO };
-typedef enum EstadosLogin EstadosLogin;
+enum EstadosMenuLogin { ESPERANDO_USUARIO, ESPERANDO_CONTRASENYA };
+typedef enum EstadosMenuLogin EstadosMenuLogin;
 
 bool credencialesCorrectas(const char *usuario, const char *contrasenya, const char *baseDeDatos, int *idUsuario);
 
