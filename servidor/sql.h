@@ -1,6 +1,11 @@
 #ifndef _SQLITE_
 #define _SQLITE_
-int *verificarUsuario(char *user, const char *database);
-void *verificarContrasenya(int *id ,char *contrasenya);
+
+#include <stdbool.h>
+
+enum EstadosLogin { SIN_INICIAR, ESPERANDO_PASSWORD, INICIADO };
+typedef enum EstadosLogin EstadosLogin;
+
+bool credencialesCorrectas(const char *usuario, const char *contrasenya, const char *baseDeDatos, int *idUsuario);
 
 #endif

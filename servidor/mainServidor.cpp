@@ -1,3 +1,4 @@
+#include <cstring>
 #undef UNICODE
 
 #define WIN32_LEAN_AND_MEAN
@@ -102,7 +103,8 @@ int __cdecl main(void) {
 	closesocket(ListenSocket);
 
 	// Texto de ejemplo a mandar. Podriamos hacerlo de formato "codigo;menu, informacion o lo que sea a imprimir antes del input del cliente;mensaje preinput del cliente"
-	const char *bufferSaliente = "3000;Bienvenido a MatrixGames, inicie sesion por favor;Digame el usuario: ;";
+	const char *bufferSaliente = "3000;\nBienvenido a MatrixGames! Selecciona una accion: (aqui iria si login o registro. ;\nAccion elegida (por ahora escribe tu nombre directamente): ;";
+	printf("Enviando mensaje de ejemplo...\n");
 
 	// Mandar un mensaje de ejemplo, si no se quedara still en ambas partes
 	iSendResult = send(ClientSocket, bufferSaliente, strlen(bufferSaliente), 0);
@@ -114,42 +116,84 @@ int __cdecl main(void) {
 	}
 	printf("Enviado.\n\n");
 	int session = -1;
-	
+
 	char bufferEntrante[TAMANO_BUFFER];
 	const char *database = "baseDeDatos.db";
+
+	char *nombreUsuarioActual;
+	EstadosLogin estadoLogin = SIN_INICIAR;
+
 	do {
 		// Vaciar buffer de recepcion
 		memset(bufferEntrante, '\0', TAMANO_BUFFER);
 
 		iResult = recv(ClientSocket, bufferEntrante, TAMANO_BUFFER, 0);
+		printf("Se ha recibido desde cliente: \"%s\"\n", bufferEntrante);
+
 		if (iResult > 0) {
-			printf("Se ha recibido desde cliente: \"%s\"\n", bufferEntrante);
-			if (session == -1) {
-				// session == -1 significa que no ha iniciado sesion. en sesion guardaremos el id de usuario.
-
-				int *pr = verificarUsuario(bufferEntrante, database);
-				session = *pr;
-				char *user = (char*)malloc(strlen(bufferEntrante) + 1);
-				strcpy(user, bufferEntrante);
-				sprintf(bufferEntrante, "2000;usuario:%s; dime la contrasena: ; ", user);
-				
-			}
-			printf("Enviando mensaje de ejemplo...\n");
-			if (bufferEntrante)
-
-				// Echo the buffer back to the sender
-				if (session != -1) {
-					iSendResult = send(ClientSocket, bufferEntrante, strlen(bufferSaliente), 0);
-				} else {
-					iSendResult = send(ClientSocket, bufferSaliente, strlen(bufferSaliente), 0);
+			switch (estadoLogin) {
+			case SIN_INICIAR: {
+				char *nombreDeUsuario = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char));
+				printf("0");
+				for (int i = 0; i < strlen(bufferEntrante); i++) {
+					*(nombreDeUsuario + i) = *(bufferEntrante + i);
 				}
-			if (iSendResult == SOCKET_ERROR) {
-				printf("Error al mandar al cliente: %d\n", WSAGetLastError());
-				closesocket(ClientSocket);
-				WSACleanup();
-				return 1;
+				*(nombreDeUsuario + strlen(bufferEntrante)) = '\0';
+				printf("1");
+
+				nombreUsuarioActual = (char *)malloc(strlen(nombreDeUsuario) + 1);
+				strcpy(nombreUsuarioActual, nombreDeUsuario);
+				estadoLogin = ESPERANDO_PASSWORD;
+				printf("2");
+
+				sprintf(bufferEntrante, "3000;;Introduce tu contrasena: ;", nombreDeUsuario);
+				iSendResult = send(ClientSocket, bufferEntrante, strlen(bufferEntrante), 0);
+				if (iSendResult == SOCKET_ERROR) {
+					printf("Error al mandar al cliente: %d\n", WSAGetLastError());
+					closesocket(ClientSocket);
+					WSACleanup();
+					return 1;
+				}
+				printf("3");
+				break;
 			}
-			printf("Enviado.\n\n");
+			case ESPERANDO_PASSWORD: {
+				char *contrasenya = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char));
+				for (int i = 0; i < strlen(bufferEntrante); i++) {
+					*(contrasenya + i) = *(bufferEntrante + i);
+				}
+				*(contrasenya + strlen(bufferEntrante)) = '\0';
+
+				int idUsuario = -1;
+				bool correctas = credencialesCorrectas(nombreUsuarioActual, contrasenya, database, &idUsuario);
+
+				if (correctas) {
+					sprintf(bufferEntrante, "3000;\nIniciado sesion como \"%s\" exitosamente!\nSelecciona una acccion: (aqui iria el menu de seleccionar juego, configuracaion estadisticas y salir);\nSelecciona una accion:;", nombreUsuarioActual);
+					iSendResult = send(ClientSocket, bufferEntrante, strlen(bufferEntrante), 0);
+					if (iSendResult == SOCKET_ERROR) {
+						printf("Error al mandar al cliente: %d\n", WSAGetLastError());
+						closesocket(ClientSocket);
+						WSACleanup();
+						return 1;
+					}
+					estadoLogin = INICIADO;
+				} else {
+					sprintf(bufferEntrante, "3000;\nEl usuario introducido y/o la contrasena son incorrectos. (aqui iria si quieres login o registro);\nSelecciona una accion(introduce tu nombre por ahora): ;");
+					iSendResult = send(ClientSocket, bufferEntrante, strlen(bufferEntrante), 0);
+					if (iSendResult == SOCKET_ERROR) {
+						printf("Error al mandar al cliente: %d\n", WSAGetLastError());
+						closesocket(ClientSocket);
+						WSACleanup();
+						return 1;
+					}
+					estadoLogin = SIN_INICIAR;
+				}
+				break;
+			}
+			case INICIADO: {
+				break;
+			}
+			}
 		} else if (iResult == 0)
 			printf("Cerrando conexion...\n");
 		else {
@@ -158,7 +202,6 @@ int __cdecl main(void) {
 			WSACleanup();
 			return 1;
 		}
-
 	} while (iResult > 0);
 
 	// shutdown the connection since we're done

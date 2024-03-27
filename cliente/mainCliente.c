@@ -98,7 +98,7 @@ int __cdecl main() {
 				modoDeEntrada = TEXTO;
 			}
 
-			printf("%s \n", mensaje.menu);
+			printf("%s", mensaje.menu);
 
 			bufferSaliente = leerInput(modoDeEntrada, mensaje.peticion);
 
