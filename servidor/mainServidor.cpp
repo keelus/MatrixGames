@@ -120,10 +120,10 @@ int __cdecl main(void) {
 		WSACleanup();
 		return 1;
 	}
+	
 
 	char bufferEntrante[TAMANO_BUFFER];
-	const char *database = "baseDeDatos.db";
-
+	
 	do {
 		// Vaciar buffer de recepcion
 		memset(bufferEntrante, '\0', TAMANO_BUFFER);
@@ -138,6 +138,7 @@ int __cdecl main(void) {
 				char accionElegida = *bufferEntrante;
 
 				if (accionElegida == '1') {
+					printf("1");
 					menuActual = MENU_0_LOGIN;
 				} else if (accionElegida == '2') {
 					menuActual = MENU_0_REGISTRO;
@@ -156,47 +157,97 @@ int __cdecl main(void) {
 				}
 				*(textoIntroducido + strlen(bufferEntrante)) = '\0';
 				switch (estadoLogin) {
-				case ESPERANDO_USUARIO: {
-					nombreUsuarioActual = (char *)malloc(strlen(textoIntroducido) + 1);
-					strcpy(nombreUsuarioActual, textoIntroducido);
-					estadoLogin = ESPERANDO_CONTRASENYA;
-					break;
-				}
-				case ESPERANDO_CONTRASENYA: {
-					int idUsuario = -1;
-					bool correctas = credencialesCorrectas(nombreUsuarioActual, textoIntroducido, database, &idUsuario);
+					case ESPERANDO_USUARIO: {
+						nombreUsuarioActual = (char *)malloc(strlen(textoIntroducido) + 1);
+						strcpy(nombreUsuarioActual, textoIntroducido);
+						estadoLogin = ESPERANDO_CONTRASENYA;
+						break;
+					}
+					case ESPERANDO_CONTRASENYA: {
+						int idUsuario = -1;
+						bool correctas = credencialesCorrectas(nombreUsuarioActual, textoIntroducido, &idUsuario);
 
-					estadoLogin = ESPERANDO_USUARIO; // Reiniciamos estado para futuros logins
-					if (correctas) {
-						// Si es correcta, iniciamos sesion correctamente
-						free(ultimoError); // Importante
-						ultimoError = NULL;
-						menuActual = MENU_1;
-					} else {
-						// Si no lo es, limpiamos usuario, y pasamos al menu 0.
-						const char *mensajeError = "El usuario y/o contrasena son incorrectos. Intentalo de nuevo o crea una cuenta.";
+						estadoLogin = ESPERANDO_USUARIO; // Reiniciamos estado para futuros logins
+						if (correctas) {
+							// Si es correcta, iniciamos sesion correctamente
+							free(ultimoError); // Importante
+							ultimoError = NULL;
+							menuActual = MENU_1;
+						} else {
+							// Si no lo es, limpiamos usuario, y pasamos al menu 0.
+							const char *mensajeError = "El usuario y/o contrasena son incorrectos. Intentalo de nuevo o crea una cuenta.";
 
-						free(ultimoError); // Importante
-						ultimoError = (char *)malloc((strlen(mensajeError) + 1) * sizeof(char));
-						strcpy(ultimoError, mensajeError);
+							free(ultimoError); // Importante
+							ultimoError = (char *)malloc((strlen(mensajeError) + 1) * sizeof(char));
+							strcpy(ultimoError, mensajeError);
 
-						menuActual = MENU_0;
-						free(nombreUsuarioActual);
-						nombreUsuarioActual = NULL;
+							menuActual = MENU_0;
+							free(nombreUsuarioActual);
+							nombreUsuarioActual = NULL;
+							}
+						break;
+						}
+				
 					}
 					break;
+			}
+			case MENU_0_REGISTRO: {
+					char *textoIntroducido = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char));
+				for (int i = 0; i < strlen(bufferEntrante); i++) {
+					*(textoIntroducido + i) = *(bufferEntrante + i);
 				}
-				}
-
-				free(textoIntroducido);
-				textoIntroducido = NULL;
-				break;
+				*(textoIntroducido + strlen(bufferEntrante)) = '\0';
+					switch (estadoLogin) {
+					case ESPERANDO_USUARIO: {
+						nombreUsuarioActual = (char *)malloc(strlen(textoIntroducido) + 1);
+						strcpy(nombreUsuarioActual, textoIntroducido);
+						bool existe = verUsuario(nombreUsuarioActual );
+						if(existe){
+							const char *mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
+							free(ultimoError); // Importante
+							ultimoError = (char *)malloc((strlen(mensajeError) + 1) * sizeof(char));
+							strcpy(ultimoError, mensajeError);
+							menuActual = MENU_0;
+							free(nombreUsuarioActual);
+							nombreUsuarioActual = NULL;
+							break;
+						}
+						estadoLogin = ESPERANDO_CONTRASENYA;
+						break;
+					}
+					case ESPERANDO_CONTRASENYA: {
+						int idUsuario = -1;
+						bool correctas = crearUsuario(nombreUsuarioActual, textoIntroducido, &idUsuario);
+						printf("id de usuario%i \n",idUsuario);
+						if(correctas){
+							free(ultimoError); // Importante
+							ultimoError = NULL;
+							menuActual = MENU_1;
+						}else{
+							const char *mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
+							free(ultimoError); // Importante
+							ultimoError = (char *)malloc((strlen(mensajeError) + 1) * sizeof(char));
+							strcpy(ultimoError, mensajeError);
+							menuActual = MENU_0;
+							free(nombreUsuarioActual);
+							nombreUsuarioActual = NULL;
+							estadoLogin = ESPERANDO_USUARIO; 
+					}
+					break;
+							}
+				
+						}
+					break;
+					
+				
 			}
 			default: {
 				printf("Input de menu no handleado.\n");
-				break;
-			}
-			}
+				break;	 
+		}
+	}
+		
+	
 
 			Menu menu = mensajeMenu(menuActual, estadoLogin, ultimoError, nombreUsuarioActual, NULL);
 			const char *menuAImprimir = menuAString(menu);
@@ -208,7 +259,6 @@ int __cdecl main(void) {
 				WSACleanup();
 				return 1;
 			}
-
 		} else if (iResult == 0)
 			printf("Cerrando conexion...\n");
 		else {
@@ -218,7 +268,6 @@ int __cdecl main(void) {
 			return 1;
 		}
 	} while (iResult > 0);
-
 	// shutdown the connection since we're done
 	iResult = shutdown(ClientSocket, SD_SEND);
 	if (iResult == SOCKET_ERROR) {
