@@ -138,7 +138,6 @@ int __cdecl main(void) {
 				char accionElegida = *bufferEntrante;
 
 				if (accionElegida == '1') {
-					printf("1");
 					menuActual = MENU_0_LOGIN;
 				} else if (accionElegida == '2') {
 					menuActual = MENU_0_REGISTRO;
@@ -148,6 +147,70 @@ int __cdecl main(void) {
 					// Error!
 				}
 
+				break;
+			}
+			case MENU_1:{
+				char accionElegida = *bufferEntrante;
+				if (accionElegida == '1') {
+					menuActual = MENU_2;
+				} else if (accionElegida == '2') {
+					menuActual = MENU_3;
+				}else if (accionElegida == '3') {
+					
+				} else if (accionElegida == '4') {
+					// Desconectar usuario
+					menuActual = CLOSE;
+				} else {
+					// Error!
+				}
+				break;
+			}
+			case MENU_2:{
+				char accionElegida = *bufferEntrante;
+				//estas opciones son para iniciar los juesgos, menos el 6 que es para ir al menu anterior
+				if (accionElegida == '1') {
+					
+				} else if (accionElegida == '2') {
+					
+				} else if (accionElegida == '3') {
+					
+					
+				}else if (accionElegida == '4') {
+
+
+				}else if (accionElegida == '5') {
+					
+					
+				}else if (accionElegida == '6') {
+					menuActual = MENU_1;
+					
+				} else {
+					// Error!
+				}
+				break;
+			}
+			case MENU_3:{
+				char accionElegida = *bufferEntrante;
+				//estas opciones son para iniciar los juesgos, menos el 6 que es para ir al menu anterior
+				if (accionElegida == '1') {
+					
+				} else if (accionElegida == '2') {
+					
+				} else if (accionElegida == '3') {
+					
+					
+				}else if (accionElegida == '4') {
+
+
+				}else if (accionElegida == '5') {
+					
+					
+				}else if (accionElegida == '6') {
+					menuActual = MENU_1;
+					
+				} else {
+					// Error!
+				}
 				break;
 			}
 			case MENU_0_LOGIN: {
@@ -238,11 +301,12 @@ int __cdecl main(void) {
 				
 						}
 					break;
-					
-				
 			}
+			
 			default: {
 				printf("Input de menu no handleado.\n");
+							printf("%i",menuActual);
+
 				break;	 
 		}
 	}

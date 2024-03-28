@@ -19,14 +19,7 @@
 #define IP "localhost"
 
 int __cdecl main() {
-	printf("__ __  __ _____ ___ ___   __ \n"
-	       "|  V  |/  \\_   _| _ \\ \\ \\_/ / \n"
-	       "| \\_/ | /\\ || | | v / |> , <  \n"
-	       "|_|_|_|_||_||_| |_|_\\_/_/ \\_\\ \n"
-	       " / _]/  \\|  V  | __/' _/      \n"
-	       "| [/\\ /\\ | \\_/ | _|`._`.      \n"
-	       " \\__/_||_|_| |_|___|___/\n"
-	       "   ====  CLIENTE  ====   \n");
+	
 
 	ModosEntrada modoDeEntrada = PULSACION;
 	WSADATA wsaData;
@@ -86,9 +79,22 @@ int __cdecl main() {
 
 	// Bucle principal
 	do {
+		system("cls");
+		printf("__ __  __ _____ ___ ___   __ \n"
+	       "|  V  |/  \\_   _| _ \\ \\ \\_/ / \n"
+	       "| \\_/ | /\\ || | | v / |> , <  \n"
+	       "|_|_|_|_||_||_| |_|_\\_/_/ \\_\\ \n"
+	       " / _]/  \\|  V  | __/' _/      \n"
+	       "| [/\\ /\\ | \\_/ | _|`._`.      \n"
+	       " \\__/_||_|_| |_|___|___/\n"
+	       "   ====  CLIENTE  ====   \n");
 		iResult = recv(socketConexion, bufferEntrante, TAMANO_BUFFER, 0);
 		if (iResult > 0) {
 			Mensaje mensaje = deserializarMesaje(bufferEntrante);
+			
+			if(mensaje.codigo == 0000){
+				 exit (-1);
+			}
 			// Aqui es donde tendriamos que leer lo que recibimos desde el servidor.
 			if (mensaje.codigo == 2000) {
 				modoDeEntrada = TEXTO;

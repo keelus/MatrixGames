@@ -48,6 +48,22 @@ Menu mensajeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, const char 
 		menu.TextoVisual = texto;
 		break;
 		}
+	case MENU_2: {
+		
+		menu.TextoVisual = "Selecciona un juego:\n\n\t1) Snake\n\t2)Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) 4 en raya (vs CPU)\n\n\t6) Volver atras";
+		menu.PreInput = "\nElige una de las opciones:  ";
+		menu.Codigo = "2000";
+		char *texto = (char *)malloc( (strlen(menu.TextoVisual) + strlen(usuario) + 2));
+		break;
+		}
+	case MENU_3: {
+		
+		menu.TextoVisual = "Selecciona el juego a configurar:\n\n\t1) Snake\n\t2)Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) 4 en raya (vs CPU)\n\n\t6) Volver atras";
+		menu.PreInput = "\nElige una de las opciones:  ";
+		menu.Codigo = "2000";
+		char *texto = (char *)malloc( (strlen(menu.TextoVisual) + strlen(usuario) + 2));
+		break;
+		}
 	
 	case MENU_0_REGISTRO: {
 		if(estadoLogin == ESPERANDO_USUARIO){
@@ -60,7 +76,14 @@ Menu mensajeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, const char 
 		}
 			menu.Codigo = "2000";
 		break;	
-			}
+	}
+
+	case CLOSE:{
+			menu.TextoVisual = "CLOSE";
+			menu.PreInput = " ";
+			menu.Codigo = "0000";
+			break;	
+	}
 	default: {
 		printf("Usado un menu no definido. Cuidado.\n");
 		menu.TextoVisual = "El menu actual no esta hecho.";
@@ -69,6 +92,7 @@ Menu mensajeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, const char 
 
 		break;
 	}
+	
 	}
 
 	return menu;
