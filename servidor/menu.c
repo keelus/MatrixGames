@@ -8,8 +8,6 @@ Menu mensajeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, const char 
 	Menu menu = {};
 	switch (menuActual) {
 	case MENU_0: {
-				
-
 		if (mensajeError == NULL) {
 			menu.TextoVisual = "\nSelecciona una opcion:\n\t1) Iniciar sesion\n\t2) Crear una cuenta\n\n\t3) Salir";
 		} else {
@@ -20,8 +18,7 @@ Menu mensajeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, const char 
 			menu.TextoVisual = mensajeCombinado;
 		}
 		menu.PreInput = "\nOpcion seleccionada: ";
-		menu.Codigo = "2000";
-		
+		menu.Codigo = "2010";
 
 		break;
 	}
@@ -38,67 +35,59 @@ Menu mensajeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, const char 
 		break;
 	}
 	case MENU_1: {
-		
 		menu.TextoVisual = "\n\nHola,  !\n\nSelecciona una opcion:\n\t1) Jugar\n\t2) Configuracion\n\t3) Estadisticas\n\n\t4) Salir";
 		menu.PreInput = "\nElige una de las opciones:  ";
-		menu.Codigo = "2000";
-		char *texto = (char *)malloc( (strlen(menu.TextoVisual) + strlen(usuario) + 2));
+		menu.Codigo = "2010";
+		char *texto = (char *)malloc((strlen(menu.TextoVisual) + strlen(usuario) + 2));
 
 		sprintf(texto, "\n\nHola, %s !\n\nSelecciona una opcion:\n\t1) Jugar\n\t2) Configuracion\n\t3) Estadisticas\n\n\t4) Salir", usuario);
 		menu.TextoVisual = texto;
 		break;
-		}
+	}
 	case MENU_2: {
-		
 		menu.TextoVisual = "Selecciona un juego:\n\n\t1) Snake\n\t2)Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) 4 en raya (vs CPU)\n\n\t6) Volver atras";
 		menu.PreInput = "\nElige una de las opciones:  ";
-		menu.Codigo = "2000";
-		char *texto = (char *)malloc( (strlen(menu.TextoVisual) + strlen(usuario) + 2));
+		menu.Codigo = "2010";
+		char *texto = (char *)malloc((strlen(menu.TextoVisual) + strlen(usuario) + 2));
 		break;
-		}
+	}
 	case MENU_3: {
-		
 		menu.TextoVisual = "Selecciona el juego a configurar:\n\n\t1) Snake\n\t2)Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) 4 en raya (vs CPU)\n\n\t6) Volver atras";
 		menu.PreInput = "\nElige una de las opciones:  ";
-		menu.Codigo = "2000";
-		char *texto = (char *)malloc( (strlen(menu.TextoVisual) + strlen(usuario) + 2));
+		menu.Codigo = "2010";
+		char *texto = (char *)malloc((strlen(menu.TextoVisual) + strlen(usuario) + 2));
 		break;
-		}
-	
+	}
+
 	case MENU_0_REGISTRO: {
-		if(estadoLogin == ESPERANDO_USUARIO){
+		if (estadoLogin == ESPERANDO_USUARIO) {
 			menu.TextoVisual = "== REGISTRO ==";
 			menu.PreInput = "\nIntroduce tu nombre de usuario: ";
-
-		}else if (estadoLogin == ESPERANDO_CONTRASENYA) {
+		} else if (estadoLogin == ESPERANDO_CONTRASENYA) {
 			menu.TextoVisual = "";
 			menu.PreInput = "Introduce tu contrasena: ";
 		}
-			menu.Codigo = "2000";
-		break;	
+		menu.Codigo = "2000";
+		break;
 	}
 
-	case CLOSE:{
-			menu.TextoVisual = "CLOSE";
-			menu.PreInput = " ";
-			menu.Codigo = "0000";
-			break;	
+	case CLOSE: {
+		menu.TextoVisual = "CLOSE";
+		menu.PreInput = " ";
+		menu.Codigo = "9000";
+		break;
 	}
 	default: {
 		printf("Usado un menu no definido. Cuidado.\n");
 		menu.TextoVisual = "El menu actual no esta hecho.";
 		menu.PreInput = "\nCierra el programa.";
 		menu.Codigo = "2000";
-
 		break;
 	}
-	
 	}
 
 	return menu;
-
 }
-
 
 const char *menuAString(Menu menu) {
 	char *menuString = (char *)malloc(strlen(menu.TextoVisual) + strlen(menu.PreInput) + strlen(menu.Codigo) + 3 + 3 /*sumamos los ; y los \0*/);
