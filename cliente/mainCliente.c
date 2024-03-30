@@ -85,7 +85,7 @@ int __cdecl main() {
 
 	bool cerrarPrograma = false;
 	bool limpiarPantalla = false;
-	ModosEntrada modoDeEntrada = TECLAS;
+	ModosEntrada modoDeEntrada = TEXTO;
 	// Bucle principal
 	do {
 		iResult = recv(socketConexion, bufferEntrante, TAMANO_BUFFER, 0);

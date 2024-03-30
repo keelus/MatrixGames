@@ -143,6 +143,7 @@ int __cdecl main(void) {
 					menuActual = MENU_0_REGISTRO;
 				} else if (accionElegida == '3') {
 					// Desconectar usuario
+					menuActual = CLOSE;
 				} else {
 					// Error!
 				}
