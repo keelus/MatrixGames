@@ -19,9 +19,15 @@
 #define IP "localhost"
 
 int __cdecl main() {
-	
-
-	ModosEntrada modoDeEntrada = PULSACION;
+	system("cls");
+	printf("__ __  __ _____ ___ ___   __ \n"
+	       "|  V  |/  \\_   _| _ \\ \\ \\_/ / \n"
+	       "| \\_/ | /\\ || | | v / |> , <  \n"
+	       "|_|_|_|_||_||_| |_|_\\_/_/ \\_\\ \n"
+	       " / _]/  \\|  V  | __/' _/      \n"
+	       "| [/\\ /\\ | \\_/ | _|`._`.      \n"
+	       " \\__/_||_|_| |_|___|___/\n"
+	       "   ====  CLIENTE  ====   \n");
 	WSADATA wsaData;
 	SOCKET socketConexion = INVALID_SOCKET;
 	struct addrinfo *result = NULL, *ptr = NULL, hints;
@@ -77,37 +83,27 @@ int __cdecl main() {
 		return 1;
 	}
 
+	bool cerrarPrograma = false;
+	bool limpiarPantalla = false;
+	ModosEntrada modoDeEntrada = TECLAS;
 	// Bucle principal
 	do {
-		system("cls");
-		printf("__ __  __ _____ ___ ___   __ \n"
-	       "|  V  |/  \\_   _| _ \\ \\ \\_/ / \n"
-	       "| \\_/ | /\\ || | | v / |> , <  \n"
-	       "|_|_|_|_||_||_| |_|_\\_/_/ \\_\\ \n"
-	       " / _]/  \\|  V  | __/' _/      \n"
-	       "| [/\\ /\\ | \\_/ | _|`._`.      \n"
-	       " \\__/_||_|_| |_|___|___/\n"
-	       "   ====  CLIENTE  ====   \n");
 		iResult = recv(socketConexion, bufferEntrante, TAMANO_BUFFER, 0);
 		if (iResult > 0) {
 			Mensaje mensaje = deserializarMesaje(bufferEntrante);
-			
-			if(mensaje.codigo == 0000){
-				 exit (-1);
-			}
-			// Aqui es donde tendriamos que leer lo que recibimos desde el servidor.
-			if (mensaje.codigo == 2000) {
-				modoDeEntrada = TEXTO;
-			}
 
-			if (mensaje.codigo == 3000) {
-				modoDeEntrada = TEXTO;
-			}
+			analizarCodigo(mensaje.codigo, &cerrarPrograma, &limpiarPantalla, &modoDeEntrada);
 
+			if (cerrarPrograma)
+				exit(0);
+
+			if (limpiarPantalla)
+				system("cls");
+
+			// Hacer uno para imprimir o no?
 			printf("%s", mensaje.menu);
 
 			bufferSaliente = leerInput(modoDeEntrada, mensaje.peticion);
-
 			iResult = send(socketConexion, bufferSaliente, TAMANO_BUFFER, 0);
 			if (iResult == SOCKET_ERROR) {
 				printf("fallo al mandar. error: %d\n", WSAGetLastError());
@@ -118,6 +114,7 @@ int __cdecl main() {
 
 			free(bufferSaliente);
 			bufferSaliente = NULL;
+			limpiarPantalla = false;
 		} else if (iResult == 0)
 			printf("Conexion cerrada\n");
 		else

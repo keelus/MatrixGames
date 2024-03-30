@@ -9,10 +9,10 @@ enum TiposMenu {
 	MENU_0_REGISTRO,    // Registro de cuenta
 	MENU_1,		    // Menu principal
 	MENU_2,		    // Menu de juegos disponibles
-	MENU_3,		    // configuracion
+	MENU_3,		    // Menu configuracion
+	MENU_3_JUEGO,	    // Menu de configuracion especifico para el juego (se muestran sus posibles colores)
+	MENU_3_JUEGO_COLOR, // Donde introduces el color nuevo
 	MENU_4,		    // Menu estadisticas
-	MENU_4_JUEGO,	    // Menu de configuracion especifico para el juego (se muestran sus posibles colores)
-	MENU_4_JUEGO_COLOR, // Donde introduces el color nuevo
 	CLOSE,
 };
 typedef enum TiposMenu TiposMenu;

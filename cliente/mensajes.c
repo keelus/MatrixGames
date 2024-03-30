@@ -1,4 +1,5 @@
 #include "mensajes.h"
+#include "input.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -58,4 +59,29 @@ Mensaje deserializarMesaje(char *mensaje) {
 	*(m.peticion + tamanyoAyudaVisual) = '\0';
 
 	return m;
+}
+
+// Primera cifra
+// 		2XXX -> OK
+// 		3XXX -> Error en logica del servidor (para errores mas inesperados)
+// 		9XXX -> Desconectar cliente
+// Segunda cifra
+// 		X0XX -> Modo texto
+// 		X1XX -> Modo pulsaciones de teclas
+// Tercera cifra
+// 		XX1X -> Limpiar pantalla
+// Cuarta cifra -> Para detallar alguna cosa, si es necesario
+//
+void analizarCodigo(int codigo, bool *cerrarPrograma, bool *limpiarPantalla, ModosEntrada *modoDeEntrada) {
+	char *codigoStr = malloc(5 * sizeof(char));
+	snprintf(codigoStr, 5 * sizeof(char), "%d", codigo);
+
+	*cerrarPrograma = codigoStr[0] == '9';
+	*limpiarPantalla = codigoStr[2] == '1';
+	*modoDeEntrada = codigoStr[1] == '0' ? TEXTO : PULSACION;
+
+	// Añadir deteccion de errores (cuando surjan)
+
+	free(codigoStr);
+	codigoStr = NULL;
 }
