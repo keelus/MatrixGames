@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 Menu mensajeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, const char *mensajeError, const char *usuario, const char *juegoSeleccionadoConf) {
 	Menu menu = {};
 	switch (menuActual) {

@@ -184,7 +184,7 @@ int __cdecl main(void) {
 					
 				}else if (accionElegida == '6') {
 					menuActual = MENU_1;
-					
+					//Devuelve a la pestaña anterior
 				} else {
 					// Error!
 				}
@@ -192,7 +192,7 @@ int __cdecl main(void) {
 			}
 			case MENU_3:{
 				char accionElegida = *bufferEntrante;
-				//estas opciones son para iniciar los juesgos, menos el 6 que es para ir al menu anterior
+				//estas opciones son para la eleccion de un juego a configurar
 				if (accionElegida == '1') {
 					
 				} else if (accionElegida == '2') {
@@ -208,14 +208,14 @@ int __cdecl main(void) {
 					
 				}else if (accionElegida == '6') {
 					menuActual = MENU_1;
-					
+					//ddevuelve a la pestaña anterior
 				} else {
 					// Error!
 				}
 				break;
 			}
 			case MENU_0_LOGIN: {
-				char *textoIntroducido = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char));
+				char *textoIntroducido = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char));//porque? +1??
 				for (int i = 0; i < strlen(bufferEntrante); i++) {
 					*(textoIntroducido + i) = *(bufferEntrante + i);
 				}
@@ -303,7 +303,13 @@ int __cdecl main(void) {
 						}
 					break;
 			}
-			
+			case MENU_4: {//Menu de estadisticas
+				//Hay que cargar las estadisticas de un usuario en concreto de la bd
+				printf("Tus estadisticas");
+				
+				break;
+			}
+
 			default: {
 				printf("Input de menu no handleado.\n");
 							printf("%i",menuActual);
