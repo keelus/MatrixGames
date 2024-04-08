@@ -10,6 +10,7 @@ enum class TipoBarco {
 	CRUCERO = 3,
 	SUBMARINO = 3,
 	DESTRUCTOR = 2,
+	NULO = 0,
 };
 
 enum class Orientacion {
@@ -20,7 +21,7 @@ enum class Orientacion {
 class Barco {
   public:
 	Barco(TipoBarco tipo, Orientacion orientacion, int x, int y, bool esGuia);
-	Barco() : Tipo(TipoBarco::PORTAVIONES), Orientacion(Orientacion::HORIZONTAL), X(0), Y(0), EsGuia(true) {
+	Barco() : Tipo(TipoBarco::NULO), Orientacion(Orientacion::HORIZONTAL), X(0), Y(0), EsGuia(false) {
 		for (int c = 0; c < int(Tipo); c++) { // Temporal. Necesario para testing
 			Casillas.push_back(Casilla(Coordenada(0, 0), c, EstadoCasilla::BARCO));
 		}

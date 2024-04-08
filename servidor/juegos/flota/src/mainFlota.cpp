@@ -3,9 +3,6 @@
 int main() {
 	Tablero tablero1;
 
-	tablero1 = CrearTableroAleatoriamente();
-
-	tablero1.Imprimir(false);
-
-	// Yeah
+	// tablero1 = CrearTableroAleatoriamente();
+	tablero1 = CrearTableroManualmente();
 }

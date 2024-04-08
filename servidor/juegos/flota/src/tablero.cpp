@@ -2,6 +2,8 @@
 #include "barco.h"
 #include "casilla.h"
 #include <algorithm>
+#include <conio.h>
+#include <cstdio>
 #include <iostream>
 #include <random>
 #include <windows.h>
@@ -56,7 +58,7 @@ void Tablero::Imprimir(bool esconderBarcos) const {
 Tablero CrearTableroAleatoriamente() {
 	Tablero tablero;
 
-	TipoBarco tiposBarco[5] = {TipoBarco::PORTAVIONES, TipoBarco::CRUCERO, TipoBarco::ACORAZADO, TipoBarco::SUBMARINO, TipoBarco::DESTRUCTOR};
+	TipoBarco tiposBarco[5] = {TipoBarco::PORTAVIONES, TipoBarco::ACORAZADO, TipoBarco::CRUCERO, TipoBarco::SUBMARINO, TipoBarco::DESTRUCTOR};
 	Orientacion orientaciones[2] = {Orientacion::HORIZONTAL, Orientacion::VERTICAL};
 
 	// Inicializar generador de numberos aleatorios STD
@@ -131,4 +133,96 @@ Barco *Tablero::BarcoEn(Coordenada coordenada) {
 	}
 
 	return nullptr;
+}
+
+Tablero CrearTableroManualmente() {
+	Tablero tablero;
+
+	TipoBarco tiposBarco[5] = {TipoBarco::PORTAVIONES, TipoBarco::ACORAZADO, TipoBarco::CRUCERO, TipoBarco::SUBMARINO, TipoBarco::DESTRUCTOR};
+
+	for (int b = 0; b < 5; b++) {
+		TipoBarco tipo = tiposBarco[b];
+
+		// Creamos el barco que usaremos y lo colocamos
+		Barco barco(tipo, Orientacion::VERTICAL, 0, 0, true);
+		tablero.Colocar(barco, b);
+
+		bool colocado = false;
+		bool primerPrintHecho = false;
+		while (!colocado) {
+			if (!primerPrintHecho) {
+				system("cls");
+				tablero.Imprimir(false);
+				primerPrintHecho = true;
+			}
+
+			if (kbhit()) {
+				char teclaPulsada = getch();
+
+				switch (teclaPulsada) {
+				case 'A':
+				case 'a':
+					if (barco.X > 0) {
+						barco.X--;
+					}
+					break;
+				case 'D':
+				case 'd':
+					if (barco.Orientacion == Orientacion::HORIZONTAL && barco.X + int(barco.Tipo) < 8) {
+						barco.X++;
+					} else if (barco.Orientacion == Orientacion::VERTICAL && barco.X + 1 < 8) {
+						barco.X++;
+					}
+					break;
+				case 'W':
+				case 'w':
+					if (barco.Y > 0) {
+						barco.Y--;
+					}
+					break;
+				case 'S':
+				case 's':
+					if (barco.Orientacion == Orientacion::HORIZONTAL && barco.Y + 1 < 8) {
+						barco.Y++;
+					} else if (barco.Orientacion == Orientacion::VERTICAL && barco.Y + int(barco.Tipo) < 8) {
+						barco.Y++;
+					}
+					break;
+				case 'R':
+				case 'r':
+					if (barco.Orientacion == Orientacion::VERTICAL) {
+						if (barco.X + int(barco.Tipo) >= 8) {
+							barco.X += 8 - (barco.X + int(barco.Tipo));
+						}
+						barco.Orientacion = Orientacion::HORIZONTAL;
+					} else {
+						if (barco.Y + int(barco.Tipo) >= 8) {
+							barco.Y += 8 - (barco.Y + int(barco.Tipo));
+						}
+						barco.Orientacion = Orientacion::VERTICAL;
+					}
+					break;
+				case 'X':
+				case 'x':
+					exit(0);
+					break;
+				case 13:
+					if (tablero.Colocable(barco.Tipo, barco.Orientacion, barco.X, barco.Y)) {
+						barco.EsGuia = false;
+						tablero.Colocar(barco, b);
+						colocado = true;
+					}
+					break;
+				}
+
+				// Al haber pulsado una tecla, lo recolocamos
+				tablero.Colocar(barco, b);
+
+				system("cls");
+				tablero.Imprimir(false);
+			}
+		}
+	}
+
+	return tablero;
 }
