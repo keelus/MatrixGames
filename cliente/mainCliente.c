@@ -9,7 +9,6 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-// Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib, "Mswsock.lib")
 #pragma comment(lib, "AdvApi32.lib")
@@ -36,7 +35,7 @@ int __cdecl main() {
 	char *bufferSaliente;
 	int iResult;
 
-	// Inicializar WINSOCK
+	// === INICIO WINSOCK setup ===
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
 		printf("Winsock falla con error: %d\n", iResult);
@@ -83,6 +82,8 @@ int __cdecl main() {
 		return 1;
 	}
 
+	// === FIN WINSOCK setup ===
+
 	bool cerrarPrograma = false;
 	bool limpiarPantalla = false;
 	ModosEntrada modoDeEntrada = TEXTO;
@@ -104,6 +105,10 @@ int __cdecl main() {
 			printf("%s", mensaje.menu);
 
 			bufferSaliente = leerInput(modoDeEntrada, mensaje.peticion);
+
+			free(mensaje.peticion);
+			free(mensaje.menu);
+
 			iResult = send(socketConexion, bufferSaliente, TAMANO_BUFFER, 0);
 			if (iResult == SOCKET_ERROR) {
 				printf("fallo al mandar. error: %d\n", WSAGetLastError());
@@ -114,12 +119,13 @@ int __cdecl main() {
 
 			free(bufferSaliente);
 			bufferSaliente = NULL;
-			limpiarPantalla = false;
-		} else if (iResult == 0)
-			printf("Conexion cerrada\n");
-		else
-			printf("recv falla with error: %d\n", WSAGetLastError());
 
+			limpiarPantalla = false;
+		} else if (iResult == 0) {
+			printf("Conexion cerrada\n");
+		} else {
+			printf("recv falla with error: %d\n", WSAGetLastError());
+		}
 	} while (iResult > 0);
 
 	// Cerrar la conexion

@@ -27,6 +27,7 @@ void tamanyos(char *mensaje, int *tamanyoCodigo, int *tamanyoTextoVisual, int *t
 	}
 }
 
+// Formato del mensaje: CODIGO;TEXTO_VISUAL;TEXTO_AYUDA_VISUAL;
 Mensaje deserializarMesaje(char *mensaje) {
 	Mensaje m = {};
 
@@ -43,6 +44,7 @@ Mensaje deserializarMesaje(char *mensaje) {
 	}
 	*(codigo + tamanyoCodigo) = '\0';
 	m.codigo = atoi(codigo);
+	free(codigo);
 
 	// Deserializar textoVisual
 	m.menu = malloc(sizeof(char) * (tamanyoTextoVisual + 1));
@@ -80,7 +82,7 @@ void analizarCodigo(int codigo, bool *cerrarPrograma, bool *limpiarPantalla, Mod
 	*limpiarPantalla = codigoStr[2] == '1';
 	*modoDeEntrada = codigoStr[1] == '0' ? TEXTO : PULSACION;
 
-	// Añadir deteccion de errores (cuando surjan)
+	// TODO: Añadir deteccion de errores (cuando surjan)
 
 	free(codigoStr);
 	codigoStr = NULL;
