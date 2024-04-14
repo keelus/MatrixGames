@@ -10,7 +10,7 @@ cd ./servidor/
 ```
 Y luego
 ```
-g++ .\mainServidor.cpp .\sql.cpp .\menu.c .\externo\sqlite3pp\sqlite3pp.cpp -lws2_32 -lsqlite3 -o servidor.exe
+g++ .\mainServidor.cpp .\sql.cpp .\menu.c .\externo\sqlite3pp\sqlite3pp.cpp -lws2_32 -lsqlite3 -o mainServidor.exe
 ```
 
 #### Comando para el cliente
@@ -19,5 +19,5 @@ cd ./cliente/
 ```
 Y luego
 ```
-gcc mainCliente.c input.c mensajes.c -lws2_32 -o cliente.exe
+gcc mainCliente.c input.c mensajes.c -lws2_32 -o mainCliente.exe
 ```
