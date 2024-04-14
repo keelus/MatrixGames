@@ -54,14 +54,11 @@ bool verStats(const char *idUsuario){
 	sqlite3pp::query qryBgan(db, "SELECT (COUNT(B.RESULTADO)) AS partidas_ganadas,  B.idJugador FROM USUARIO A INNER JOIN (SELECT BB.nombre, AA.resultado, AA.idJugador FROM PARTIDAS_MULTIPLAYER INNER JOIN TIPO_JUEGO ON AA.idJuego = BB.id where AA.resultado = 1) B ON A.id = B.idJugador GROUP BY B.idJuego WHERE (A.id = :id) ");
 	qryBgan.bind(":id",idUsuario, sqlite3pp::nocopy);//Carga las partidas ganadas por el usuario que se le pasa en las partidas multiplayer agrupadas por cada juego
 	
-	
-	//std::tie(id, nombre) = (*i).get_columns<int, const char*>(0, 1);
-
-    //std::cout << id << "\t" << (nombre ? nombre : "NULL") << std::endl;
+	//Muestra la puntuacion maxima de cada juego conseguida por el jugador
 	printf("PARTIDAS UN SOLO JUGADOR:\n");
 	printf("juego    puntuacion max");
 	for (sqlite3pp::query::iterator i = qryA.begin(); i != qryA.end(); ++i)
-	{//Esto por lo que he conseguido entender deberia mostrar por pantalla lo que encuentra en las consultas pero ya se vera
+	{
 		char* nombre;
 		int id = 0;
 		int puntuacionMax = 0;
@@ -70,6 +67,7 @@ bool verStats(const char *idUsuario){
 		std::cout << nombre << "   " << puntuacionMax << std::endl;
 	}
 
+	//Muestra la cantidad de partidas jugadas por caga juego multijugador (contra PC)
 	printf("PARTIDAS MULTIJUGADOR:\n");
 	printf("Juego    partidas jugadas\n");
 	for (sqlite3pp::query::iterator i = qryBjUG.begin(); i != qryBjUG.end(); ++i)
@@ -82,6 +80,7 @@ bool verStats(const char *idUsuario){
 		std::cout << nombre << "    " << cantPartJug << std::endl;
 	}
 
+	//Muestra la cantidad de partidas ganadas por caga juego multijugador (contra PC)
 	printf("Juego    partidas ganadas\n");
 	for (sqlite3pp::query::iterator i = qryBgan.begin(); i != qryBgan.end(); ++i)
 	{
