@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 Menu mensajeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, const char *mensajeError, const char *usuario, const char *juegoSeleccionadoConf) {
 	Menu menu = {};
 	switch (menuActual) {
@@ -46,7 +45,7 @@ Menu mensajeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, const char 
 		break;
 	}
 	case MENU_2: {
-		menu.TextoVisual = "Selecciona un juego:\n\n\t1) Snake\n\t2)Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) 4 en raya (vs CPU)\n\n\t6) Volver atras";
+		menu.TextoVisual = "Selecciona un juego:\n\n\t1) Snake\n\t2) Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) 4 en raya (vs CPU)\n\n\t6) Volver atras";
 		menu.PreInput = "\nElige una de las opciones:  ";
 		menu.Codigo = "2010";
 		char *texto = (char *)malloc((strlen(menu.TextoVisual) + strlen(usuario) + 2));

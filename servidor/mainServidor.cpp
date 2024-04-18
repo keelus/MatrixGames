@@ -14,6 +14,9 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
+// Flota
+#include "juegos/flota/partida.h"
+
 // Need to link with Ws2_32.lib
 #pragma comment(lib, "Ws2_32.lib")
 // #pragma comment (lib, "Mswsock.lib")
@@ -120,10 +123,9 @@ int __cdecl main(void) {
 		WSACleanup();
 		return 1;
 	}
-	
 
 	char bufferEntrante[TAMANO_BUFFER];
-	
+
 	do {
 		// Vaciar buffer de recepcion
 		memset(bufferEntrante, '\0', TAMANO_BUFFER);
@@ -150,14 +152,14 @@ int __cdecl main(void) {
 
 				break;
 			}
-			case MENU_1:{
+			case MENU_1: {
 				char accionElegida = *bufferEntrante;
 				if (accionElegida == '1') {
 					menuActual = MENU_2;
 				} else if (accionElegida == '2') {
 					menuActual = MENU_3;
-				}else if (accionElegida == '3') {
-					
+				} else if (accionElegida == '3') {
+
 				} else if (accionElegida == '4') {
 					// Desconectar usuario
 					menuActual = CLOSE;
@@ -166,159 +168,182 @@ int __cdecl main(void) {
 				}
 				break;
 			}
-			case MENU_2:{
+			case MENU_2: {
 				char accionElegida = *bufferEntrante;
-				//estas opciones son para iniciar los juesgos, menos el 6 que es para ir al menu anterior
-				if (accionElegida == '1') {
-					
-				} else if (accionElegida == '2') {
-					
-				} else if (accionElegida == '3') {
-					
-					
-				}else if (accionElegida == '4') {
+				// estas opciones son para iniciar los juesgos, menos el 6 que es para ir al menu anterior
+				if (accionElegida == '1') { // Snake
 
+				} else if (accionElegida == '2') { // Flappy Bird
 
-				}else if (accionElegida == '5') {
-					
-					
-				}else if (accionElegida == '6') {
+				} else if (accionElegida == '3') { // Slip Grave
+
+				} else if (accionElegida == '4') { // Hundir la flota (vs CPU)
+					Partida partida;
+
+					// Prueba: Mandar tablero al jugador
+
+					std::string stringDelTablero = partida.TableroJugador.AString(false);
+
+					Menu menu = {};
+					menu.Codigo = "2000";
+					menu.PreInput = "Nada por aqui.";
+					menu.TextoVisual = stringDelTablero.c_str();
+
+					const char *menuAImprimir = menuAString(menu);
+
+					iSendResult = send(ClientSocket, menuAImprimir, strlen(menuAImprimir), 0);
+					if (iSendResult == SOCKET_ERROR) {
+						printf("Error al mandar al cliente: %d\n", WSAGetLastError());
+						closesocket(ClientSocket);
+						WSACleanup();
+						return 1;
+					}
+
+					exit(1);
+
+					while (!partida.HaFinalizado()) {
+						partida.Iteracion();
+					}
+
+					if (partida.TableroJugador.CompletamenteHundido()) {
+						std::cout << "Has perdido! No te quedan mas barcos. Suerte a la proxima!";
+					} else {
+						std::cout << "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!";
+					}
+
+					exit(1);
+				} else if (accionElegida == '5') { // 4 en raya (vs CPU)
+
+				} else if (accionElegida == '6') {
 					menuActual = MENU_1;
-					//Devuelve a la pestaña anterior
+					// Devuelve a la pestaña anterior
 				} else {
 					// Error!
 				}
 				break;
 			}
-			case MENU_3:{
+			case MENU_3: {
 				char accionElegida = *bufferEntrante;
-				//estas opciones son para la eleccion de un juego a configurar
+				// estas opciones son para la eleccion de un juego a configurar
 				if (accionElegida == '1') {
-					
+
 				} else if (accionElegida == '2') {
-					
+
 				} else if (accionElegida == '3') {
-					
-					
-				}else if (accionElegida == '4') {
 
+				} else if (accionElegida == '4') {
 
-				}else if (accionElegida == '5') {
-					
-					
-				}else if (accionElegida == '6') {
+				} else if (accionElegida == '5') {
+
+				} else if (accionElegida == '6') {
 					menuActual = MENU_1;
-					//ddevuelve a la pestaña anterior
+					// ddevuelve a la pestaña anterior
 				} else {
 					// Error!
 				}
 				break;
 			}
 			case MENU_0_LOGIN: {
-				char *textoIntroducido = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char));//porque? +1??
+				char *textoIntroducido = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char)); // porque? +1??
 				for (int i = 0; i < strlen(bufferEntrante); i++) {
 					*(textoIntroducido + i) = *(bufferEntrante + i);
 				}
 				*(textoIntroducido + strlen(bufferEntrante)) = '\0';
 				switch (estadoLogin) {
-					case ESPERANDO_USUARIO: {
-						nombreUsuarioActual = (char *)malloc(strlen(textoIntroducido) + 1);
-						strcpy(nombreUsuarioActual, textoIntroducido);
-						estadoLogin = ESPERANDO_CONTRASENYA;
-						break;
-					}
-					case ESPERANDO_CONTRASENYA: {
-						int idUsuario = -1;
-						bool correctas = credencialesCorrectas(nombreUsuarioActual, textoIntroducido, &idUsuario);
+				case ESPERANDO_USUARIO: {
+					nombreUsuarioActual = (char *)malloc(strlen(textoIntroducido) + 1);
+					strcpy(nombreUsuarioActual, textoIntroducido);
+					estadoLogin = ESPERANDO_CONTRASENYA;
+					break;
+				}
+				case ESPERANDO_CONTRASENYA: {
+					int idUsuario = -1;
+					bool correctas = credencialesCorrectas(nombreUsuarioActual, textoIntroducido, &idUsuario);
 
-						estadoLogin = ESPERANDO_USUARIO; // Reiniciamos estado para futuros logins
-						if (correctas) {
-							// Si es correcta, iniciamos sesion correctamente
-							free(ultimoError); // Importante
-							ultimoError = NULL;
-							menuActual = MENU_1;
-						} else {
-							// Si no lo es, limpiamos usuario, y pasamos al menu 0.
-							const char *mensajeError = "El usuario y/o contrasena son incorrectos. Intentalo de nuevo o crea una cuenta.";
+					estadoLogin = ESPERANDO_USUARIO; // Reiniciamos estado para futuros logins
+					if (correctas) {
+						// Si es correcta, iniciamos sesion correctamente
+						free(ultimoError); // Importante
+						ultimoError = NULL;
+						menuActual = MENU_1;
+					} else {
+						// Si no lo es, limpiamos usuario, y pasamos al menu 0.
+						const char *mensajeError = "El usuario y/o contrasena son incorrectos. Intentalo de nuevo o crea una cuenta.";
 
-							free(ultimoError); // Importante
-							ultimoError = (char *)malloc((strlen(mensajeError) + 1) * sizeof(char));
-							strcpy(ultimoError, mensajeError);
+						free(ultimoError); // Importante
+						ultimoError = (char *)malloc((strlen(mensajeError) + 1) * sizeof(char));
+						strcpy(ultimoError, mensajeError);
 
-							menuActual = MENU_0;
-							free(nombreUsuarioActual);
-							nombreUsuarioActual = NULL;
-							}
-						break;
-						}
-				
+						menuActual = MENU_0;
+						free(nombreUsuarioActual);
+						nombreUsuarioActual = NULL;
 					}
 					break;
+				}
+				}
+				break;
 			}
 			case MENU_0_REGISTRO: {
-					char *textoIntroducido = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char));
+				char *textoIntroducido = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char));
 				for (int i = 0; i < strlen(bufferEntrante); i++) {
 					*(textoIntroducido + i) = *(bufferEntrante + i);
 				}
 				*(textoIntroducido + strlen(bufferEntrante)) = '\0';
-					switch (estadoLogin) {
-					case ESPERANDO_USUARIO: {
-						nombreUsuarioActual = (char *)malloc(strlen(textoIntroducido) + 1);
-						strcpy(nombreUsuarioActual, textoIntroducido);
-						bool existe = verUsuario(nombreUsuarioActual );
-						if(existe){
-							const char *mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
-							free(ultimoError); // Importante
-							ultimoError = (char *)malloc((strlen(mensajeError) + 1) * sizeof(char));
-							strcpy(ultimoError, mensajeError);
-							menuActual = MENU_0;
-							free(nombreUsuarioActual);
-							nombreUsuarioActual = NULL;
-							break;
-						}
-						estadoLogin = ESPERANDO_CONTRASENYA;
+				switch (estadoLogin) {
+				case ESPERANDO_USUARIO: {
+					nombreUsuarioActual = (char *)malloc(strlen(textoIntroducido) + 1);
+					strcpy(nombreUsuarioActual, textoIntroducido);
+					bool existe = verUsuario(nombreUsuarioActual);
+					if (existe) {
+						const char *mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
+						free(ultimoError); // Importante
+						ultimoError = (char *)malloc((strlen(mensajeError) + 1) * sizeof(char));
+						strcpy(ultimoError, mensajeError);
+						menuActual = MENU_0;
+						free(nombreUsuarioActual);
+						nombreUsuarioActual = NULL;
 						break;
 					}
-					case ESPERANDO_CONTRASENYA: {
-						int idUsuario = -1;
-						bool correctas = crearUsuario(nombreUsuarioActual, textoIntroducido, &idUsuario);
-						printf("id de usuario%i \n",idUsuario);
-						if(correctas){
-							free(ultimoError); // Importante
-							ultimoError = NULL;
-							menuActual = MENU_1;
-						}else{
-							const char *mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
-							free(ultimoError); // Importante
-							ultimoError = (char *)malloc((strlen(mensajeError) + 1) * sizeof(char));
-							strcpy(ultimoError, mensajeError);
-							menuActual = MENU_0;
-							free(nombreUsuarioActual);
-							nombreUsuarioActual = NULL;
-							estadoLogin = ESPERANDO_USUARIO; 
+					estadoLogin = ESPERANDO_CONTRASENYA;
+					break;
+				}
+				case ESPERANDO_CONTRASENYA: {
+					int idUsuario = -1;
+					bool correctas = crearUsuario(nombreUsuarioActual, textoIntroducido, &idUsuario);
+					printf("id de usuario%i \n", idUsuario);
+					if (correctas) {
+						free(ultimoError); // Importante
+						ultimoError = NULL;
+						menuActual = MENU_1;
+					} else {
+						const char *mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
+						free(ultimoError); // Importante
+						ultimoError = (char *)malloc((strlen(mensajeError) + 1) * sizeof(char));
+						strcpy(ultimoError, mensajeError);
+						menuActual = MENU_0;
+						free(nombreUsuarioActual);
+						nombreUsuarioActual = NULL;
+						estadoLogin = ESPERANDO_USUARIO;
 					}
 					break;
-							}
-				
-						}
-					break;
+				}
+				}
+				break;
 			}
-			case MENU_4: {//Menu de estadisticas
-				//Hay que cargar las estadisticas de un usuario en concreto de la bd
+			case MENU_4: { // Menu de estadisticas
+				// Hay que cargar las estadisticas de un usuario en concreto de la bd
 				printf("Tus estadisticas");
-				
+
 				break;
 			}
 
 			default: {
 				printf("Input de menu no handleado.\n");
-							printf("%i",menuActual);
+				printf("%i", menuActual);
 
-				break;	 
-		}
-	}
-		
-	
+				break;
+			}
+			}
 
 			Menu menu = mensajeMenu(menuActual, estadoLogin, ultimoError, nombreUsuarioActual, NULL);
 			const char *menuAImprimir = menuAString(menu);
