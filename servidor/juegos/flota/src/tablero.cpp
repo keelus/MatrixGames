@@ -217,14 +217,18 @@ Tablero CrearTableroManualmente() {
 				case 13:
 					if (tablero.Colocable(barco.Tipo, barco.Orientacion, barco.X, barco.Y)) {
 						barco.EsGuia = false;
-						tablero.Colocar(barco, b);
+						// Crear de nuevo el barco, para que las coordenadas de las casillas sean las correctas
+						Barco barcoAColocar = Barco(barco.Tipo, barco.Orientacion, barco.X, barco.Y, false);
+						tablero.Colocar(barcoAColocar, b);
 						colocado = true;
 					}
 					break;
 				}
 
-				// Al haber pulsado una tecla, lo recolocamos
-				tablero.Colocar(barco, b);
+				if (!colocado) {
+					// Al haber pulsado una tecla que no sea enter, lo recolocamos
+					tablero.Colocar(barco, b);
+				}
 
 				system("cls");
 				tablero.Imprimir(false);
@@ -259,6 +263,83 @@ int Tablero::BarcosRestantes() const {
 	return barcosRestantes;
 };
 
-bool Tablero::AtaqueYaRecibido(Coordenada coordenada) const { return false; }
+bool Tablero::AtaqueYaRecibido(Coordenada coordenada) const {
+	for (Ataque ataque : AtaquesRecibidos) {
+		if (ataque.Coord.X == coordenada.X && ataque.Coord.Y == coordenada.Y) {
+			return true;
+		}
+	}
 
-bool Tablero::CompletamenteHundido() const { return false; };
+	return false;
+}
+
+bool Tablero::CompletamenteHundido() const {
+	for (Barco barco : Barcos) {
+		if (!barco.EstaHundido()) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
+bool Tablero::AtaqueTacticoDisponibleIA() {
+	for (Barco barco : Barcos) {
+		if (barco.EstaTocado() && !barco.EstaHundido()) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+Coordenada Tablero::CalcularAtaqueIA() {
+	Coordenada coordenadasAtaque(-1, -1);
+
+	// Si es posible, y la IA sabe que hay un barco tocado no hundido que puede atacar, intentara atacar alrededor
+	if (AtaqueTacticoDisponibleIA()) {
+		for (Barco barco : Barcos) {
+			if (barco.EstaTocado() && !barco.EstaHundido()) {
+				std::vector<Casilla> casillasTocadas = barco.CasillasTocadas();
+
+				for (Casilla casillaTocada : casillasTocadas) {
+					int direcciones[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
+					for (int i = 0; i < 4; i++) {
+						int dir[2] = {direcciones[i][0], direcciones[i][1]};
+
+						Coordenada coordenada(casillaTocada.Coord.X + dir[1], casillaTocada.Coord.Y + dir[0]);
+
+						if (coordenada.Y >= 0 && coordenada.Y < 8 && coordenada.X >= 0 && coordenada.X < 8) {
+							bool ataqueYaRecibido = AtaqueYaRecibido(coordenada);
+
+							if (!ataqueYaRecibido) {
+								coordenadasAtaque.X = coordenada.X;
+								coordenadasAtaque.Y = coordenada.Y;
+
+								return coordenadasAtaque;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Si no es posible atacar tácticamente, elegir ataque aleatorio
+	do {
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> distribucionFilasYColumnas(0, 7); // Inclusivo
+
+		coordenadasAtaque.X = distribucionFilasYColumnas(gen);
+		coordenadasAtaque.Y = distribucionFilasYColumnas(gen);
+	} while (AtaqueYaRecibido(coordenadasAtaque));
+
+	return coordenadasAtaque;
+}
+
+Ataque Tablero::RecibirAtaqueComoIA() {
+	Coordenada coordenadasAtaque = CalcularAtaqueIA();
+	return RecibirAtaque(coordenadasAtaque);
+}

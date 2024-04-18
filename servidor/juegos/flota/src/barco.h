@@ -27,11 +27,12 @@ class Barco {
 		}
 	};
 
-	EstadoCasilla ConseguirEstadoCasilla(int indice) const;
 	bool EstaHundido() const;
 	bool EstaTocado() const;
 	std::vector<Casilla> CasillasTocadas() const;
 	std::vector<Coordenada> CoordenadasOcupadas() const;
+
+	void Imprimir();
 
 	TipoBarco Tipo;
 	Orientacion Orientacion;

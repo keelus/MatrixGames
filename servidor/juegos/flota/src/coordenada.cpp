@@ -1,5 +1,4 @@
 #include "coordenada.h"
-#include <cstring>
 #include <map>
 #include <stdexcept>
 

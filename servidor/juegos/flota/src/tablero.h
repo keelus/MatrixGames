@@ -12,15 +12,16 @@ class Tablero {
 	void Imprimir(bool esconderBarcos) const;
 	void Colocar(Barco barco, int indice);
 	bool CompletamenteHundido() const;
-	Ataque AtacarComoIA();
+
+	Ataque RecibirAtaqueComoIA();
+	bool AtaqueTacticoDisponibleIA();
+	Coordenada CalcularAtaqueIA();
+
 	Barco *BarcoEn(Coordenada coordenada);
 	bool Colocable(TipoBarco tipo, Orientacion orientacion, int x, int y);
 	bool AtaqueYaRecibido(Coordenada coordenada) const;
 	Ataque RecibirAtaque(Coordenada coordenada);
 	int BarcosRestantes() const;
-
-	Barco ConseguirBarco(int i) const;
-	std::vector<Ataque> ConseguirAtaques() const;
 
   private:
 	Barco Barcos[5];

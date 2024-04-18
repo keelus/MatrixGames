@@ -17,14 +17,11 @@ void Partida::Iteracion() {
 	if (Turno == TiposTurno::TURNO_JUGADOR) {
 		std::cout << "Te toca atacar! Tablero de la CPU:";
 		TableroCPU.Imprimir(true);
-		std::cout << "Coordenadas de ataque [letra numero]: ";
 
 		bool ataqueRealizado = false;
-
 		while (!ataqueRealizado) {
-			// Leer input
-
 			std::string introducidoSucio;
+			std::cout << "Coordenadas de ataque [letra numero]: ";
 			std::getline(std::cin, introducidoSucio);
 
 			// TODO: Eliminar espacios
@@ -32,13 +29,12 @@ void Partida::Iteracion() {
 
 			try {
 				Coordenada coordenada = ParsearCoordenada(introducido);
-				std::cout << "Coordenada: {X: " << coordenada.X << ", Y: " << coordenada.Y << "}";
 				if (TableroCPU.AtaqueYaRecibido(coordenada)) {
-					std::cout << "Ataque ya realizado!";
+					std::cout << "Ataque ya realizado!\n";
 				} else {
 					ataqueRealizado = true;
 					Ataque resultadoAtaque = TableroCPU.RecibirAtaque(coordenada);
-					bool haAcertado = resultadoAtaque.EsHit;
+					haAcertado = resultadoAtaque.EsHit;
 
 					system("cls");
 
@@ -59,6 +55,29 @@ void Partida::Iteracion() {
 			}
 		}
 	} else {
+		std::cout << "Turno de la CPU! Tu tablero:";
+
+		TableroJugador.Imprimir(false);
+		sleep(2);
+		Ataque resultadoAtaque = TableroJugador.RecibirAtaqueComoIA();
+		haAcertado = resultadoAtaque.EsHit;
+
+		system("cls");
+
+		if (resultadoAtaque.EsHundido) {
+			std::cout << "Tocado y hundido! Te quedan " << TableroJugador.BarcosRestantes() << " barcos. Tu tablero:";
+		} else if (resultadoAtaque.EsHit) {
+			std::cout << "Tocado! Tu tablero:";
+		} else {
+			std::cout << "Agua! Tu tablero:";
+		}
+
+		TableroJugador.Imprimir(false);
+		sleep(3);
+	}
+
+	if (!haAcertado) {
+		Turno = Turno == TiposTurno::TURNO_JUGADOR ? TiposTurno::TURNO_CPU : TiposTurno::TURNO_JUGADOR;
 	}
 }
 bool Partida::HaFinalizado() { return TableroJugador.CompletamenteHundido() || TableroCPU.CompletamenteHundido(); }
