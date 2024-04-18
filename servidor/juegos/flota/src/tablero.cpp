@@ -3,7 +3,6 @@
 #include "casilla.h"
 #include <algorithm>
 #include <conio.h>
-#include <cstdio>
 #include <iostream>
 #include <random>
 #include <windows.h>
@@ -16,6 +15,15 @@ void Tablero::Imprimir(bool esconderBarcos) const {
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			outStr[i][j] = EmoticonoCasilla(EstadoCasilla::AGUA);
+		}
+	}
+
+	for (int i = 0; i < AtaquesRecibidos.size(); i++) {
+		Ataque ataque = AtaquesRecibidos.at(i);
+		if (ataque.EsHit) {
+			outStr[ataque.Coord.Y][ataque.Coord.X] = EmoticonoCasilla(EstadoCasilla::HIT);
+		} else {
+			outStr[ataque.Coord.Y][ataque.Coord.X] = EmoticonoCasilla(EstadoCasilla::MISS);
 		}
 	}
 
@@ -226,3 +234,31 @@ Tablero CrearTableroManualmente() {
 
 	return tablero;
 }
+
+Ataque Tablero::RecibirAtaque(Coordenada coordenada) {
+	Ataque ataque = Ataque(false, false, coordenada);
+
+	Barco *barcoEncontrado = BarcoEn(coordenada);
+	if (barcoEncontrado != nullptr) {
+		int indice = (coordenada.X - barcoEncontrado->X) + (coordenada.Y - barcoEncontrado->Y);
+		barcoEncontrado->Casillas.at(indice).Estado = EstadoCasilla::HIT;
+		ataque.EsHundido = barcoEncontrado->EstaHundido();
+		ataque.EsHit = true;
+	}
+
+	AtaquesRecibidos.push_back(ataque);
+
+	return ataque;
+}
+int Tablero::BarcosRestantes() const {
+	int barcosRestantes = 0;
+	for (int i = 0; i < 5; i++) {
+		barcosRestantes += Barcos[i].EstaHundido() ? 0 : 1;
+	}
+
+	return barcosRestantes;
+};
+
+bool Tablero::AtaqueYaRecibido(Coordenada coordenada) const { return false; }
+
+bool Tablero::CompletamenteHundido() const { return false; };

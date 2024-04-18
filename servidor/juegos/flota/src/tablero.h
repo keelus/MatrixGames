@@ -15,7 +15,7 @@ class Tablero {
 	Ataque AtacarComoIA();
 	Barco *BarcoEn(Coordenada coordenada);
 	bool Colocable(TipoBarco tipo, Orientacion orientacion, int x, int y);
-	bool AtaqueYaRealizado(Coordenada coordenada) const;
+	bool AtaqueYaRecibido(Coordenada coordenada) const;
 	Ataque RecibirAtaque(Coordenada coordenada);
 	int BarcosRestantes() const;
 
@@ -24,7 +24,7 @@ class Tablero {
 
   private:
 	Barco Barcos[5];
-	std::vector<Ataque> Ataques;
+	std::vector<Ataque> AtaquesRecibidos;
 };
 
 Tablero CrearTableroManualmente();

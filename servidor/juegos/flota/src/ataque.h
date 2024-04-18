@@ -5,6 +5,7 @@
 
 class Ataque {
   public:
+	Ataque(bool esHit, bool esHundido, Coordenada coord) : EsHit(esHit), EsHundido(esHundido), Coord(coord){};
 	bool EsHit, EsHundido;
 	Coordenada Coord;
 };

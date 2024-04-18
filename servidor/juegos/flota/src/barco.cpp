@@ -23,7 +23,15 @@ Barco::Barco(TipoBarco tipo, enum Orientacion orientacion, int x, int y, bool es
 	}
 }
 
-bool Barco::EstaHundido() const { return false; }
+bool Barco::EstaHundido() const {
+	for (int i = 0; i < Casillas.size(); i++) {
+		if (Casillas.at(i).Estado == EstadoCasilla::BARCO) {
+			return false;
+		}
+	}
+
+	return true;
+}
 
 std::vector<Coordenada> Barco::CoordenadasOcupadas() const {
 	std::vector<Coordenada> coordenadas;
