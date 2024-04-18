@@ -1,7 +1,9 @@
 #ifndef _MENUH_
 #define _MENUH_
 
+#include "paquete.h"
 #include "sql.h"
+#include <string>
 
 enum TiposMenu {
 	MENU_0,		    // Bienvenida y acciones de login y registro
@@ -15,17 +17,9 @@ enum TiposMenu {
 	MENU_4,		    // Menu estadisticas
 	CLOSE,
 };
+
 typedef enum TiposMenu TiposMenu;
 
-struct Menu {
-	const char *TextoVisual;
-	const char *PreInput;
-	const char *Codigo;
-};
-typedef struct Menu Menu;
-
-Menu mensajeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, const char *mensajeError, const char *usuario, const char *juegoSeleccionadoConf);
-
-const char *menuAString(Menu menu);
+Paquete CrearPaqueteDeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, std::string mensajeError, std::string usuario, std::string juegoSeleccionadoConf);
 
 #endif

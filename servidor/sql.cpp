@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stdbool.h>
 
-bool credencialesCorrectas(const char *usuario, const char *contrasenya, int *idUsuario) {
+bool credencialesCorrectas(std::string usuario, std::string contrasenya, int *idUsuario) {
 
 	sqlite3pp::database db("baseDeDatos.db");
 
@@ -17,7 +17,7 @@ bool credencialesCorrectas(const char *usuario, const char *contrasenya, int *id
 
 	return *idUsuario >= 0;
 }
-bool crearUsuario(const char *usuario, const char *contrasenya, int *idusuario) {
+bool crearUsuario(std::string usuario, std::string contrasenya, int *idusuario) {
 
 	sqlite3pp::database db("baseDeDatos.db");
 	sqlite3pp::command cmd(db, "INSERT INTO usuario (nombre, contrasena) VALUES (:usuario, :contrasena)");
@@ -27,7 +27,7 @@ bool crearUsuario(const char *usuario, const char *contrasenya, int *idusuario) 
 	bool confirmar = credencialesCorrectas(usuario, contrasenya, idusuario);
 	return confirmar;
 }
-bool verUsuario(const char *usuario) {
+bool verUsuario(std::string usuario) {
 	sqlite3pp::database db("baseDeDatos.db");
 
 	sqlite3pp::query qry(db, "SELECT id FROM USUARIO WHERE nombre = :nombre "); // Consulta
@@ -39,7 +39,7 @@ bool verUsuario(const char *usuario) {
 
 	return idUsuario >= 0;
 }
-bool verStats(const char *idUsuario) {
+bool verStats(std::string idUsuario) {
 	sqlite3pp::database db("baseDeDatos.db"); // Esto conecta con la bd
 
 	sqlite3pp::query qryA(db, "SELECT A.nombre, A.id, (MAX(puntuacion)) AS puntuacion_max FROM USUARIO A INNER JOIN PARTIDAS_SINGLEPLAYER B ON A.id = B.idUsuario GROUP BY B.idJuego WHERE A.id = :id ");

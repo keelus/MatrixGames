@@ -2,11 +2,12 @@
 #define _SQLITE_
 
 #include <stdbool.h>
+#include <string>
 
 enum EstadosMenuLogin { ESPERANDO_USUARIO, ESPERANDO_CONTRASENYA };
 typedef enum EstadosMenuLogin EstadosMenuLogin;
 
-bool credencialesCorrectas(const char *usuario, const char *contrasenya, int *idUsuario);
-bool crearUsuario(const char *usuario, const char *contrasenya, int *idUsuario);
-bool verUsuario(const char *usuario );
+bool credencialesCorrectas(std::string usuario, std::string contrasenya, int *idUsuario);
+bool crearUsuario(std::string usuario, std::string contrasenya, int *idUsuario);
+bool verUsuario(std::string usuario);
 #endif

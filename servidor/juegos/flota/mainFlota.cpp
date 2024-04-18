@@ -14,3 +14,5 @@ int main() {
 		std::cout << "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!";
 	}
 }
+
+void

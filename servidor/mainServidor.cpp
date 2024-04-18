@@ -109,14 +109,14 @@ int __cdecl main(void) {
 
 	TiposMenu menuActual = MENU_0;
 	EstadosMenuLogin estadoLogin = ESPERANDO_USUARIO;
-	char *ultimoError = NULL;
+	std::string ultimoError = "";
 
-	char *nombreUsuarioActual;
+	std::string nombreUsuarioActual = "";
 
-	Menu menu = mensajeMenu(menuActual, estadoLogin, ultimoError, nombreUsuarioActual, NULL);
-	const char *menuAImprimir = menuAString(menu);
+	Paquete paquete = CrearPaqueteDeMenu(menuActual, estadoLogin, ultimoError, nombreUsuarioActual, "");
+	std::string paqueteStr = paquete.AString();
 
-	iSendResult = send(ClientSocket, menuAImprimir, strlen(menuAImprimir), 0);
+	iSendResult = send(ClientSocket, paqueteStr.c_str(), paqueteStr.length(), 0);
 	if (iSendResult == SOCKET_ERROR) {
 		printf("Error al mandar al cliente: %d\n", WSAGetLastError());
 		closesocket(ClientSocket);
@@ -137,7 +137,7 @@ int __cdecl main(void) {
 		if (iResult > 0) {
 			switch (menuActual) {
 			case MENU_0: {
-				char accionElegida = *bufferEntrante;
+				char accionElegida = bufferEntrante[0];
 
 				if (accionElegida == '1') {
 					menuActual = MENU_0_LOGIN;
@@ -184,14 +184,14 @@ int __cdecl main(void) {
 
 					std::string stringDelTablero = partida.TableroJugador.AString(false);
 
-					Menu menu = {};
-					menu.Codigo = "2000";
-					menu.PreInput = "Nada por aqui.";
-					menu.TextoVisual = stringDelTablero.c_str();
+					Paquete paquete = {};
+					paquete.Codigo = "2000";
+					paquete.PreInput = "Nada por aqui.";
+					paquete.TextoVisual = stringDelTablero.c_str();
 
-					const char *menuAImprimir = menuAString(menu);
+					std::string paqueteStr = paquete.AString();
 
-					iSendResult = send(ClientSocket, menuAImprimir, strlen(menuAImprimir), 0);
+					iSendResult = send(ClientSocket, paqueteStr.c_str(), paqueteStr.length(), 0);
 					if (iSendResult == SOCKET_ERROR) {
 						printf("Error al mandar al cliente: %d\n", WSAGetLastError());
 						closesocket(ClientSocket);
@@ -244,15 +244,18 @@ int __cdecl main(void) {
 				break;
 			}
 			case MENU_0_LOGIN: {
-				char *textoIntroducido = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char)); // porque? +1??
+				std::string textoIntroducido = "";
 				for (int i = 0; i < strlen(bufferEntrante); i++) {
-					*(textoIntroducido + i) = *(bufferEntrante + i);
+					textoIntroducido = textoIntroducido + bufferEntrante[i];
 				}
-				*(textoIntroducido + strlen(bufferEntrante)) = '\0';
+				// char *textoIntroducido = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char)); // porque? +1??
+				//  for (int i = 0; i < strlen(bufferEntrante); i++) {
+				//  	*(textoIntroducido + i) = *(bufferEntrante + i);
+				//  }
+				//  *(textoIntroducido + strlen(bufferEntrante)) = '\0';
 				switch (estadoLogin) {
 				case ESPERANDO_USUARIO: {
-					nombreUsuarioActual = (char *)malloc(strlen(textoIntroducido) + 1);
-					strcpy(nombreUsuarioActual, textoIntroducido);
+					nombreUsuarioActual = textoIntroducido;
 					estadoLogin = ESPERANDO_CONTRASENYA;
 					break;
 				}
@@ -263,20 +266,16 @@ int __cdecl main(void) {
 					estadoLogin = ESPERANDO_USUARIO; // Reiniciamos estado para futuros logins
 					if (correctas) {
 						// Si es correcta, iniciamos sesion correctamente
-						free(ultimoError); // Importante
-						ultimoError = NULL;
+						ultimoError = "";
 						menuActual = MENU_1;
 					} else {
 						// Si no lo es, limpiamos usuario, y pasamos al menu 0.
-						const char *mensajeError = "El usuario y/o contrasena son incorrectos. Intentalo de nuevo o crea una cuenta.";
+						std::string mensajeError = "El usuario y/o contrasena son incorrectos. Intentalo de nuevo o crea una cuenta.";
 
-						free(ultimoError); // Importante
-						ultimoError = (char *)malloc((strlen(mensajeError) + 1) * sizeof(char));
-						strcpy(ultimoError, mensajeError);
+						ultimoError = mensajeError;
 
 						menuActual = MENU_0;
-						free(nombreUsuarioActual);
-						nombreUsuarioActual = NULL;
+						nombreUsuarioActual = "";
 					}
 					break;
 				}
@@ -284,24 +283,21 @@ int __cdecl main(void) {
 				break;
 			}
 			case MENU_0_REGISTRO: {
-				char *textoIntroducido = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char));
+				std::string textoIntroducido = "";
 				for (int i = 0; i < strlen(bufferEntrante); i++) {
-					*(textoIntroducido + i) = *(bufferEntrante + i);
+					textoIntroducido = textoIntroducido + bufferEntrante[i];
 				}
-				*(textoIntroducido + strlen(bufferEntrante)) = '\0';
+
 				switch (estadoLogin) {
 				case ESPERANDO_USUARIO: {
-					nombreUsuarioActual = (char *)malloc(strlen(textoIntroducido) + 1);
-					strcpy(nombreUsuarioActual, textoIntroducido);
+					nombreUsuarioActual = textoIntroducido;
+
 					bool existe = verUsuario(nombreUsuarioActual);
 					if (existe) {
-						const char *mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
-						free(ultimoError); // Importante
-						ultimoError = (char *)malloc((strlen(mensajeError) + 1) * sizeof(char));
-						strcpy(ultimoError, mensajeError);
+						std::string mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
+						ultimoError = mensajeError;
 						menuActual = MENU_0;
-						free(nombreUsuarioActual);
-						nombreUsuarioActual = NULL;
+						nombreUsuarioActual = "";
 						break;
 					}
 					estadoLogin = ESPERANDO_CONTRASENYA;
@@ -312,17 +308,15 @@ int __cdecl main(void) {
 					bool correctas = crearUsuario(nombreUsuarioActual, textoIntroducido, &idUsuario);
 					printf("id de usuario%i \n", idUsuario);
 					if (correctas) {
-						free(ultimoError); // Importante
-						ultimoError = NULL;
+						ultimoError = "";
 						menuActual = MENU_1;
 					} else {
-						const char *mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
-						free(ultimoError); // Importante
-						ultimoError = (char *)malloc((strlen(mensajeError) + 1) * sizeof(char));
-						strcpy(ultimoError, mensajeError);
+						std::string mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
+						ultimoError = mensajeError;
+
 						menuActual = MENU_0;
-						free(nombreUsuarioActual);
-						nombreUsuarioActual = NULL;
+
+						nombreUsuarioActual = "";
 						estadoLogin = ESPERANDO_USUARIO;
 					}
 					break;
@@ -345,10 +339,10 @@ int __cdecl main(void) {
 			}
 			}
 
-			Menu menu = mensajeMenu(menuActual, estadoLogin, ultimoError, nombreUsuarioActual, NULL);
-			const char *menuAImprimir = menuAString(menu);
+			Paquete paquete = CrearPaqueteDeMenu(menuActual, estadoLogin, ultimoError, nombreUsuarioActual, "");
+			std::string paqueteStr = paquete.AString();
 
-			iSendResult = send(ClientSocket, menuAImprimir, strlen(menuAImprimir), 0);
+			iSendResult = send(ClientSocket, paqueteStr.c_str(), paqueteStr.length(), 0);
 			if (iSendResult == SOCKET_ERROR) {
 				printf("Error al mandar al cliente: %d\n", WSAGetLastError());
 				closesocket(ClientSocket);
