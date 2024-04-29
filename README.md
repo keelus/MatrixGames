@@ -10,7 +10,7 @@ cd ./servidor/
 ```
 Y luego
 ```
-g++ .\mainServidor.cpp .\sql.cpp .\menu.c .\externo\sqlite3pp\sqlite3pp.cpp -lws2_32 -lsqlite3 -o mainServidor.exe
+g++ .\mainServidor.cpp .\sql.cpp .\menu.cpp .\externo\sqlite3pp\sqlite3pp.cpp -lws2_32 -lsqlite3 .\juegos\flota\barco.cpp .\juegos\flota\casilla.cpp .\juegos\flota\coordenada.cpp .\juegos\flota\partida.cpp .\juegos\flota\tablero.cpp -o mainServidor.exe; .\mainServidor.exe
 ```
 
 #### Comando para el cliente
