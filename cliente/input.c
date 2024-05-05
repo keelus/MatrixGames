@@ -14,9 +14,12 @@ char *leerInput(ModosEntrada modo, char *textoVisual) {
 	switch (modo) {
 	case TEXTO:
 		fgets(buffer, TAMANO_BUFFER, stdin);
-		if (strlen(buffer) == 0)
-			buffer[0] = ' '; // Añadir espacio, para prevenir un mensaje vacio que el servidor ignorará. Esto haría que los mensajes y visuales irían desincronizaods."
-		buffer[strlen(buffer) - 1] = '\0';
+		if (strlen(buffer) == 0 || strlen(buffer) == 1) { // Si mensaje vacio, o mensaje vacio + enter ( TODO: Prevenir guardar caracter enter )
+			buffer[0] = ' ';			  // Añadir espacio, para prevenir un mensaje vacio que el servidor ignorará. Esto haría que los mensajes y visuales irían desincronizaods."
+			buffer[1] = '\0';
+		} else {
+			buffer[strlen(buffer) - 1] = '\0';
+		}
 		break;
 	case PULSACION:
 		while (1) {
