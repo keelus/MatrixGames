@@ -1,5 +1,5 @@
-#ifndef MENSAJE_H
-#define MENSAJE_H
+#ifndef PAQUETE_H
+#define PAQUETE_H
 
 #include <iostream>
 
@@ -18,5 +18,7 @@ class Paquete {
 	std::string PreInput;
 	std::string Codigo;
 };
+
+void mandarPaquete(int socketId, Paquete paquete);
 
 #endif

@@ -2,10 +2,8 @@
 #include "barco.h"
 #include "casilla.h"
 #include <algorithm>
-#include <conio.h>
 #include <iostream>
 #include <random>
-#include <windows.h>
 
 std::string flota::Tablero::AString(bool esconderBarcos) const {
 	std::string numeros[] = {u8"❶", u8"❷", u8"❸", u8"❹", u8"❺", u8"❻", u8"❼", u8"❽"};
@@ -52,7 +50,7 @@ std::string flota::Tablero::AString(bool esconderBarcos) const {
 	}
 
 	std::string stringFinal = "";
-	SetConsoleOutputCP(CP_UTF8); // Necesario para emoticonos
+	// SetConsoleOutputCP(CP_UTF8); // Necesario para emoticonos
 
 	stringFinal.append("\n  🅰  🅱  🅲  🅳  🅴  🅵  🅶  🅷 \n");
 	for (int i = 0; i < 8; ++i) {
@@ -112,7 +110,7 @@ void flota::Tablero::Imprimir(bool esconderBarcos) const {
 		}
 	}
 
-	SetConsoleOutputCP(CP_UTF8); // Necesario para emoticonos
+	// SetConsoleOutputCP(CP_UTF8); // Necesario para emoticonos
 
 	std::cout << "\n  🅰  🅱  🅲  🅳  🅴  🅵  🅶  🅷 \n";
 	for (int i = 0; i < 8; ++i) {
@@ -225,6 +223,7 @@ flota::Tablero flota::CrearTableroManualmente() {
 				primerPrintHecho = true;
 			}
 
+			/*
 			if (kbhit()) {
 				char teclaPulsada = getch();
 
@@ -294,6 +293,7 @@ flota::Tablero flota::CrearTableroManualmente() {
 				system("cls");
 				tablero.Imprimir(false);
 			}
+			*/
 		}
 	}
 

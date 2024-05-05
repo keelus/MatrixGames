@@ -38,7 +38,7 @@ class Barco {
 	void Imprimir();
 
 	TipoBarco Tipo;
-	Orientacion Orientacion;
+	flota::Orientacion Orientacion;
 	int X;
 	int Y;
 	bool EsGuia;

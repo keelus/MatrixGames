@@ -4,10 +4,8 @@
 #include <exception>
 #include <iostream>
 #include <string>
-#include <synchapi.h>
 
 #include <unistd.h> // Para linux
-#include <windows.h>
 
 void flota::Partida::Iteracion() {
 	system("cls");

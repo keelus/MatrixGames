@@ -1,26 +1,30 @@
 #include "menu.h"
-#include "paquete.h"
 #include <cstring>
 #include <string.h>
 #undef UNICODE
 
+#define WIN32_LEAN_AND_MEAN
+#define _WIN32_WINNT 0x501
 #include "menu.h"
 #include "sql.h"
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h>
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 
 // Flota
 #include "juegos/flota/partida.h"
 
-#define TAMANO_BUFFER 512
-#define DEFAULT_PORT 3000
+// Need to link with Ws2_32.lib
+#pragma comment(lib, "Ws2_32.lib")
+// #pragma comment (lib, "Mswsock.lib")
 
-int main(void) {
+#define TAMANO_BUFFER 512
+#define DEFAULT_PORT "3000"
+
+int __cdecl main(void) {
 	printf("__ __  __ _____ ___ ___   __ \n"
 	       "|  V  |/  \\_   _| _ \\ \\ \\_/ / \n"
 	       "| \\_/ | /\\ || | | v / |> , <  \n"
@@ -30,46 +34,78 @@ int main(void) {
 	       " \\__/_||_|_| |_|___|___/\n"
 	       "  ====  SERVIDOR  ====  \n");
 
-	int server_fd, new_socket;
-	ssize_t valread;
-	struct sockaddr_in address;
-	int opt = 1;
-	socklen_t addrlen = sizeof(address);
-	char buffer[TAMANO_BUFFER] = {0};
-	const char *hello = "Hello from server";
+	WSADATA wsaData;
+	int iResult;
+	SOCKET ListenSocket = INVALID_SOCKET;
+	SOCKET ClientSocket = INVALID_SOCKET;
 
-	// Creating socket file descriptor
-	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		perror("socket failed");
-		exit(EXIT_FAILURE);
+	struct addrinfo *result = NULL;
+	struct addrinfo hints;
+
+	int iSendResult;
+
+	// Initialize Winsock
+	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (iResult != 0) {
+		printf("WSAStartup failed with error: %d\n", iResult);
+		return 1;
 	}
 
-	// Forcefully attaching socket to the port 8080
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-		perror("setsockopt");
-		exit(EXIT_FAILURE);
-	}
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons(DEFAULT_PORT);
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_flags = AI_PASSIVE;
 
-	// Forcefully attaching socket to the port 8080
-	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-		perror("bind failed");
-		exit(EXIT_FAILURE);
-	}
-	if (listen(server_fd, 3) < 0) {
-		perror("listen");
-		exit(EXIT_FAILURE);
-	}
-	if ((new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen)) < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
+	// Resolve the server address and port
+	iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
+	if (iResult != 0) {
+		printf("getaddrinfo failed with error: %d\n", iResult);
+		WSACleanup();
+		return 1;
 	}
 
-	std::cout << "Client connected." << std::endl;
+	// Create a SOCKET for connecting to server
+	ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+	if (ListenSocket == INVALID_SOCKET) {
+		printf("socket failed with error: %ld\n", WSAGetLastError());
+		freeaddrinfo(result);
+		WSACleanup();
+		return 1;
+	}
 
-	std::cout << buffer;
+	// Setup the TCP listening socket
+	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+	if (iResult == SOCKET_ERROR) {
+		printf("bind failed with error: %d\n", WSAGetLastError());
+		freeaddrinfo(result);
+		closesocket(ListenSocket);
+		WSACleanup();
+		return 1;
+	}
+
+	freeaddrinfo(result);
+
+	iResult = listen(ListenSocket, SOMAXCONN);
+	if (iResult == SOCKET_ERROR) {
+		printf("listen failed with error: %d\n", WSAGetLastError());
+		closesocket(ListenSocket);
+		WSACleanup();
+		return 1;
+	}
+
+	// Accept a client socket
+	ClientSocket = accept(ListenSocket, NULL, NULL);
+	if (ClientSocket == INVALID_SOCKET) {
+		printf("accept failed with error: %d\n", WSAGetLastError());
+		closesocket(ListenSocket);
+		WSACleanup();
+		return 1;
+	}
+
+	printf("Un cliente se ha conectado.\n");
+
+	closesocket(ListenSocket); // ??
 
 	TiposMenu menuActual = MENU_0;
 	EstadosMenuLogin estadoLogin = ESPERANDO_USUARIO;
@@ -80,21 +116,28 @@ int main(void) {
 	Paquete paquete = CrearPaqueteDeMenu(menuActual, estadoLogin, ultimoError, nombreUsuarioActual, "");
 	std::string paqueteStr = paquete.AString();
 
-	mandarPaquete(new_socket, paquete);
+	iSendResult = send(ClientSocket, paqueteStr.c_str(), paqueteStr.length(), 0);
+	if (iSendResult == SOCKET_ERROR) {
+		printf("Error al mandar al cliente: %d\n", WSAGetLastError());
+		closesocket(ClientSocket);
+		WSACleanup();
+		return 1;
+	}
 
-	while (true) {
-		valread = read(new_socket, buffer, TAMANO_BUFFER - 1);
+	char bufferEntrante[TAMANO_BUFFER];
 
-		if (valread == 0) {
-			break;
-		}
+	do {
+		// Vaciar buffer de recepcion
+		memset(bufferEntrante, '\0', TAMANO_BUFFER);
 
-		if (buffer[0] != '\0' && buffer[0] != '\\') {
-			std::cout << "> Value read: \"" << buffer << "\"" << std::endl;
+		iResult = recv(ClientSocket, bufferEntrante, TAMANO_BUFFER, 0);
+		printf("Se ha recibido desde cliente: \"%s\"\n", bufferEntrante);
 
+		// Aqui se eligue que hacer con el input (depende el menu, y el juego, etc)
+		if (iResult > 0) {
 			switch (menuActual) {
 			case MENU_0: {
-				char accionElegida = buffer[0];
+				char accionElegida = bufferEntrante[0];
 
 				if (accionElegida == '1') {
 					menuActual = MENU_0_LOGIN;
@@ -110,7 +153,7 @@ int main(void) {
 				break;
 			}
 			case MENU_1: {
-				char accionElegida = *buffer;
+				char accionElegida = *bufferEntrante;
 				if (accionElegida == '1') {
 					menuActual = MENU_2;
 				} else if (accionElegida == '2') {
@@ -126,7 +169,7 @@ int main(void) {
 				break;
 			}
 			case MENU_2: {
-				char accionElegida = *buffer;
+				char accionElegida = *bufferEntrante;
 				// estas opciones son para iniciar los juesgos, menos el 6 que es para ir al menu anterior
 				if (accionElegida == '1') { // Snake
 
@@ -135,7 +178,6 @@ int main(void) {
 				} else if (accionElegida == '3') { // Slip Grave
 
 				} else if (accionElegida == '4') { // Hundir la flota (vs CPU)
-					std::cout << "Se desea jugar a hundir la flota" << std::endl;
 					flota::Partida partida;
 
 					// Prueba: Mandar tablero al jugador
@@ -147,19 +189,27 @@ int main(void) {
 					paquete.PreInput = "Nada por aqui.";
 					paquete.TextoVisual = stringDelTablero.c_str();
 
-					mandarPaquete(new_socket, paquete);
+					std::string paqueteStr = paquete.AString();
 
-					std::cout << "Enviado tablero" << std::endl;
+					iSendResult = send(ClientSocket, paqueteStr.c_str(), paqueteStr.length(), 0);
+					if (iSendResult == SOCKET_ERROR) {
+						printf("Error al mandar al cliente: %d\n", WSAGetLastError());
+						closesocket(ClientSocket);
+						WSACleanup();
+						return 1;
+					}
 
-					// while (!partida.HaFinalizado()) {
-					// 	partida.Iteracion();
-					// }
+					exit(1);
 
-					// if (partida.TableroJugador.CompletamenteHundido()) {
-					// 	std::cout << "Has perdido! No te quedan mas barcos. Suerte a la proxima!";
-					// } else {
-					// 	std::cout << "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!";
-					// }
+					while (!partida.HaFinalizado()) {
+						partida.Iteracion();
+					}
+
+					if (partida.TableroJugador.CompletamenteHundido()) {
+						std::cout << "Has perdido! No te quedan mas barcos. Suerte a la proxima!";
+					} else {
+						std::cout << "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!";
+					}
 
 					exit(1);
 				} else if (accionElegida == '5') { // 4 en raya (vs CPU)
@@ -173,7 +223,7 @@ int main(void) {
 				break;
 			}
 			case MENU_3: {
-				char accionElegida = *buffer;
+				char accionElegida = *bufferEntrante;
 				// estas opciones son para la eleccion de un juego a configurar
 				if (accionElegida == '1') {
 
@@ -195,8 +245,8 @@ int main(void) {
 			}
 			case MENU_0_LOGIN: {
 				std::string textoIntroducido = "";
-				for (int i = 0; i < strlen(buffer); i++) {
-					textoIntroducido = textoIntroducido + buffer[i];
+				for (int i = 0; i < strlen(bufferEntrante); i++) {
+					textoIntroducido = textoIntroducido + bufferEntrante[i];
 				}
 				// char *textoIntroducido = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char)); // porque? +1??
 				//  for (int i = 0; i < strlen(bufferEntrante); i++) {
@@ -234,8 +284,8 @@ int main(void) {
 			}
 			case MENU_0_REGISTRO: {
 				std::string textoIntroducido = "";
-				for (int i = 0; i < strlen(buffer); i++) {
-					textoIntroducido = textoIntroducido + buffer[i];
+				for (int i = 0; i < strlen(bufferEntrante); i++) {
+					textoIntroducido = textoIntroducido + bufferEntrante[i];
 				}
 
 				switch (estadoLogin) {
@@ -292,16 +342,34 @@ int main(void) {
 			Paquete paquete = CrearPaqueteDeMenu(menuActual, estadoLogin, ultimoError, nombreUsuarioActual, "");
 			std::string paqueteStr = paquete.AString();
 
-			mandarPaquete(new_socket, paquete);
-		} else {
-			std::cout << "\t> Ignorado: \"" << buffer << "\" [tamano: " << valread << ", " << strlen(buffer) << "]" << std::endl;
+			iSendResult = send(ClientSocket, paqueteStr.c_str(), paqueteStr.length(), 0);
+			if (iSendResult == SOCKET_ERROR) {
+				printf("Error al mandar al cliente: %d\n", WSAGetLastError());
+				closesocket(ClientSocket);
+				WSACleanup();
+				return 1;
+			}
+		} else if (iResult == 0)
+			printf("Cerrando conexion...\n");
+		else {
+			printf("recv falla con error: %d\n", WSAGetLastError());
+			closesocket(ClientSocket);
+			WSACleanup();
+			return 1;
 		}
+	} while (iResult > 0);
+	// shutdown the connection since we're done
+	iResult = shutdown(ClientSocket, SD_SEND);
+	if (iResult == SOCKET_ERROR) {
+		printf("shutdown failed with error: %d\n", WSAGetLastError());
+		closesocket(ClientSocket);
+		WSACleanup();
+		return 1;
 	}
 
-	std::cout << "Un cliente se ha desconectado. Cerrando servidor." << std::endl;
-	// closing the connected socket
-	close(new_socket);
-	// closing the listening socket
-	close(server_fd);
+	// cleanup
+	closesocket(ClientSocket);
+	WSACleanup();
+
 	return 0;
 }
