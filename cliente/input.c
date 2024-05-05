@@ -6,7 +6,7 @@
 
 char *leerInput(ModosEntrada modo, char *textoVisual) {
 	char *buffer = malloc(512 * sizeof(char));
-	buffer[0] = '\0';
+	memset(buffer, 0, 512 * sizeof(char));
 
 	switch (modo) {
 	case TEXTO:

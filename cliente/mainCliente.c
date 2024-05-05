@@ -15,9 +15,10 @@
 
 #define TAMANO_BUFFER 512
 #define PUERTO "3000"
-#define IP "localhost"
+#define IP "192.168.1.148"
 
 int __cdecl main() {
+	SetConsoleOutputCP(CP_UTF8);
 	system("cls");
 	printf("__ __  __ _____ ___ ___   __ \n"
 	       "|  V  |/  \\_   _| _ \\ \\ \\_/ / \n"
@@ -109,12 +110,14 @@ int __cdecl main() {
 			free(mensaje.peticion);
 			free(mensaje.menu);
 
-			iResult = send(socketConexion, bufferSaliente, TAMANO_BUFFER, 0);
-			if (iResult == SOCKET_ERROR) {
-				printf("fallo al mandar. error: %d\n", WSAGetLastError());
-				closesocket(socketConexion);
-				WSACleanup();
-				return 1;
+			if (bufferSaliente[0] != '\\' && bufferSaliente[0] != '\0') {
+				iResult = send(socketConexion, bufferSaliente, TAMANO_BUFFER, 0);
+				if (iResult == SOCKET_ERROR) {
+					printf("fallo al mandar. error: %d\n", WSAGetLastError());
+					closesocket(socketConexion);
+					WSACleanup();
+					return 1;
+				}
 			}
 
 			free(bufferSaliente);
