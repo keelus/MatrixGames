@@ -8,9 +8,9 @@ char *leerInput(ModosEntrada modo, char *textoVisual) {
 	char *buffer = malloc(512 * sizeof(char));
 	memset(buffer, 0, 512 * sizeof(char));
 
+	printf("%s", textoVisual);
 	switch (modo) {
 	case TEXTO:
-		printf("%s", textoVisual);
 		fgets(buffer, 512, stdin);
 		buffer[strlen(buffer) - 1] = '\0';
 		break;
