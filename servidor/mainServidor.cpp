@@ -145,22 +145,26 @@ int main(void) {
 
 				while (!partida.HaFinalizado()) {
 					bool desconectar = partida.Iteracion(new_socket);
+					std::cout << "Iteracion finalizada";
 					if (desconectar) {
-						break;
+						std::cout << "Desconexion forzosa. Juego finalizado." << std::endl;
+						break; // TODO: Desconectar correctamente, no con break
 					}
 				}
 
-				std::cout << "Desconexion forzosa temporal. Juego finalizado." << std::endl;
-
-				break;
+				// TODO: Guardar resultado
 
 				if (partida.TableroJugador.CompletamenteHundido()) {
 					std::cout << "Has perdido! No te quedan mas barcos. Suerte a la proxima!";
+					mandarPaquete(new_socket, "Has perdido! No te quedan mas barcos. Suerte a la proxima!\n", "[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
 				} else {
 					std::cout << "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!";
+					mandarPaquete(new_socket, "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!\n", "[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
 				}
 
-				exit(1);
+				leerDesdeCliente(new_socket); // Bloquear hasta respuesta
+
+				break;
 			} else if (accionElegida == '5') { // 4 en raya (vs CPU)
 
 			} else if (accionElegida == '6') {

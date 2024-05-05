@@ -13,8 +13,6 @@
 #define TAMANO_BUFFER 1024
 
 bool flota::Partida::Iteracion(int socketId) {
-	system("cls");
-
 	bool haAcertado = false;
 
 	if (Turno == TiposTurno::TURNO_JUGADOR) {
@@ -26,16 +24,13 @@ bool flota::Partida::Iteracion(int socketId) {
 
 		bool ataqueRealizado = false;
 		while (!ataqueRealizado) {
-			// std::string introducidoSucio;
-			// std::cout << "Coordenadas de ataque [letra numero]: ";
-			// std::getline(std::cin, introducidoSucio);
-
-			// TODO: Eliminar espacios
 
 			try {
 				MensajeDeCliente mensajeDeCliente = leerDesdeCliente(socketId);
 				if (mensajeDeCliente.desconectar)
 					return true;
+
+				// TODO: Eliminar espacios desde el input
 
 				Coordenada coordenada = ParsearCoordenada(mensajeDeCliente.contenido);
 				if (TableroCPU.AtaqueYaRecibido(coordenada)) {
@@ -46,14 +41,12 @@ bool flota::Partida::Iteracion(int socketId) {
 					Ataque resultadoAtaque = TableroCPU.RecibirAtaque(coordenada);
 					haAcertado = resultadoAtaque.EsHit;
 
-					system("cls");
-
 					std::string tableroStr = TableroCPU.AString(true);
 					std::string resultadoStr;
 
 					if (resultadoAtaque.EsHundido) {
 						resultadoStr = "Tocado y hundido! A la CPU le quedan ";
-						resultadoStr += TableroCPU.BarcosRestantes();
+						resultadoStr += std::to_string(TableroCPU.BarcosRestantes());
 						resultadoStr += " barcos. Tablero de la CPU:";
 					} else if (resultadoAtaque.EsHit) {
 						resultadoStr = "Tocado! Tablero de la CPU:";
@@ -100,7 +93,7 @@ bool flota::Partida::Iteracion(int socketId) {
 
 		if (resultadoAtaque.EsHundido) {
 			resultadoStr += "Tocado y hundido! Te quedan ";
-			resultadoStr += TableroJugador.BarcosRestantes();
+			resultadoStr += std::to_string(TableroJugador.BarcosRestantes());
 			resultadoStr += " barcos. Tu tablero:";
 		} else if (resultadoAtaque.EsHit) {
 			resultadoStr += "Tocado! Tu tablero:";
