@@ -18,7 +18,7 @@ class Partida {
 		TableroCPU = CrearTableroAleatoriamente();
 		Turno = TiposTurno::TURNO_JUGADOR;
 	};
-	void Iteracion();
+	bool Iteracion(int socketId);
 	bool HaFinalizado();
 	Tablero TableroJugador;
 	Tablero TableroCPU;

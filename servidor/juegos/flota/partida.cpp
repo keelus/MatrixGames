@@ -1,34 +1,46 @@
 #include "partida.h"
 #include "ataque.h"
 #include "coordenada.h"
-#include <exception>
 #include <iostream>
+#include <numeric>
 #include <string>
+
+#include "../../mensaje.h"
+#include "../../paquete.h"
 
 #include <unistd.h> // Para linux
 
-void flota::Partida::Iteracion() {
+#define TAMANO_BUFFER 512
+
+bool flota::Partida::Iteracion(int socketId) {
 	system("cls");
 
 	bool haAcertado = false;
 
 	if (Turno == TiposTurno::TURNO_JUGADOR) {
-		std::cout << "Te toca atacar! Tablero de la CPU:";
-		TableroCPU.Imprimir(true);
+		std::string contenidoPrincipal = "Te toca atacar! Tablero de la CPU:";
+		contenidoPrincipal += TableroCPU.AString(true);
+
+		mandarPaquete(socketId, contenidoPrincipal, "Introduce una coordenada: ", TEXTO, true);
+		std::cout << contenidoPrincipal;
 
 		bool ataqueRealizado = false;
 		while (!ataqueRealizado) {
-			std::string introducidoSucio;
-			std::cout << "Coordenadas de ataque [letra numero]: ";
-			std::getline(std::cin, introducidoSucio);
+			// std::string introducidoSucio;
+			// std::cout << "Coordenadas de ataque [letra numero]: ";
+			// std::getline(std::cin, introducidoSucio);
 
 			// TODO: Eliminar espacios
-			std::string introducido = introducidoSucio;
 
 			try {
-				Coordenada coordenada = ParsearCoordenada(introducido);
+				MensajeDeCliente mensajeDeCliente = leerDesdeCliente(socketId);
+				if (mensajeDeCliente.desconectar)
+					return true;
+
+				Coordenada coordenada = ParsearCoordenada(mensajeDeCliente.contenido);
 				if (TableroCPU.AtaqueYaRecibido(coordenada)) {
 					std::cout << "Ataque ya realizado!\n";
+					mandarPaquete(socketId, "", "Ataque ya realizado! Introduce otra coordenada: ", TEXTO, false);
 				} else {
 					ataqueRealizado = true;
 					Ataque resultadoAtaque = TableroCPU.RecibirAtaque(coordenada);
@@ -36,46 +48,81 @@ void flota::Partida::Iteracion() {
 
 					system("cls");
 
+					std::string tableroStr = TableroCPU.AString(true);
+					std::string resultadoStr;
+
 					if (resultadoAtaque.EsHundido) {
-						std::cout << "Tocado y hundido! A la CPU le quedan " << TableroCPU.BarcosRestantes() << " barcos. Tablero de la CPU:";
+						resultadoStr = "Tocado y hundido! A la CPU le quedan ";
+						resultadoStr += TableroCPU.BarcosRestantes();
+						resultadoStr += " barcos. Tablero de la CPU:";
 					} else if (resultadoAtaque.EsHit) {
-						std::cout << "Tocado! Tablero de la CPU:";
+						resultadoStr = "Tocado! Tablero de la CPU:";
 					} else {
-						std::cout << "Agua! Tablero de la CPU:";
+						resultadoStr = "Agua! Tablero de la CPU:";
 					}
 
-					TableroCPU.Imprimir(true);
-					sleep(3);
+					std::string contenidoFinal = resultadoStr + tableroStr;
+
+					mandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
+					std::cout << contenidoFinal << std::endl;
+
+					mensajeDeCliente = leerDesdeCliente(socketId); // Bloquear programa hast recibir mensaje
+
+					if (mensajeDeCliente.desconectar)
+						return true;
 				}
 
 			} catch (char const *e) {
-				std::cout << "La coordenada introducida es invalida! Introduce otra:";
+				std::cout << "Llegamos aqui..." << std::endl;
+				std::cout << "La coordenada introducida es invalida! Introduce otra:" << std::endl;
+				mandarPaquete(socketId, "", "La coordenada introducida es invalida! Introduce otra: ", TEXTO, false);
 			}
 		}
 	} else {
-		std::cout << "Turno de la CPU! Tu tablero:";
+		// MensajeDeCliente mensajeDeCliente = leerDesdeCliente(socketId);
+		// if (mensajeDeCliente.desconectar)
+		// 	return true;
+		std::string contenidoPrincipal = "Turno de la CPU! Tu tablero:";
+		contenidoPrincipal += TableroJugador.AString(false);
 
-		TableroJugador.Imprimir(false);
-		sleep(2);
+		mandarPaquete(socketId, contenidoPrincipal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
+		std::cout << contenidoPrincipal;
+
+		MensajeDeCliente mensajeDeCliente = leerDesdeCliente(socketId); // Bloquear hasta continuar
+		if (mensajeDeCliente.desconectar)
+			return true;
+
 		Ataque resultadoAtaque = TableroJugador.RecibirAtaqueComoIA();
 		haAcertado = resultadoAtaque.EsHit;
 
-		system("cls");
+		std::string tableroStr = TableroJugador.AString(false);
+		std::string resultadoStr = "La CPU ha atacado! ";
 
 		if (resultadoAtaque.EsHundido) {
-			std::cout << "Tocado y hundido! Te quedan " << TableroJugador.BarcosRestantes() << " barcos. Tu tablero:";
+			resultadoStr += "Tocado y hundido! Te quedan ";
+			resultadoStr += TableroJugador.BarcosRestantes();
+			resultadoStr += " barcos. Tu tablero:";
 		} else if (resultadoAtaque.EsHit) {
-			std::cout << "Tocado! Tu tablero:";
+			resultadoStr += "Tocado! Tu tablero:";
 		} else {
-			std::cout << "Agua! Tu tablero:";
+			resultadoStr += "Agua! Tu tablero:";
 		}
 
-		TableroJugador.Imprimir(false);
-		sleep(3);
+		std::cout << resultadoStr << std::endl;
+		std::string contenidoFinal = resultadoStr + tableroStr;
+
+		mandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
+		std::cout << contenidoFinal << std::endl;
+
+		mensajeDeCliente = leerDesdeCliente(socketId); // Bloquear programa hast recibir mensaje
+		if (mensajeDeCliente.desconectar)
+			return true;
 	}
 
 	if (!haAcertado) {
 		Turno = Turno == TiposTurno::TURNO_JUGADOR ? TiposTurno::TURNO_CPU : TiposTurno::TURNO_JUGADOR;
 	}
+
+	return false;
 }
 bool flota::Partida::HaFinalizado() { return TableroJugador.CompletamenteHundido() || TableroCPU.CompletamenteHundido(); }

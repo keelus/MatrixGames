@@ -1,6 +1,7 @@
 #ifndef PAQUETE_H
 #define PAQUETE_H
 
+#include "../cliente/input.h"
 #include <iostream>
 
 class Paquete {
@@ -20,5 +21,6 @@ class Paquete {
 };
 
 void mandarPaquete(int socketId, Paquete paquete);
+void mandarPaquete(int socketId, std::string textoVisual, std::string preInput, ModosEntrada modoEntrada, bool limpiarPantalla);
 
 #endif
