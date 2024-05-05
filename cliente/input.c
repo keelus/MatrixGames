@@ -7,7 +7,7 @@
 #define TAMANO_BUFFER 512
 
 char *leerInput(ModosEntrada modo, char *textoVisual) {
-	char *buffer = malloc(*sizeof(char));
+	char *buffer = malloc(TAMANO_BUFFER * sizeof(char));
 	memset(buffer, 0, TAMANO_BUFFER * sizeof(char));
 
 	printf("%s", textoVisual);

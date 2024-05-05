@@ -13,7 +13,7 @@ cd ./servidor/
 ```
 Y luego (en linux)
 ```
-g++ ./mainServidor.cpp ./sql.cpp ./menu.cpp ./paquete.cpp ./externo/sqlite3pp/sqlite3pp.cpp -lsqlite3 ./juegos/flota/barco.cpp ./juegos/flota/casilla.cpp ./juegos/flota/coordenada.cpp ./juegos/flota/partida.cpp ./juegos/flota/tablero.cpp -o mainServidor && ./mainServidor
+g++ ./mainServidor.cpp ./sql.cpp ./menu.cpp ./paquete.cpp ./mensaje.cpp ./externo/sqlite3pp/sqlite3pp.cpp -lsqlite3 ./juegos/flota/barco.cpp ./juegos/flota/casilla.cpp ./juegos/flota/coordenada.cpp ./juegos/flota/partida.cpp ./juegos/flota/tablero.cpp -o mainServidor
 ```
 
 #### Comando para el cliente
