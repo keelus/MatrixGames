@@ -15,17 +15,19 @@ char *leerInput(ModosEntrada modo, char *textoVisual) {
 		buffer[strlen(buffer) - 1] = '\0';
 		break;
 	case PULSACION:
-		if (kbhit()) {
-			buffer[0] = getch(); // Nota: Las flechas (arriba, abajo, derecha, izquierda) estan mapeadas raras. Mejor seria comprobar en cliente y reemplazar con letras (izquierda = a, derecha = b) etc
+		while (1) {
+			if (kbhit()) {
+				buffer[0] = getch(); // Nota: Las flechas (arriba, abajo, derecha, izquierda) estan mapeadas raras. Mejor seria comprobar en cliente y reemplazar con letras (izquierda = a, derecha = b) etc
 
-			// Si se manda el caracter "Enter", reemplazarlo por "Espacio"
-			if (buffer[0] == 10) {
-				buffer[0] = ' ';
+				// Si se manda el caracter "Enter", reemplazarlo por "Espacio"
+				if (buffer[0] == 10) {
+					buffer[0] = ' ';
+				}
+
+				buffer[1] = '\0';
+
+				break;
 			}
-
-			buffer[1] = '\0';
-
-			printf("Pulsacion de tecla enviada\n");
 		}
 		break;
 	}
