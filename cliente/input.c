@@ -14,6 +14,8 @@ char *leerInput(ModosEntrada modo, char *textoVisual) {
 	switch (modo) {
 	case TEXTO:
 		fgets(buffer, TAMANO_BUFFER, stdin);
+		if (strlen(buffer) == 0)
+			buffer[0] = ' '; // Añadir espacio, para prevenir un mensaje vacio que el servidor ignorará. Esto haría que los mensajes y visuales irían desincronizaods."
 		buffer[strlen(buffer) - 1] = '\0';
 		break;
 	case PULSACION:
@@ -21,7 +23,7 @@ char *leerInput(ModosEntrada modo, char *textoVisual) {
 			if (kbhit()) {
 				buffer[0] = getch(); // Nota: Las flechas (arriba, abajo, derecha, izquierda) estan mapeadas raras. Mejor seria comprobar en cliente y reemplazar con letras (izquierda = a, derecha = b) etc
 
-				// Si se manda el caracter "Enter", reemplazarlo por "Espacio"
+				// Si se manda la tecla enter, reemplazarla por un espacio, para prevenir un mensaje vacio que el servidor ignorará. Esto haría que los mensajes y visuales irían desincronizaods."
 				if (buffer[0] == 10) {
 					buffer[0] = ' ';
 				}
