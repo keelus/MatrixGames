@@ -1,5 +1,8 @@
 # MatrixGames
 
+### Identificacion
+El usuario default para iniciar sesion es "admin" y la contraseña "admin".
+
 ### Requerimentos
 Para poder compilar el servidor, necesitarás tener instalado `sqlite3` y `libc++` instalado correctamente.
 
