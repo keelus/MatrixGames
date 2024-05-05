@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TAMANO_BUFFER 512
+#define TAMANO_BUFFER 1024
 
 char *leerInput(ModosEntrada modo, char *textoVisual) {
 	char *buffer = malloc(TAMANO_BUFFER * sizeof(char));
