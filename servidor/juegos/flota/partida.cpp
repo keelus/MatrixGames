@@ -10,7 +10,7 @@
 
 #include <unistd.h> // Para linux
 
-#define TAMANO_BUFFER 512
+#define TAMANO_BUFFER 1024
 
 bool flota::Partida::Iteracion(int socketId) {
 	system("cls");

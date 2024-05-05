@@ -4,14 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define TAMANO_BUFFER 512
+
 char *leerInput(ModosEntrada modo, char *textoVisual) {
-	char *buffer = malloc(512 * sizeof(char));
-	memset(buffer, 0, 512 * sizeof(char));
+	char *buffer = malloc(*sizeof(char));
+	memset(buffer, 0, TAMANO_BUFFER * sizeof(char));
 
 	printf("%s", textoVisual);
 	switch (modo) {
 	case TEXTO:
-		fgets(buffer, 512, stdin);
+		fgets(buffer, TAMANO_BUFFER, stdin);
 		buffer[strlen(buffer) - 1] = '\0';
 		break;
 	case PULSACION:

@@ -13,7 +13,7 @@
 #pragma comment(lib, "Mswsock.lib")
 #pragma comment(lib, "AdvApi32.lib")
 
-#define TAMANO_BUFFER 512
+#define TAMANO_BUFFER 1024
 #define PUERTO "3000"
 #define IP "192.168.1.148"
 

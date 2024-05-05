@@ -3,7 +3,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define TAMANO_BUFFER 512
+#define TAMANO_BUFFER 1024
 
 MensajeDeCliente leerDesdeCliente(int socketId) {
 	ssize_t valread;

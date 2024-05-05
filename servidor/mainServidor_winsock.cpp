@@ -21,7 +21,7 @@
 #pragma comment(lib, "Ws2_32.lib")
 // #pragma comment (lib, "Mswsock.lib")
 
-#define TAMANO_BUFFER 512
+#define TAMANO_BUFFER 1024
 #define DEFAULT_PORT "3000"
 
 int __cdecl main(void) {

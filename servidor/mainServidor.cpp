@@ -18,7 +18,7 @@
 // Flota
 #include "juegos/flota/partida.h"
 
-#define TAMANO_BUFFER 512
+#define TAMANO_BUFFER 1024
 #define DEFAULT_PORT 3000
 
 int main(void) {
