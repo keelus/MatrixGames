@@ -7,7 +7,7 @@
 #include <random>
 #include <windows.h>
 
-std::string Tablero::AString(bool esconderBarcos) const {
+std::string flota::Tablero::AString(bool esconderBarcos) const {
 	std::string numeros[] = {u8"❶", u8"❷", u8"❸", u8"❹", u8"❺", u8"❻", u8"❼", u8"❽"};
 
 	std::string outStr[8][8];
@@ -68,7 +68,7 @@ std::string Tablero::AString(bool esconderBarcos) const {
 	return stringFinal;
 }
 
-void Tablero::Imprimir(bool esconderBarcos) const {
+void flota::Tablero::Imprimir(bool esconderBarcos) const {
 	std::string numeros[] = {u8"❶", u8"❷", u8"❸", u8"❹", u8"❺", u8"❻", u8"❼", u8"❽"};
 
 	std::string outStr[8][8];
@@ -124,7 +124,7 @@ void Tablero::Imprimir(bool esconderBarcos) const {
 	}
 };
 
-Tablero CrearTableroAleatoriamente() {
+flota::Tablero flota::CrearTableroAleatoriamente() {
 	Tablero tablero;
 
 	TipoBarco tiposBarco[5] = {TipoBarco::PORTAVIONES, TipoBarco::ACORAZADO, TipoBarco::CRUCERO, TipoBarco::SUBMARINO, TipoBarco::DESTRUCTOR};
@@ -168,9 +168,9 @@ Tablero CrearTableroAleatoriamente() {
 	return tablero;
 }
 
-void Tablero::Colocar(Barco barco, int indice) { Barcos[indice] = barco; }
+void flota::Tablero::Colocar(Barco barco, int indice) { Barcos[indice] = barco; }
 
-bool Tablero::Colocable(TipoBarco tipo, Orientacion orientacion, int x, int y) {
+bool flota::Tablero::Colocable(TipoBarco tipo, Orientacion orientacion, int x, int y) {
 	for (int c = 0; c < int(tipo); c++) {
 		Coordenada coordenadaABuscar(x, y);
 		if (orientacion == Orientacion::HORIZONTAL) {
@@ -188,7 +188,7 @@ bool Tablero::Colocable(TipoBarco tipo, Orientacion orientacion, int x, int y) {
 	return true;
 }
 
-Barco *Tablero::BarcoEn(Coordenada coordenada) {
+flota::Barco *flota::Tablero::BarcoEn(Coordenada coordenada) {
 	for (int b = 0; b < 5; b++) {
 		Barco *barco = &Barcos[b];
 		std::vector<Coordenada> coordenadasOcupadas = barco->CoordenadasOcupadas();
@@ -204,7 +204,7 @@ Barco *Tablero::BarcoEn(Coordenada coordenada) {
 	return nullptr;
 }
 
-Tablero CrearTableroManualmente() {
+flota::Tablero flota::CrearTableroManualmente() {
 	Tablero tablero;
 
 	TipoBarco tiposBarco[5] = {TipoBarco::PORTAVIONES, TipoBarco::ACORAZADO, TipoBarco::CRUCERO, TipoBarco::SUBMARINO, TipoBarco::DESTRUCTOR};
@@ -300,7 +300,7 @@ Tablero CrearTableroManualmente() {
 	return tablero;
 }
 
-Ataque Tablero::RecibirAtaque(Coordenada coordenada) {
+flota::Ataque flota::Tablero::RecibirAtaque(Coordenada coordenada) {
 	Ataque ataque = Ataque(false, false, coordenada);
 
 	Barco *barcoEncontrado = BarcoEn(coordenada);
@@ -315,7 +315,7 @@ Ataque Tablero::RecibirAtaque(Coordenada coordenada) {
 
 	return ataque;
 }
-int Tablero::BarcosRestantes() const {
+int flota::Tablero::BarcosRestantes() const {
 	int barcosRestantes = 0;
 	for (int i = 0; i < 5; i++) {
 		barcosRestantes += Barcos[i].EstaHundido() ? 0 : 1;
@@ -324,7 +324,7 @@ int Tablero::BarcosRestantes() const {
 	return barcosRestantes;
 };
 
-bool Tablero::AtaqueYaRecibido(Coordenada coordenada) const {
+bool flota::Tablero::AtaqueYaRecibido(Coordenada coordenada) const {
 	for (Ataque ataque : AtaquesRecibidos) {
 		if (ataque.Coord.X == coordenada.X && ataque.Coord.Y == coordenada.Y) {
 			return true;
@@ -334,7 +334,7 @@ bool Tablero::AtaqueYaRecibido(Coordenada coordenada) const {
 	return false;
 }
 
-bool Tablero::CompletamenteHundido() const {
+bool flota::Tablero::CompletamenteHundido() const {
 	for (Barco barco : Barcos) {
 		if (!barco.EstaHundido()) {
 			return false;
@@ -344,7 +344,7 @@ bool Tablero::CompletamenteHundido() const {
 	return true;
 };
 
-bool Tablero::AtaqueTacticoDisponibleIA() {
+bool flota::Tablero::AtaqueTacticoDisponibleIA() {
 	for (Barco barco : Barcos) {
 		if (barco.EstaTocado() && !barco.EstaHundido()) {
 			return true;
@@ -354,7 +354,7 @@ bool Tablero::AtaqueTacticoDisponibleIA() {
 	return false;
 }
 
-Coordenada Tablero::CalcularAtaqueIA() {
+flota::Coordenada flota::Tablero::CalcularAtaqueIA() {
 	Coordenada coordenadasAtaque(-1, -1);
 
 	// Si es posible, y la IA sabe que hay un barco tocado no hundido que puede atacar, intentara atacar alrededor
@@ -400,7 +400,7 @@ Coordenada Tablero::CalcularAtaqueIA() {
 	return coordenadasAtaque;
 }
 
-Ataque Tablero::RecibirAtaqueComoIA() {
+flota::Ataque flota::Tablero::RecibirAtaqueComoIA() {
 	Coordenada coordenadasAtaque = CalcularAtaqueIA();
 	return RecibirAtaque(coordenadasAtaque);
 }

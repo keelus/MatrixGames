@@ -1,7 +1,7 @@
 #include "barco.h"
 #include "casilla.h"
 
-Barco::Barco(TipoBarco tipo, enum Orientacion orientacion, int x, int y, bool esGuia) {
+flota::Barco::Barco(TipoBarco tipo, enum Orientacion orientacion, int x, int y, bool esGuia) {
 	this->Tipo = tipo;
 	this->Orientacion = orientacion;
 	this->X = x;
@@ -23,7 +23,7 @@ Barco::Barco(TipoBarco tipo, enum Orientacion orientacion, int x, int y, bool es
 	}
 }
 
-bool Barco::EstaHundido() const {
+bool flota::Barco::EstaHundido() const {
 	for (Casilla casilla : Casillas) {
 		if (casilla.Estado == EstadoCasilla::BARCO) {
 			return false;
@@ -33,7 +33,7 @@ bool Barco::EstaHundido() const {
 	return true;
 }
 
-bool Barco::EstaTocado() const {
+bool flota::Barco::EstaTocado() const {
 	for (Casilla casilla : Casillas) {
 		if (casilla.Estado == EstadoCasilla::HIT) {
 			return true;
@@ -43,7 +43,7 @@ bool Barco::EstaTocado() const {
 	return false;
 }
 
-std::vector<Coordenada> Barco::CoordenadasOcupadas() const {
+std::vector<flota::Coordenada> flota::Barco::CoordenadasOcupadas() const {
 	std::vector<Coordenada> coordenadas;
 
 	for (int c = 0; c < int(Tipo); c++) {
@@ -61,7 +61,7 @@ std::vector<Coordenada> Barco::CoordenadasOcupadas() const {
 	return coordenadas;
 }
 
-std::vector<Casilla> Barco::CasillasTocadas() const {
+std::vector<flota::Casilla> flota::Barco::CasillasTocadas() const {
 	std::vector<Casilla> casillasTocadas;
 
 	for (Casilla casilla : Casillas) {
@@ -73,7 +73,7 @@ std::vector<Casilla> Barco::CasillasTocadas() const {
 	return casillasTocadas;
 };
 
-void Barco::Imprimir() {
+void flota::Barco::Imprimir() {
 	std::cout << "\nBarco{ \n\tOrientacion: " << (Orientacion == Orientacion::HORIZONTAL ? "horizontal" : "vertical") << ", \n\tX: " << X << ", \n\tY:" << Y << ",\n\tCasillas: {";
 
 	for (Casilla casilla : Casillas) {

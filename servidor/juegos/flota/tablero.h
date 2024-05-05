@@ -3,8 +3,10 @@
 
 #include "ataque.h"
 #include "barco.h"
+#include "flota.h"
 #include <vector>
 
+namespace flota {
 class Tablero {
       public:
 	Tablero() {}
@@ -29,7 +31,8 @@ class Tablero {
 	std::vector<Ataque> AtaquesRecibidos;
 };
 
-Tablero CrearTableroManualmente();
-Tablero CrearTableroAleatoriamente();
+flota::Tablero CrearTableroManualmente();
+flota::Tablero CrearTableroAleatoriamente();
+} // namespace flota
 
 #endif

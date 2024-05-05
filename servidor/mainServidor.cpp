@@ -178,7 +178,7 @@ int __cdecl main(void) {
 				} else if (accionElegida == '3') { // Slip Grave
 
 				} else if (accionElegida == '4') { // Hundir la flota (vs CPU)
-					Partida partida;
+					flota::Partida partida;
 
 					// Prueba: Mandar tablero al jugador
 

@@ -2,8 +2,10 @@
 #define CASILLA_H
 
 #include "coordenada.h"
+#include "flota.h"
 #include <iostream>
 
+namespace flota {
 enum class EstadoCasilla {
 	AGUA = 0,
 	BARCO = 1,
@@ -14,7 +16,7 @@ enum class EstadoCasilla {
 };
 
 class Casilla {
-  public:
+      public:
 	Casilla(Coordenada coordenada, int indice, EstadoCasilla estado) : Coord(coordenada), Indice(indice), Estado(estado){};
 
 	Coordenada Coord;
@@ -23,5 +25,6 @@ class Casilla {
 };
 
 std::string EmoticonoCasilla(EstadoCasilla estado);
+} // namespace flota
 
 #endif

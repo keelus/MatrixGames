@@ -1,10 +1,12 @@
 #ifndef COORDENADA_H
 #define COORDENADA_H
 
+#include "flota.h"
 #include <iostream>
 
+namespace flota {
 class Coordenada {
-  public:
+      public:
 	int X, Y;
 
 	Coordenada(int x, int y) : X(x), Y(y){};
@@ -13,5 +15,6 @@ class Coordenada {
 };
 
 Coordenada ParsearCoordenada(std::string coordenadaStr);
+} // namespace flota
 
 #endif

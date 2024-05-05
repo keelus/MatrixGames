@@ -2,8 +2,11 @@
 #define BARCO_H
 
 #include "casilla.h"
+#include "flota.h"
+
 #include <vector>
 
+namespace flota {
 enum class TipoBarco {
 	PORTAVIONES = 5,
 	ACORAZADO = 4,
@@ -19,7 +22,7 @@ enum class Orientacion {
 };
 
 class Barco {
-  public:
+      public:
 	Barco(TipoBarco tipo, Orientacion orientacion, int x, int y, bool esGuia);
 	Barco() : Tipo(TipoBarco::NULO), Orientacion(Orientacion::HORIZONTAL), X(0), Y(0), EsGuia(false) {
 		for (int c = 0; c < int(Tipo); c++) { // Temporal. Necesario para testing
@@ -41,5 +44,6 @@ class Barco {
 	bool EsGuia;
 	std::vector<Casilla> Casillas;
 };
+} // namespace flota
 
 #endif

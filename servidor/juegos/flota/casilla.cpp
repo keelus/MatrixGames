@@ -1,7 +1,7 @@
 #include "casilla.h"
 #include <string>
 
-std::string EmoticonoCasilla(EstadoCasilla estado) {
+std::string flota::EmoticonoCasilla(EstadoCasilla estado) {
 	switch (estado) {
 	case EstadoCasilla::AGUA:
 		return u8"🟦";

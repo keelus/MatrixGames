@@ -2,12 +2,15 @@
 #define ATAQUE_H
 
 #include "coordenada.h"
+#include "flota.h"
 
+namespace flota {
 class Ataque {
-  public:
-	Ataque(bool esHit, bool esHundido, Coordenada coord) : EsHit(esHit), EsHundido(esHundido), Coord(coord){};
+      public:
+	Ataque(bool esHit, bool esHundido, flota::Coordenada coord) : EsHit(esHit), EsHundido(esHundido), Coord(coord){};
 	bool EsHit, EsHundido;
-	Coordenada Coord;
+	flota::Coordenada Coord;
 };
+} // namespace flota
 
 #endif

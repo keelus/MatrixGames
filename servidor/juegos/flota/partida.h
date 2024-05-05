@@ -1,8 +1,10 @@
 #ifndef PARTIDA_H
 #define PARTIDA_H
 
+#include "flota.h"
 #include "tablero.h"
 
+namespace flota {
 enum class TiposTurno {
 	TURNO_JUGADOR = 0,
 	TURNO_CPU = 1,
@@ -22,5 +24,7 @@ class Partida {
 	Tablero TableroCPU;
 	TiposTurno Turno;
 };
+
+} // namespace flota
 
 #endif

@@ -1,14 +1,15 @@
 #include "coordenada.h"
+#include "flota.h"
 #include <map>
 #include <stdexcept>
 
-Coordenada ParsearCoordenada(std::string coordenadaStr) {
+flota::Coordenada flota::ParsearCoordenada(std::string coordenadaStr) {
 	std::map<char, int> letrasValidas = {
-		{'a', 0}, {'b', 1}, {'c', 2}, {'d', 3}, {'e', 4}, {'f', 5}, {'g', 6}, {'h', 7},
+	    {'a', 0}, {'b', 1}, {'c', 2}, {'d', 3}, {'e', 4}, {'f', 5}, {'g', 6}, {'h', 7},
 	};
 
 	std::map<char, int> numerosValidos = {
-		{'1', 7}, {'2', 6}, {'3', 5}, {'4', 4}, {'5', 3}, {'6', 2}, {'7', 1}, {'8', 0},
+	    {'1', 7}, {'2', 6}, {'3', 5}, {'4', 4}, {'5', 3}, {'6', 2}, {'7', 1}, {'8', 0},
 	};
 
 	if (coordenadaStr.length() == 2) {
@@ -21,7 +22,7 @@ Coordenada ParsearCoordenada(std::string coordenadaStr) {
 			columna = letrasValidas.at(letra);
 			fila = numerosValidos.at(numero);
 
-			return Coordenada(columna, fila);
+			return flota::Coordenada(columna, fila);
 		} catch (std::out_of_range &e) {
 			throw "Coordenada invalida";
 		}

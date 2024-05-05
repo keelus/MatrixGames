@@ -9,7 +9,7 @@
 #include <unistd.h> // Para linux
 #include <windows.h>
 
-void Partida::Iteracion() {
+void flota::Partida::Iteracion() {
 	system("cls");
 
 	bool haAcertado = false;
@@ -80,4 +80,4 @@ void Partida::Iteracion() {
 		Turno = Turno == TiposTurno::TURNO_JUGADOR ? TiposTurno::TURNO_CPU : TiposTurno::TURNO_JUGADOR;
 	}
 }
-bool Partida::HaFinalizado() { return TableroJugador.CompletamenteHundido() || TableroCPU.CompletamenteHundido(); }
+bool flota::Partida::HaFinalizado() { return TableroJugador.CompletamenteHundido() || TableroCPU.CompletamenteHundido(); }
