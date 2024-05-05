@@ -1,6 +1,5 @@
 #include "utilsLED.h"
 #include "externo/rpi_ws281x/ws2811.h"
-#include <cstdio>
 
 using namespace utilsLED;
 
