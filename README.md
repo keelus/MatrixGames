@@ -24,3 +24,8 @@ Y luego
 ```
 gcc mainCliente.c input.c mensajes.c -lws2_32 -o mainCliente.exe
 ```
+
+#### Temporal (comando para compilar archivo temporal de pruebas ws2812)
+```
+gcc main.c dma.c pwm.c ws2811.c mailbox.c pcm.c rpihw.c -lrt -lm -o main
+```
