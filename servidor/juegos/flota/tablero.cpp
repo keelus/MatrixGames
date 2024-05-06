@@ -23,7 +23,7 @@ void flota::Tablero::AContenidoColor(ColorLED referenciaContenido[8][8], bool es
 
 	for (Barco barco : Barcos) {
 		for (int c = 0; c < int(barco.Tipo); c++) {
-			ColorLED color = ColorLED::Blanco;
+			ColorLED color = ColorLED::Nulo;
 
 			if (!esconderBarcos) {
 				color = ColorCasilla(barco.Casillas[c].Estado);
@@ -35,7 +35,7 @@ void flota::Tablero::AContenidoColor(ColorLED referenciaContenido[8][8], bool es
 				color = ColorCasilla(EstadoCasilla::HIT_HUNDIDO);
 			}
 
-			if (color != ColorLED::Blanco /* sin establecer */) {
+			if (color != ColorLED::Nulo /* sin establecer */) {
 				if (barco.Orientacion == Orientacion::HORIZONTAL) {
 					referenciaContenido[barco.Y][barco.X + c] = color;
 				} else {

@@ -13,7 +13,9 @@ enum class ColorLED { // Little endian!
 	Naranja 	= 0x000030FF,
 
 	Blanco 		= 0x00FFFFFF,
-	Negro 		= 0x00000000
+	Negro 		= 0x00000000,
+
+	Nulo 		= 0x00000000 // Para realizar comprobaciones. No borrar.
 };
 
 // clang-format on
