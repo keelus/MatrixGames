@@ -3,7 +3,7 @@
 
 // clang-format off
 enum class ColorLED { // Formato hex: 0xRRGGBB
-	Rojo 		= 0xFF000,
+	Rojo 		= 0xFF0000,
 	Verde 		= 0x00FF00,
 	Azul 		= 0x0000FF,
 
