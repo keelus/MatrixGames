@@ -25,7 +25,7 @@
 #define DEFAULT_PORT 3000
 
 int main(void) {
-	Globales::MATRIZ_COLOR.RellenarDeColor(ColorLED::Negro);
+	Globales::MATRIZ_COLOR.RellenarDeColor(ColorLED::Blanco);
 	Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
 
 	printf("__ __  __ _____ ___ ___   __ \n"
@@ -85,6 +85,9 @@ int main(void) {
 	mandarPaquete(new_socket, paquete);
 
 	while (true) {
+		Globales::MATRIZ_COLOR.RellenarDeColor(ColorLED::Naranja); // Indica que hay un usuario contectado
+		Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
+
 		MensajeDeCliente mensajeDeCliente = leerDesdeCliente(new_socket);
 		if (mensajeDeCliente.desconectar)
 			break;

@@ -117,7 +117,7 @@ static void setup_handlers(void) {
 
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
-		printf("Uso: ./probarColor 0xRRGGBB (color hex)");
+		printf("Uso: ./probarColor 0x00RRGGBB (color hex)");
 		exit(1);
 	}
 
