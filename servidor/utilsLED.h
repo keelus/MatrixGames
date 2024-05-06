@@ -1,3 +1,6 @@
+#ifndef UTILSLED_H
+#define UTILSLED_H
+
 #include "externo/rpi_ws281x/ws2811.h"
 #include <iostream>
 #include <stdlib.h>
@@ -11,14 +14,6 @@ enum class ColorLED {
 	Azul,
 	Blanco,
 	Negro
-};
-
-std::unordered_map<ColorLED, char> ValoresColoresLED = {
-	{ ColorLED::Rojo, 0x00200000},
-	{ ColorLED::Verde, 0x00002000},
-	{ ColorLED::Azul, 0x00000020},
-	{ ColorLED::Blanco, 0x00101010},
-	{ ColorLED::Negro, 0x00000000}
 };
 
 // clang-format on
@@ -39,3 +34,5 @@ class TiraLED {
 	ws2811_led_t *matriz;
 };
 } // namespace utilsLED
+
+#endif
