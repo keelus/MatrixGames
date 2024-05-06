@@ -3,8 +3,8 @@
 
 #include "utilsLED.h"
 namespace Globales {
-utilsLED::TiraLED TIRA_LED;
-MatrizColor MATRIZ_COLOR;
+static utilsLED::TiraLED TIRA_LED;
+static MatrizColor MATRIZ_COLOR;
 } // namespace Globales
 
 #endif
