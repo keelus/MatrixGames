@@ -56,7 +56,12 @@ void utilsLED::TiraLED::Colorear(MatrizColor matrizColor) {
 	for (unsigned int y = 0; y < this->altura; y++) {
 		for (unsigned int x = 0; x < this->anchura; x++) {
 			valorColor = static_cast<int>(matrizColor.getPixel(x, y));
-			this->matriz[y * anchura + x] = valorColor;
+
+			if (x % 2 != 0) {
+				this->matriz[x * this->anchura + (this->anchura - 1) - y] = valorColor;
+			} else {
+				this->matriz[x * this->anchura + y] = valorColor;
+			}
 		}
 	}
 

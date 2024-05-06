@@ -23,12 +23,14 @@ bool flota::Partida::Iteracion(int socketId) {
 		contenidoPrincipal += TableroCPU.AString(true);
 
 		std::cout << "Intentando colorear:" << std::endl;
+		Globales::MATRIZ_COLOR.Imprimir();
 
 		TableroCPU.AContenidoColor(bufferContenido, true);
 		Globales::MATRIZ_COLOR.SetContenido(bufferContenido);
 		Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
 
 		std::cout << "Coloreado?" << std::endl;
+		Globales::MATRIZ_COLOR.Imprimir();
 
 		mandarPaquete(socketId, contenidoPrincipal, "Introduce una coordenada: ", TEXTO, true);
 		std::cout << contenidoPrincipal;

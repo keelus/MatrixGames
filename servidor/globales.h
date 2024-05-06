@@ -1,6 +1,7 @@
 #ifndef GLOBALES_H
 #define GLOBALES_H
 
+#include "matrizColor.h"
 #include "utilsLED.h"
 namespace Globales {
 static utilsLED::TiraLED TIRA_LED;

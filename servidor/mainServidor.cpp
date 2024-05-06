@@ -24,10 +24,8 @@
 #define TAMANO_BUFFER 1024
 #define DEFAULT_PORT 3000
 
-utilsLED::TiraLED tiraLED;
-
 int main(void) {
-	Globales::MATRIZ_COLOR.RellenarDeColor(ColorLED::Rojo);
+	Globales::MATRIZ_COLOR.RellenarDeColor(ColorLED::Negro);
 	Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
 
 	printf("__ __  __ _____ ___ ___   __ \n"

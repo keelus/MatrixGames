@@ -38,3 +38,22 @@ ColorLED flota::ColorCasilla(EstadoCasilla estado) {
 
 	return ColorLED::Rojo;
 }
+
+std::string flota::Ftemporal(ColorLED color) {
+	switch (color) {
+	case ColorLED::Cian:
+		return "Cian";
+	case ColorLED::Blanco:
+		return "Blanco";
+	case ColorLED::Verde:
+		return "Verde";
+	case ColorLED::Amarillo:
+		return "Amarillo";
+	case ColorLED::Negro:
+		return "Negro";
+	case ColorLED::Rojo:
+		return "Rojo";
+	}
+
+	return "?";
+}

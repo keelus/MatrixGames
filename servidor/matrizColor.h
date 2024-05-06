@@ -19,6 +19,8 @@ class MatrizColor {
 	const unsigned int Anchura = 8;
 	const unsigned int Altura = 8;
 
+	void Imprimir() const;
+
   private:
 	ColorLED contenido[8][8];
 };
