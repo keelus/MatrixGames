@@ -1,3 +1,4 @@
+#include "matrizColor.h"
 #include "mensaje.h"
 #include "menu.h"
 #include "paquete.h"
@@ -22,9 +23,12 @@
 #define DEFAULT_PORT 3000
 
 int main(void) {
-	utilsLED::TiraLED tiraLED;
-	tiraLED.Colorear(utilsLED::ColorLED::Rojo);
-	tiraLED.Renderizar();
+	utilsLED::TiraLED tiraLED; // Solo ejecutable en la Raspberry!
+
+	MatrizColor matrizColor;
+	matrizColor.RellenarDeColor(ColorLED::Rojo);
+
+	tiraLED.Colorear(matrizColor);
 
 	printf("__ __  __ _____ ___ ___   __ \n"
 		   "|  V  |/  \\_   _| _ \\ \\ \\_/ / \n"

@@ -1,5 +1,7 @@
 #include "utilsLED.h"
+#include "colorLED.h"
 #include "externo/rpi_ws281x/ws2811.h"
+#include "matrizColor.h"
 
 utilsLED::TiraLED::TiraLED() {
 	int tipo = WS2811_STRIP_BGR;
@@ -38,7 +40,8 @@ utilsLED::TiraLED::TiraLED() {
 
 	ws2811_return_t ret;
 	if ((ret = ws2811_init(&this->ledstring)) != WS2811_SUCCESS) {
-		std::cout << "Error al inizializar la tira LED. Cerrando servidor. Error generado: " << ws2811_get_return_t_str(ret);
+		std::cout << "Error al inizializar la tira LED. Cerrando servidor. Error generado: " << ws2811_get_return_t_str(ret) << std::endl;
+		;
 		exit(1);
 	}
 }
@@ -48,20 +51,19 @@ utilsLED::TiraLED::~TiraLED() {
 	ws2811_fini(&this->ledstring);
 }
 
-void utilsLED::TiraLED::Limpiar() { Colorear(utilsLED::ColorLED::Negro); }
-void utilsLED::TiraLED::Colorear(ColorLED color) {
-	int x, y;
-
-	int valorColor = static_cast<int>(color);
-
-	for (y = 0; y < altura; y++) {
-		for (x = 0; x < anchura; x++) {
+void utilsLED::TiraLED::Colorear(MatrizColor matrizColor) {
+	int valorColor;
+	for (unsigned int y = 0; y < this->altura; y++) {
+		for (unsigned int x = 0; x < this->anchura; x++) {
+			valorColor = static_cast<int>(matrizColor.getPixel(x, y));
 			this->matriz[y * anchura + x] = valorColor;
 		}
 	}
+
+	this->renderizar();
 }
 
-void utilsLED::TiraLED::Renderizar() {
+void utilsLED::TiraLED::renderizar() {
 	int x, y;
 
 	for (y = 0; y < altura; y++) {
@@ -72,7 +74,7 @@ void utilsLED::TiraLED::Renderizar() {
 
 	ws2811_return_t ret;
 	if ((ret = ws2811_render(&this->ledstring)) != WS2811_SUCCESS) {
-		std::cout << "No se ha podido renderizar la matriz LED. Cerrando el servidor. Error: %s\n", ws2811_get_return_t_str(ret);
+		std::cout << "No se ha podido renderizar la matriz LED. Cerrando el servidor. Error generado: %s\n" << ws2811_get_return_t_str(ret) << std::endl;
 		exit(1);
 	};
 }
