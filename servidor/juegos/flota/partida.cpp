@@ -22,15 +22,9 @@ bool flota::Partida::Iteracion(int socketId) {
 		std::string contenidoPrincipal = "Te toca atacar! Tablero de la CPU:";
 		contenidoPrincipal += TableroCPU.AString(true);
 
-		std::cout << "Intentando colorear:" << std::endl;
-		Globales::MATRIZ_COLOR.Imprimir();
-
 		TableroCPU.AContenidoColor(bufferContenido, true);
 		Globales::MATRIZ_COLOR.SetContenido(bufferContenido);
 		Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
-
-		std::cout << "Coloreado?" << std::endl;
-		Globales::MATRIZ_COLOR.Imprimir();
 
 		mandarPaquete(socketId, contenidoPrincipal, "Introduce una coordenada: ", TEXTO, true);
 		std::cout << contenidoPrincipal;
@@ -68,6 +62,10 @@ bool flota::Partida::Iteracion(int socketId) {
 
 					std::string contenidoFinal = resultadoStr + tableroStr;
 
+					TableroCPU.AContenidoColor(bufferContenido, true);
+					Globales::MATRIZ_COLOR.SetContenido(bufferContenido);
+					Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
+
 					mandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 					std::cout << contenidoFinal << std::endl;
 
@@ -89,6 +87,10 @@ bool flota::Partida::Iteracion(int socketId) {
 		// 	return true;
 		std::string contenidoPrincipal = "Turno de la CPU! Tu tablero:";
 		contenidoPrincipal += TableroJugador.AString(false);
+
+		TableroJugador.AContenidoColor(bufferContenido, false);
+		Globales::MATRIZ_COLOR.SetContenido(bufferContenido);
+		Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
 
 		mandarPaquete(socketId, contenidoPrincipal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoPrincipal;
@@ -115,6 +117,10 @@ bool flota::Partida::Iteracion(int socketId) {
 
 		std::cout << resultadoStr << std::endl;
 		std::string contenidoFinal = resultadoStr + tableroStr;
+
+		TableroJugador.AContenidoColor(bufferContenido, false);
+		Globales::MATRIZ_COLOR.SetContenido(bufferContenido);
+		Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
 
 		mandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoFinal << std::endl;
