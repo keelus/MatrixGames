@@ -14,6 +14,15 @@ void MatrizColor::ColorearPixel(unsigned int x, unsigned int y, ColorLED color) 
 		exit(1);
 	}
 }
+
+void MatrizColor::SetContenido(ColorLED nuevoContenido[8][8]) {
+	for (unsigned int y = 0; y < this->Altura; y++) {
+		for (unsigned int x = 0; x < this->Anchura; x++) {
+			this->contenido[y][x] = nuevoContenido[y][x];
+		}
+	}
+}
+
 void MatrizColor::RellenarDeColor(ColorLED color) {
 	for (unsigned int y = 0; y < this->Altura; y++) {
 		for (unsigned int x = 0; x < this->Anchura; x++) {

@@ -19,16 +19,16 @@
 // Flota
 #include "juegos/flota/partida.h"
 
+#include "globales.h"
+
 #define TAMANO_BUFFER 1024
 #define DEFAULT_PORT 3000
 
+utilsLED::TiraLED tiraLED;
+
 int main(void) {
-	utilsLED::TiraLED tiraLED; // Solo ejecutable en la Raspberry!
-
-	MatrizColor matrizColor;
-	matrizColor.RellenarDeColor(ColorLED::Rojo);
-
-	tiraLED.Colorear(matrizColor);
+	Globales::MATRIZ_COLOR.RellenarDeColor(ColorLED::Rojo);
+	Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
 
 	printf("__ __  __ _____ ___ ___   __ \n"
 		   "|  V  |/  \\_   _| _ \\ \\ \\_/ / \n"
@@ -48,7 +48,7 @@ int main(void) {
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("socket failed");
 		exit(EXIT_FAILURE);
-	}
+	};
 
 	// Forcefully attaching socket to the port 8080
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {

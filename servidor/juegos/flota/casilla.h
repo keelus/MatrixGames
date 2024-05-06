@@ -1,6 +1,7 @@
 #ifndef CASILLA_H
 #define CASILLA_H
 
+#include "../../colorLED.h"
 #include "coordenada.h"
 #include "flota.h"
 #include <iostream>
@@ -16,7 +17,7 @@ enum class EstadoCasilla {
 };
 
 class Casilla {
-      public:
+  public:
 	Casilla(Coordenada coordenada, int indice, EstadoCasilla estado) : Coord(coordenada), Indice(indice), Estado(estado){};
 
 	Coordenada Coord;
@@ -25,6 +26,7 @@ class Casilla {
 };
 
 std::string EmoticonoCasilla(EstadoCasilla estado);
+ColorLED ColorCasilla(EstadoCasilla estado);
 } // namespace flota
 
 #endif

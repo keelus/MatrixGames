@@ -1,4 +1,5 @@
 #include "partida.h"
+#include "../../globales.h"
 #include "ataque.h"
 #include "coordenada.h"
 #include <iostream>
@@ -15,16 +16,25 @@
 bool flota::Partida::Iteracion(int socketId) {
 	bool haAcertado = false;
 
+	ColorLED bufferContenido[8][8];
+
 	if (Turno == TiposTurno::TURNO_JUGADOR) {
 		std::string contenidoPrincipal = "Te toca atacar! Tablero de la CPU:";
 		contenidoPrincipal += TableroCPU.AString(true);
+
+		std::cout << "Intentando colorear:" << std::endl;
+
+		TableroCPU.AContenidoColor(bufferContenido, true);
+		Globales::MATRIZ_COLOR.SetContenido(bufferContenido);
+		Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
+
+		std::cout << "Coloreado?" << std::endl;
 
 		mandarPaquete(socketId, contenidoPrincipal, "Introduce una coordenada: ", TEXTO, true);
 		std::cout << contenidoPrincipal;
 
 		bool ataqueRealizado = false;
 		while (!ataqueRealizado) {
-
 			try {
 				MensajeDeCliente mensajeDeCliente = leerDesdeCliente(socketId);
 				if (mensajeDeCliente.desconectar)

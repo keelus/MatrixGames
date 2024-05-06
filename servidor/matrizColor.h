@@ -10,6 +10,7 @@ class MatrizColor {
 	~MatrizColor();
 
 	void ColorearPixel(unsigned int x, unsigned int y, ColorLED color);
+	void SetContenido(ColorLED contenido[8][8]);
 	void RellenarDeColor(ColorLED color);
 	void Limpiar();
 

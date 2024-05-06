@@ -5,6 +5,47 @@
 #include <iostream>
 #include <random>
 
+void flota::Tablero::AContenidoColor(ColorLED referenciaContenido[8][8], bool esconderBarcos) const {
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			referenciaContenido[i][j] = ColorCasilla(EstadoCasilla::AGUA);
+		}
+	}
+
+	for (int i = 0; i < AtaquesRecibidos.size(); i++) {
+		Ataque ataque = AtaquesRecibidos.at(i);
+		if (ataque.EsHit) {
+			referenciaContenido[ataque.Coord.Y][ataque.Coord.X] = ColorCasilla(EstadoCasilla::HIT);
+		} else {
+			referenciaContenido[ataque.Coord.Y][ataque.Coord.X] = ColorCasilla(EstadoCasilla::MISS);
+		}
+	}
+
+	for (Barco barco : Barcos) {
+		for (int c = 0; c < int(barco.Tipo); c++) {
+			ColorLED color = ColorLED::Blanco;
+
+			if (!esconderBarcos) {
+				color = ColorCasilla(barco.Casillas[c].Estado);
+			}
+
+			if (barco.EsGuia) {
+				color = ColorCasilla(EstadoCasilla::COLOCANDO);
+			} else if (barco.EstaHundido()) {
+				color = ColorCasilla(EstadoCasilla::HIT_HUNDIDO);
+			}
+
+			if (color != ColorLED::Blanco /* sin establecer */) {
+				if (barco.Orientacion == Orientacion::HORIZONTAL) {
+					referenciaContenido[barco.Y][barco.X + c] = color;
+				} else {
+					referenciaContenido[barco.Y + c][barco.X] = color;
+				}
+			}
+		}
+	}
+}
+
 std::string flota::Tablero::AString(bool esconderBarcos) const {
 	std::string numeros[] = {u8"❶", u8"❷", u8"❸", u8"❹", u8"❺", u8"❻", u8"❼", u8"❽"};
 
@@ -147,7 +188,7 @@ flota::Tablero flota::CrearTableroAleatoriamente() {
 		}
 
 		bool colocado = false;
-		std::uniform_int_distribution<> distribucionFilas(0, filaMax - 1);	 // Inclusivo
+		std::uniform_int_distribution<> distribucionFilas(0, filaMax - 1);		 // Inclusivo
 		std::uniform_int_distribution<> distribucionColumnas(0, columnaMax - 1); // Inclusivo
 		while (!colocado) {
 			int fila = distribucionFilas(gen);

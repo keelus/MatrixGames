@@ -1,6 +1,7 @@
 #ifndef TABLERO_H
 #define TABLERO_H
 
+#include "../../colorLED.h"
 #include "ataque.h"
 #include "barco.h"
 #include "flota.h"
@@ -8,11 +9,12 @@
 
 namespace flota {
 class Tablero {
-      public:
+  public:
 	Tablero() {}
 
 	void Imprimir(bool esconderBarcos) const;
 	std::string AString(bool esconderBarcos) const;
+	void AContenidoColor(ColorLED referenciaContenido[8][8], bool esconderBarcos) const;
 	void Colocar(Barco barco, int indice);
 	bool CompletamenteHundido() const;
 
@@ -26,7 +28,7 @@ class Tablero {
 	Ataque RecibirAtaque(Coordenada coordenada);
 	int BarcosRestantes() const;
 
-      private:
+  private:
 	Barco Barcos[5];
 	std::vector<Ataque> AtaquesRecibidos;
 };
