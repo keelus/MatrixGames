@@ -4,7 +4,7 @@
 #include "matrizColor.h"
 
 utilsLED::TiraLED::TiraLED() {
-	int tipo = WS2811_STRIP_BGR;
+	int tipo = WS2811_STRIP_GRB;
 	uint32_t frecuencia = WS2811_TARGET_FREQ;
 	int pin = 18; // GPIO18
 	int dma = 10;

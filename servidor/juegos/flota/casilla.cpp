@@ -23,7 +23,7 @@ std::string flota::EmoticonoCasilla(EstadoCasilla estado) {
 ColorLED flota::ColorCasilla(EstadoCasilla estado) {
 	switch (estado) {
 	case EstadoCasilla::AGUA:
-		return ColorLED::Cian;
+		return ColorLED::Azul;
 	case EstadoCasilla::BARCO:
 		return ColorLED::Blanco;
 	case EstadoCasilla::COLOCANDO:

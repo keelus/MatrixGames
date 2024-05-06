@@ -2,20 +2,18 @@
 #define COLORLED_H
 
 // clang-format off
-enum class ColorLED { // Little endian!
-	Rojo 		= 0x0000FF00,
-	Verde 		= 0x000000FF,
-	Azul 		= 0x00FF0000,
+enum class ColorLED { // Formato hex: 0xRRGGBB
+	Rojo 		= 0xFF000,
+	Verde 		= 0x00FF00,
+	Azul 		= 0x0000FF,
 
-	Amarillo 	= 0x0000FFFF,
-	Rosa 		= 0x00FF00FF,
-	Cian 		= 0x00FFFF00,
-	Naranja 	= 0x000030FF,
+	Amarillo 	= 0xFFFF00,
+	Rosa 		= 0xFF00FF,
+	Cian 		= 0x00FFFF,
+	Naranja 	= 0xFF3000,
 
-	Blanco 		= 0x00FFFFFF,
-	Negro 		= 0x00000000,
-
-	Nulo 		= 0x00000000 // Para realizar comprobaciones. No borrar.
+	Blanco 		= 0xFFFFFF,
+	Negro 		= 0x000000,
 };
 
 // clang-format on
