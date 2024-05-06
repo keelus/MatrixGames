@@ -2,6 +2,7 @@
 #include "menu.h"
 #include "paquete.h"
 #include "utilsLED.h"
+#include <string>
 #undef UNICODE
 
 #include "menu.h"
@@ -21,7 +22,6 @@
 #define DEFAULT_PORT 3000
 
 int main(void) {
-
 	utilsLED::TiraLED tiraLED;
 	tiraLED.Colorear(utilsLED::ColorLED::Rojo);
 	tiraLED.Renderizar();

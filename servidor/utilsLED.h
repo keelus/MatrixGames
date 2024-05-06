@@ -9,11 +9,11 @@
 namespace utilsLED {
 // clang-format off
 enum class ColorLED {
-	Rojo,
-	Verde,
-	Azul,
-	Blanco,
-	Negro
+	Rojo 		= 0x00200000,
+	Verde 		= 0x00002000,
+	Azul 		= 0x00000020,
+	Blanco 		= 0x00101010,
+	Negro 		= 0x00000000
 };
 
 // clang-format on

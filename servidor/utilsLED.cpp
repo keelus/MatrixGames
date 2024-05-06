@@ -1,18 +1,6 @@
 #include "utilsLED.h"
 #include "externo/rpi_ws281x/ws2811.h"
 
-using namespace utilsLED;
-
-// clang-format off
-std::unordered_map<ColorLED, char> ValoresColoresLED = {
-	{ ColorLED::Rojo, 0x00200000},
-	{ ColorLED::Verde, 0x00002000},
-	{ ColorLED::Azul, 0x00000020},
-	{ ColorLED::Blanco, 0x00101010},
-	{ ColorLED::Negro, 0x00000000}
-};
-// clang-format on
-
 utilsLED::TiraLED::TiraLED() {
 	int tipo = WS2811_STRIP_BGR;
 	uint32_t frecuencia = WS2811_TARGET_FREQ;
@@ -64,10 +52,11 @@ void utilsLED::TiraLED::Limpiar() { Colorear(utilsLED::ColorLED::Negro); }
 void utilsLED::TiraLED::Colorear(ColorLED color) {
 	int x, y;
 
+	int valorColor = static_cast<int>(color);
+
 	for (y = 0; y < altura; y++) {
 		for (x = 0; x < anchura; x++) {
-			// this->matriz[y * anchura + x] = ValoresColoresLED[color];
-			this->matriz[y * anchura + x] = 0x10002000;
+			this->matriz[y * anchura + x] = valorColor;
 		}
 	}
 }
