@@ -307,6 +307,8 @@ int main(void) {
 		mandarPaquete(new_socket, paquete);
 	}
 
+	Globales::MATRIZ_COLOR.RellenarDeColor(ColorLED::Negro);
+	Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
 	std::cout << "Un cliente se ha desconectado. Cerrando servidor." << std::endl;
 	// closing the connected socket
 	close(new_socket);
