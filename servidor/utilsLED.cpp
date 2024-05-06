@@ -22,7 +22,7 @@ utilsLED::TiraLED::TiraLED() {
 						.invert = 0,
 						.count = this->tamanyo,
 						.strip_type = tipo,
-						.brightness = 255,
+						.brightness = 10, // O poner una resistencia
 					},
 				[1] =
 					{
