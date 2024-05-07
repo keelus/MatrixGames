@@ -1,5 +1,4 @@
 #include "partida.h"
-#include "../../globales.h"
 #include "ataque.h"
 #include "coordenada.h"
 #include <iostream>
@@ -11,10 +10,16 @@
 
 #include <unistd.h> // Para linux
 
+#include "../../matrizColor.h"
+
 #define TAMANO_BUFFER 1024
 
-bool flota::Partida::Iteracion(int socketId) {
+bool flota::Partida::Iteracion(int socketId, MatrizColor *matrizColor, utilsLED::TiraLED *tiraLED) {
 	bool haAcertado = false;
+
+	std::cout << "### DESDE ITERACION ###" << std::endl;
+	matrizColor->Imprimir();
+	std::cout << "### FIN DESDE ITERACION ###" << std::endl;
 
 	ColorLED bufferContenido[8][8];
 
@@ -23,8 +28,8 @@ bool flota::Partida::Iteracion(int socketId) {
 		contenidoPrincipal += TableroCPU.AString(true);
 
 		TableroCPU.AContenidoColor(bufferContenido, true);
-		Globales::MATRIZ_COLOR.SetContenido(bufferContenido);
-		Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
+		matrizColor->SetContenido(bufferContenido);
+		// tiraLED->Colorear(*matrizColor);
 
 		mandarPaquete(socketId, contenidoPrincipal, "Introduce una coordenada: ", TEXTO, true);
 		std::cout << contenidoPrincipal;
@@ -63,8 +68,8 @@ bool flota::Partida::Iteracion(int socketId) {
 					std::string contenidoFinal = resultadoStr + tableroStr;
 
 					TableroCPU.AContenidoColor(bufferContenido, true);
-					Globales::MATRIZ_COLOR.SetContenido(bufferContenido);
-					Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
+					matrizColor->SetContenido(bufferContenido);
+					// tiraLED->Colorear(*matrizColor);
 
 					mandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 					std::cout << contenidoFinal << std::endl;
@@ -89,8 +94,8 @@ bool flota::Partida::Iteracion(int socketId) {
 		contenidoPrincipal += TableroJugador.AString(false);
 
 		TableroJugador.AContenidoColor(bufferContenido, false);
-		Globales::MATRIZ_COLOR.SetContenido(bufferContenido);
-		Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
+		matrizColor->SetContenido(bufferContenido);
+		// tiraLED->Colorear(*matrizColor);
 
 		mandarPaquete(socketId, contenidoPrincipal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoPrincipal;
@@ -119,8 +124,8 @@ bool flota::Partida::Iteracion(int socketId) {
 		std::string contenidoFinal = resultadoStr + tableroStr;
 
 		TableroJugador.AContenidoColor(bufferContenido, false);
-		Globales::MATRIZ_COLOR.SetContenido(bufferContenido);
-		Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
+		matrizColor->SetContenido(bufferContenido);
+		// tiraLED->Colorear(*matrizColor);
 
 		mandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoFinal << std::endl;

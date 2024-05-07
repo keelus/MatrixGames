@@ -1,6 +1,7 @@
 #ifndef PARTIDA_H
 #define PARTIDA_H
 
+#include "../../utilsLED.h"
 #include "flota.h"
 #include "tablero.h"
 
@@ -11,14 +12,14 @@ enum class TiposTurno {
 };
 
 class Partida {
-      public:
+  public:
 	Partida() {
 		// TableroJugador = CrearTableroManualmente();
 		TableroJugador = CrearTableroAleatoriamente();
 		TableroCPU = CrearTableroAleatoriamente();
 		Turno = TiposTurno::TURNO_JUGADOR;
 	};
-	bool Iteracion(int socketId);
+	bool Iteracion(int socketId, MatrizColor *matrizColor, utilsLED::TiraLED *tiraLED);
 	bool HaFinalizado();
 	Tablero TableroJugador;
 	Tablero TableroCPU;

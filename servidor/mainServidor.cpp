@@ -19,14 +19,20 @@
 // Flota
 #include "juegos/flota/partida.h"
 
-#include "globales.h"
-
 #define TAMANO_BUFFER 1024
 #define DEFAULT_PORT 3000
 
+MatrizColor *matrizColor;
+utilsLED::TiraLED *tiraLED;
+
 int main(void) {
-	Globales::MATRIZ_COLOR.RellenarDeColor(ColorLED::Blanco);
-	Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
+	matrizColor = new MatrizColor();
+	// tiraLED = new utilsLED::TiraLED();
+
+	matrizColor->Imprimir();
+
+	matrizColor->RellenarDeColor(ColorLED::Blanco);
+	// tiraLED->Colorear(matrizColor);
 
 	printf("__ __  __ _____ ___ ___   __ \n"
 		   "|  V  |/  \\_   _| _ \\ \\ \\_/ / \n"
@@ -85,8 +91,8 @@ int main(void) {
 	mandarPaquete(new_socket, paquete);
 
 	while (true) {
-		Globales::MATRIZ_COLOR.RellenarDeColor(ColorLED::Naranja); // Indica que hay un usuario contectado
-		Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
+		matrizColor->RellenarDeColor(ColorLED::Naranja);
+		// tiraLED->Colorear(*matrizColor);
 
 		MensajeDeCliente mensajeDeCliente = leerDesdeCliente(new_socket);
 		if (mensajeDeCliente.desconectar)
@@ -153,7 +159,11 @@ int main(void) {
 				char bufferFlota[TAMANO_BUFFER] = {0};
 
 				while (!partida.HaFinalizado()) {
-					bool desconectar = partida.Iteracion(new_socket);
+					std::cout << "### DESDE WHILE MAIN ###" << std::endl;
+					matrizColor->Imprimir();
+					std::cout << "### FIN WHILE MAIN ###" << std::endl;
+
+					bool desconectar = partida.Iteracion(new_socket, matrizColor, tiraLED);
 					std::cout << "Iteracion finalizada";
 					if (desconectar) {
 						std::cout << "Desconexion forzosa. Juego finalizado." << std::endl;
@@ -307,8 +317,9 @@ int main(void) {
 		mandarPaquete(new_socket, paquete);
 	}
 
-	Globales::MATRIZ_COLOR.RellenarDeColor(ColorLED::Negro);
-	Globales::TIRA_LED.Colorear(Globales::MATRIZ_COLOR);
+	matrizColor->RellenarDeColor(ColorLED::Negro);
+	// tiraLED->Colorear(*matrizColor);
+
 	std::cout << "Un cliente se ha desconectado. Cerrando servidor." << std::endl;
 	// closing the connected socket
 	close(new_socket);

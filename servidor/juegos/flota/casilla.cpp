@@ -53,6 +53,12 @@ std::string flota::Ftemporal(ColorLED color) {
 		return "Negro";
 	case ColorLED::Rojo:
 		return "Rojo";
+	case ColorLED::Azul:
+		return "Azul";
+	case ColorLED::Naranja:
+		return "Naranja";
+	case ColorLED::Rosa:
+		return "Rosa";
 	}
 
 	return "?";
