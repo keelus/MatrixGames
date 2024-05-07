@@ -5,7 +5,6 @@
 
 MatrizLED::MatrizLED(bool usandoRaspberry) { // Debera de ser false, si se esta compilando en Linux, cuando no esta la LED conectada o no se esta usando la Raspberry. Si no, no se podra usar el programa.
 	this->UsandoRaspberry = usandoRaspberry;
-	this->RellenarDeColor(ColorLED::Negro);
 
 	if (usandoRaspberry) {
 		int tipo = WS2811_STRIP_GRB;
@@ -45,6 +44,8 @@ MatrizLED::MatrizLED(bool usandoRaspberry) { // Debera de ser false, si se esta 
 			exit(1);
 		}
 	}
+
+	this->RellenarDeColor(ColorLED::Negro);
 }
 
 MatrizLED::~MatrizLED() {
