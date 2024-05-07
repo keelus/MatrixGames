@@ -17,10 +17,6 @@
 bool flota::Partida::Iteracion(int socketId, MatrizColor *matrizColor, utilsLED::TiraLED *tiraLED) {
 	bool haAcertado = false;
 
-	std::cout << "### DESDE ITERACION ###" << std::endl;
-	matrizColor->Imprimir();
-	std::cout << "### FIN DESDE ITERACION ###" << std::endl;
-
 	ColorLED bufferContenido[8][8];
 
 	if (Turno == TiposTurno::TURNO_JUGADOR) {

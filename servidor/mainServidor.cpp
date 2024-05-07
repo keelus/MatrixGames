@@ -159,10 +159,6 @@ int main(void) {
 				char bufferFlota[TAMANO_BUFFER] = {0};
 
 				while (!partida.HaFinalizado()) {
-					std::cout << "### DESDE WHILE MAIN ###" << std::endl;
-					matrizColor->Imprimir();
-					std::cout << "### FIN WHILE MAIN ###" << std::endl;
-
 					bool desconectar = partida.Iteracion(new_socket, matrizColor, tiraLED);
 					std::cout << "Iteracion finalizada";
 					if (desconectar) {
