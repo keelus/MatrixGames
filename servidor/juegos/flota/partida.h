@@ -1,7 +1,7 @@
 #ifndef PARTIDA_H
 #define PARTIDA_H
 
-#include "../../utilsLED.h"
+#include "../../matrizLED.h"
 #include "flota.h"
 #include "tablero.h"
 
@@ -19,7 +19,7 @@ class Partida {
 		TableroCPU = CrearTableroAleatoriamente();
 		Turno = TiposTurno::TURNO_JUGADOR;
 	};
-	bool Iteracion(int socketId, utilsLED::TiraLED *tiraLED);
+	bool Iteracion(int socketId, MatrizLED *matrizLED);
 	bool HaFinalizado();
 	Tablero TableroJugador;
 	Tablero TableroCPU;

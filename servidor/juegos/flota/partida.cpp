@@ -1,4 +1,5 @@
 #include "partida.h"
+#include "../../matrizLED.h"
 #include "ataque.h"
 #include "coordenada.h"
 #include <iostream>
@@ -11,7 +12,7 @@
 
 #define TAMANO_BUFFER 1024
 
-bool flota::Partida::Iteracion(int socketId, utilsLED::TiraLED *tiraLED) {
+bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 	bool haAcertado = false;
 
 	ColorLED bufferContenido[8][8];
@@ -21,8 +22,7 @@ bool flota::Partida::Iteracion(int socketId, utilsLED::TiraLED *tiraLED) {
 		contenidoPrincipal += TableroCPU.AString(true);
 
 		TableroCPU.AContenidoColor(bufferContenido, true);
-		tiraLED->SetMatrizColor(bufferContenido);
-		// tiraLED->Colorear(*matrizColor);
+		matrizLED->SetMatrizColor(bufferContenido);
 
 		mandarPaquete(socketId, contenidoPrincipal, "Introduce una coordenada: ", TEXTO, true);
 		std::cout << contenidoPrincipal;
@@ -61,7 +61,7 @@ bool flota::Partida::Iteracion(int socketId, utilsLED::TiraLED *tiraLED) {
 					std::string contenidoFinal = resultadoStr + tableroStr;
 
 					TableroCPU.AContenidoColor(bufferContenido, true);
-					tiraLED->SetMatrizColor(bufferContenido);
+					matrizLED->SetMatrizColor(bufferContenido);
 
 					mandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 					std::cout << contenidoFinal << std::endl;
@@ -86,7 +86,7 @@ bool flota::Partida::Iteracion(int socketId, utilsLED::TiraLED *tiraLED) {
 		contenidoPrincipal += TableroJugador.AString(false);
 
 		TableroJugador.AContenidoColor(bufferContenido, false);
-		tiraLED->SetMatrizColor(bufferContenido);
+		matrizLED->SetMatrizColor(bufferContenido);
 
 		mandarPaquete(socketId, contenidoPrincipal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoPrincipal;
@@ -116,7 +116,7 @@ bool flota::Partida::Iteracion(int socketId, utilsLED::TiraLED *tiraLED) {
 
 		TableroJugador.AContenidoColor(bufferContenido, false);
 
-		tiraLED->SetMatrizColor(bufferContenido);
+		matrizLED->SetMatrizColor(bufferContenido);
 
 		mandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoFinal << std::endl;

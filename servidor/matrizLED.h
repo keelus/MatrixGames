@@ -7,12 +7,10 @@
 #include <stdlib.h>
 #include <unordered_map>
 
-namespace utilsLED {
-
-class TiraLED {
+class MatrizLED {
   public:
-	TiraLED(bool usandoRaspberry);
-	~TiraLED();
+	MatrizLED(bool usandoRaspberry);
+	~MatrizLED();
 
 	const unsigned int anchura = 8;
 	const unsigned int altura = 8;
@@ -36,6 +34,5 @@ class TiraLED {
 	void dibujar();
 	void renderizar();
 };
-} // namespace utilsLED
 
 #endif

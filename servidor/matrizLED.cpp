@@ -1,9 +1,9 @@
-#include "utilsLED.h"
+#include "matrizLED.h"
 #include "colorLED.h"
 #include "externo/rpi_ws281x/ws2811.h"
 #include "juegos/flota/casilla.h"
 
-utilsLED::TiraLED::TiraLED(bool usandoRaspberry) { // Debera de ser false, si se esta compilando en Linux, cuando no esta la LED conectada o no se esta usando la Raspberry. Si no, no se podra usar el programa.
+MatrizLED::MatrizLED(bool usandoRaspberry) { // Debera de ser false, si se esta compilando en Linux, cuando no esta la LED conectada o no se esta usando la Raspberry. Si no, no se podra usar el programa.
 	this->UsandoRaspberry = usandoRaspberry;
 	this->RellenarDeColor(ColorLED::Negro);
 
@@ -40,19 +40,19 @@ utilsLED::TiraLED::TiraLED(bool usandoRaspberry) { // Debera de ser false, si se
 
 		ws2811_return_t ret;
 		if ((ret = ws2811_init(&this->ledstring)) != WS2811_SUCCESS) {
-			std::cout << "Error al inizializar la tira LED. Cerrando servidor. Error generado: " << ws2811_get_return_t_str(ret) << std::endl;
+			std::cout << "Error al inizializar la matriz LED. Cerrando servidor. Error generado: " << ws2811_get_return_t_str(ret) << std::endl;
 			;
 			exit(1);
 		}
 	}
 }
 
-utilsLED::TiraLED::~TiraLED() {
+MatrizLED::~MatrizLED() {
 	free(this->matriz);
 	ws2811_fini(&this->ledstring);
 }
 
-void utilsLED::TiraLED::SetPixel(unsigned int x, unsigned int y, ColorLED colorLED) {
+void MatrizLED::SetPixel(unsigned int x, unsigned int y, ColorLED colorLED) {
 	if (x < 8 && y < 8) {
 		this->MatrizColor[y][x] = colorLED;
 	} else {
@@ -63,7 +63,7 @@ void utilsLED::TiraLED::SetPixel(unsigned int x, unsigned int y, ColorLED colorL
 	this->dibujar();
 }
 
-ColorLED utilsLED::TiraLED::GetPixel(unsigned int x, unsigned int y) {
+ColorLED MatrizLED::GetPixel(unsigned int x, unsigned int y) {
 	if (x < 8 && y < 8) {
 		return this->MatrizColor[y][x];
 	} else {
@@ -72,7 +72,7 @@ ColorLED utilsLED::TiraLED::GetPixel(unsigned int x, unsigned int y) {
 	}
 }
 
-void utilsLED::TiraLED::SetMatrizColor(ColorLED nuevoContenido[8][8]) {
+void MatrizLED::SetMatrizColor(ColorLED nuevoContenido[8][8]) {
 	for (unsigned int y = 0; y < this->altura; y++) {
 		for (unsigned int x = 0; x < this->anchura; x++) {
 			this->MatrizColor[y][x] = nuevoContenido[y][x];
@@ -82,7 +82,7 @@ void utilsLED::TiraLED::SetMatrizColor(ColorLED nuevoContenido[8][8]) {
 	this->dibujar();
 }
 
-void utilsLED::TiraLED::RellenarDeColor(ColorLED colorLED) {
+void MatrizLED::RellenarDeColor(ColorLED colorLED) {
 	for (unsigned int y = 0; y < this->altura; y++) {
 		for (unsigned int x = 0; x < this->anchura; x++) {
 			this->MatrizColor[y][x] = colorLED;
@@ -92,9 +92,9 @@ void utilsLED::TiraLED::RellenarDeColor(ColorLED colorLED) {
 	this->dibujar();
 }
 
-void utilsLED::TiraLED::Limpiar() { return this->RellenarDeColor(ColorLED::Negro); }
+void MatrizLED::Limpiar() { return this->RellenarDeColor(ColorLED::Negro); }
 
-void utilsLED::TiraLED::ImprimirMatrizColor() {
+void MatrizLED::ImprimirMatrizColor() {
 	std::string numeros[] = {u8"❶", u8"❷", u8"❸", u8"❹", u8"❺", u8"❻", u8"❼", u8"❽"};
 
 	std::cout << "\n  🅰  🅱  🅲  🅳  🅴  🅵  🅶  🅷 \n";
@@ -108,7 +108,7 @@ void utilsLED::TiraLED::ImprimirMatrizColor() {
 	}
 }
 
-void utilsLED::TiraLED::dibujar() {
+void MatrizLED::dibujar() {
 	if (!this->UsandoRaspberry)
 		return;
 
@@ -128,7 +128,7 @@ void utilsLED::TiraLED::dibujar() {
 	this->renderizar();
 }
 
-void utilsLED::TiraLED::renderizar() {
+void MatrizLED::renderizar() {
 	int x, y;
 
 	for (y = 0; y < altura; y++) {
