@@ -19,7 +19,7 @@ class Partida {
 		TableroCPU = CrearTableroAleatoriamente();
 		Turno = TiposTurno::TURNO_JUGADOR;
 	};
-	bool Iteracion(int socketId, MatrizColor *matrizColor, utilsLED::TiraLED *tiraLED);
+	bool Iteracion(int socketId, utilsLED::TiraLED *tiraLED);
 	bool HaFinalizado();
 	Tablero TableroJugador;
 	Tablero TableroCPU;

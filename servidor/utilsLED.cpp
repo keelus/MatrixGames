@@ -1,48 +1,49 @@
 #include "utilsLED.h"
 #include "colorLED.h"
 #include "externo/rpi_ws281x/ws2811.h"
-#include "matrizColor.h"
+#include "juegos/flota/casilla.h"
 
-utilsLED::TiraLED::TiraLED() {
-	int tipo = WS2811_STRIP_GRB;
-	uint32_t frecuencia = WS2811_TARGET_FREQ;
-	int pin = 18; // GPIO18
-	int dma = 10;
+utilsLED::TiraLED::TiraLED(bool usandoRaspberry) { // Debera de ser false, si se esta compilando en Linux, cuando no esta la LED conectada o no se esta usando la Raspberry. Si no, no se podra usar el programa.
+	this->UsandoRaspberry = usandoRaspberry;
+	this->RellenarDeColor(ColorLED::Negro);
 
-	this->anchura = 8;
-	this->altura = 8;
-	this->tamanyo = this->anchura * this->altura;
+	if (usandoRaspberry) {
+		int tipo = WS2811_STRIP_GRB;
+		uint32_t frecuencia = WS2811_TARGET_FREQ;
+		int pin = 18; // GPIO18
+		int dma = 10;
 
-	this->ledstring = {
-		.freq = frecuencia,
-		.dmanum = dma,
-		.channel =
-			{
-				[0] =
-					{
-						.gpionum = pin,
-						.invert = 0,
-						.count = this->tamanyo,
-						.strip_type = tipo,
-						.brightness = 10, // O poner una resistencia
-					},
-				[1] =
-					{
-						.gpionum = 0,
-						.invert = 0,
-						.count = 0,
-						.brightness = 0,
-					},
-			},
-	};
+		this->ledstring = {
+			.freq = frecuencia,
+			.dmanum = dma,
+			.channel =
+				{
+					[0] =
+						{
+							.gpionum = pin,
+							.invert = 0,
+							.count = int(this->tamanyo),
+							.strip_type = tipo,
+							.brightness = 10, // O poner una resistencia
+						},
+					[1] =
+						{
+							.gpionum = 0,
+							.invert = 0,
+							.count = 0,
+							.brightness = 0,
+						},
+				},
+		};
 
-	this->matriz = (ws2811_led_t *)malloc(sizeof(ws2811_led_t) * this->anchura * this->altura);
+		this->matriz = (ws2811_led_t *)malloc(sizeof(ws2811_led_t) * this->anchura * this->altura);
 
-	ws2811_return_t ret;
-	if ((ret = ws2811_init(&this->ledstring)) != WS2811_SUCCESS) {
-		std::cout << "Error al inizializar la tira LED. Cerrando servidor. Error generado: " << ws2811_get_return_t_str(ret) << std::endl;
-		;
-		exit(1);
+		ws2811_return_t ret;
+		if ((ret = ws2811_init(&this->ledstring)) != WS2811_SUCCESS) {
+			std::cout << "Error al inizializar la tira LED. Cerrando servidor. Error generado: " << ws2811_get_return_t_str(ret) << std::endl;
+			;
+			exit(1);
+		}
 	}
 }
 
@@ -51,11 +52,70 @@ utilsLED::TiraLED::~TiraLED() {
 	ws2811_fini(&this->ledstring);
 }
 
-void utilsLED::TiraLED::Colorear(MatrizColor matrizColor) {
+void utilsLED::TiraLED::SetPixel(unsigned int x, unsigned int y, ColorLED colorLED) {
+	if (x < 8 && y < 8) {
+		this->MatrizColor[y][x] = colorLED;
+	} else {
+		std::cout << "Error al poner el pixel de color. Coordenadas fuera de rango (x: " << x << ", y: " << y << ")" << std::endl;
+		exit(1);
+	}
+
+	this->dibujar();
+}
+
+ColorLED utilsLED::TiraLED::GetPixel(unsigned int x, unsigned int y) {
+	if (x < 8 && y < 8) {
+		return this->MatrizColor[y][x];
+	} else {
+		std::cout << "Error al conseguir el pixel. Coordenadas fuera de rango (x: " << x << ", y: " << y << ")" << std::endl;
+		exit(1);
+	}
+}
+
+void utilsLED::TiraLED::SetMatrizColor(ColorLED nuevoContenido[8][8]) {
+	for (unsigned int y = 0; y < this->altura; y++) {
+		for (unsigned int x = 0; x < this->anchura; x++) {
+			this->MatrizColor[y][x] = nuevoContenido[y][x];
+		}
+	}
+
+	this->dibujar();
+}
+
+void utilsLED::TiraLED::RellenarDeColor(ColorLED colorLED) {
+	for (unsigned int y = 0; y < this->altura; y++) {
+		for (unsigned int x = 0; x < this->anchura; x++) {
+			this->MatrizColor[y][x] = colorLED;
+		}
+	}
+
+	this->dibujar();
+}
+
+void utilsLED::TiraLED::Limpiar() { return this->RellenarDeColor(ColorLED::Negro); }
+
+void utilsLED::TiraLED::ImprimirMatrizColor() {
+	std::string numeros[] = {u8"❶", u8"❷", u8"❸", u8"❹", u8"❺", u8"❻", u8"❼", u8"❽"};
+
+	std::cout << "\n  🅰  🅱  🅲  🅳  🅴  🅵  🅶  🅷 \n";
+	for (int i = 0; i < 8; ++i) {
+		std::cout << numeros[8 - i - 1] << " ";
+		for (int j = 0; j < 8; ++j) {
+			std::string s = flota::Ftemporal(this->MatrizColor[i][j]);
+			std::cout << " " << s << " ";
+		}
+		std::cout << std::endl;
+	}
+}
+
+void utilsLED::TiraLED::dibujar() {
+	if (!this->UsandoRaspberry)
+		return;
+
 	int valorColor;
 	for (unsigned int y = 0; y < this->altura; y++) {
 		for (unsigned int x = 0; x < this->anchura; x++) {
-			valorColor = static_cast<int>(matrizColor.getPixel(x, y));
+			valorColor = static_cast<int>(this->MatrizColor[y][x]);
 
 			if (x % 2 != 0) {
 				this->matriz[x * this->anchura + (this->anchura - 1) - y] = valorColor;

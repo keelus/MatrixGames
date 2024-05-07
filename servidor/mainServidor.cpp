@@ -1,4 +1,3 @@
-#include "matrizColor.h"
 #include "mensaje.h"
 #include "menu.h"
 #include "paquete.h"
@@ -22,17 +21,12 @@
 #define TAMANO_BUFFER 1024
 #define DEFAULT_PORT 3000
 
-MatrizColor *matrizColor;
+#define USANDO_RASPBERRY_CON_MATRIZ_LED false
 utilsLED::TiraLED *tiraLED;
 
 int main(void) {
-	matrizColor = new MatrizColor();
-	// tiraLED = new utilsLED::TiraLED();
-
-	matrizColor->Imprimir();
-
-	matrizColor->RellenarDeColor(ColorLED::Blanco);
-	// tiraLED->Colorear(matrizColor);
+	tiraLED = new utilsLED::TiraLED(USANDO_RASPBERRY_CON_MATRIZ_LED);
+	tiraLED->RellenarDeColor(ColorLED::Blanco);
 
 	printf("__ __  __ _____ ___ ___   __ \n"
 		   "|  V  |/  \\_   _| _ \\ \\ \\_/ / \n"
@@ -91,8 +85,7 @@ int main(void) {
 	mandarPaquete(new_socket, paquete);
 
 	while (true) {
-		matrizColor->RellenarDeColor(ColorLED::Naranja);
-		// tiraLED->Colorear(*matrizColor);
+		tiraLED->RellenarDeColor(ColorLED::Naranja);
 
 		MensajeDeCliente mensajeDeCliente = leerDesdeCliente(new_socket);
 		if (mensajeDeCliente.desconectar)
@@ -159,7 +152,7 @@ int main(void) {
 				char bufferFlota[TAMANO_BUFFER] = {0};
 
 				while (!partida.HaFinalizado()) {
-					bool desconectar = partida.Iteracion(new_socket, matrizColor, tiraLED);
+					bool desconectar = partida.Iteracion(new_socket, tiraLED);
 					std::cout << "Iteracion finalizada";
 					if (desconectar) {
 						std::cout << "Desconexion forzosa. Juego finalizado." << std::endl;
@@ -313,8 +306,7 @@ int main(void) {
 		mandarPaquete(new_socket, paquete);
 	}
 
-	matrizColor->RellenarDeColor(ColorLED::Negro);
-	// tiraLED->Colorear(*matrizColor);
+	tiraLED->RellenarDeColor(ColorLED::Negro);
 
 	std::cout << "Un cliente se ha desconectado. Cerrando servidor." << std::endl;
 	// closing the connected socket
