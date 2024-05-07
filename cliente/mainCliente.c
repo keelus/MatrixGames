@@ -1,4 +1,5 @@
 #define WIN32_LEAN_AND_MEAN
+#define _WIN32_WINNT 0x0501
 
 #include "input.h"
 #include "mensajes.h"
@@ -15,9 +16,17 @@
 
 #define TAMANO_BUFFER 1024
 #define PUERTO "3000"
-#define IP "192.168.1.148"
 
-int __cdecl main() {
+char *direccionIP;
+
+int __cdecl main(int argc, char *argv[]) {
+	if (argc == 1) {
+		printf("Usa el programa de la siguiente manera: ./mainCliente.exe ip\n");
+		exit(1);
+	}
+
+	direccionIP = argv[1];
+
 	SetConsoleOutputCP(CP_UTF8);
 	system("cls");
 	printf("__ __  __ _____ ___ ___   __ \n"
@@ -49,7 +58,7 @@ int __cdecl main() {
 	hints.ai_protocol = IPPROTO_TCP;
 
 	// Resolve the server address and port
-	iResult = getaddrinfo(IP, PUERTO, &hints, &result);
+	iResult = getaddrinfo(direccionIP, PUERTO, &hints, &result);
 	if (iResult != 0) {
 		printf("getaddrinfo falla con error: %d\n", iResult);
 		WSACleanup();
