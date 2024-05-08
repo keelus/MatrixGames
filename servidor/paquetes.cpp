@@ -1,10 +1,37 @@
-#include "menu.h"
-#include "paquete.h"
+#include "paquetes.h"
+#include "sesion.h"
 #include "tiposMenu.h"
-#include <string>
 #include <sys/socket.h>
 
-void CrearYMandarPaqueteDeMenu(int socketId, Sesion sesion, std::string mensajeError) {
+void paquetes::MandarPaqueteDesconexion(int socketId) {
+	Paquete paquete;
+	paquete.TextoVisual = "CLOSE";
+	paquete.PreInput = " ";
+	paquete.Codigo = "9000";
+	MandarPaquete(socketId, paquete);
+}
+
+void paquetes::MandarPaquete(int socketId, Paquete paquete) {
+	std::string paqueteStr = paquete.AString();
+	send(socketId, paqueteStr.c_str(), paqueteStr.length(), 0);
+	std::cout << "### Mensaje enviado a cliente ###" << std::endl;
+}
+
+void paquetes::MandarPaquete(int socketId, std::string textoVisual, std::string preInput, ModosEntrada modoEntrada, bool limpiarPantalla) {
+	Paquete paquete = {};
+	paquete.TextoVisual = textoVisual;
+	paquete.PreInput = preInput;
+
+	std::string codigo = "2000";
+	codigo[1] = modoEntrada == TEXTO ? '0' : '1';
+	codigo[2] = limpiarPantalla ? '1' : '0';
+
+	paquete.Codigo = codigo;
+
+	MandarPaquete(socketId, paquete);
+}
+
+void paquetes::MandarPaqueteDeMenu(int socketId, Sesion sesion, std::string mensajeError) {
 	std::string textoVisual, preInput;
 	ModosEntrada modoEntrada;
 	bool limpiarPantalla;
@@ -54,7 +81,6 @@ void CrearYMandarPaqueteDeMenu(int socketId, Sesion sesion, std::string mensajeE
 		textoVisual = "Hola, ";
 		textoVisual += sesion.GetNombreUsuario();
 		textoVisual.append("!\n\nSelecciona una opcion:\n\t1) Jugar\n\t2) Estadisticas\n\n\t3) Salir");
-
 		preInput = "\nElige una de las opciones:  ";
 
 		limpiarPantalla = true;
@@ -65,7 +91,6 @@ void CrearYMandarPaqueteDeMenu(int socketId, Sesion sesion, std::string mensajeE
 
 	case TiposMenu::Menu2: {
 		textoVisual = "Selecciona un juego:\n\n\t1) Snake\n\t2) Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) 4 en raya (vs CPU)\n\n\t6) Volver atras";
-
 		preInput = "\nElige una de las opciones:  ";
 
 		limpiarPantalla = true;
@@ -83,36 +108,7 @@ void CrearYMandarPaqueteDeMenu(int socketId, Sesion sesion, std::string mensajeE
 
 		break;
 	}
-
-	case TiposMenu::Cerrar: {
-		textoVisual = "CLOSE";
-
-		preInput = " ";
-
-		limpiarPantalla = true;
-		modoEntrada = TEXTO;
-
-		break;
-	}
-	default: {
-		textoVisual = "El menu actual no esta hecho.";
-
-		preInput = "\nCierra el programa.";
-
-		limpiarPantalla = true;
-		modoEntrada = TEXTO;
-
-		break;
-	}
 	}
 
-	if (textoVisual == "CLOSE") {
-		Paquete paqueteDesconexion;
-		paqueteDesconexion.Codigo = "9000";
-		paqueteDesconexion.TextoVisual = textoVisual;
-		paqueteDesconexion.PreInput = preInput;
-		mandarPaquete(socketId, paqueteDesconexion);
-	} else {
-		mandarPaquete(socketId, textoVisual, preInput, modoEntrada, limpiarPantalla);
-	}
+	MandarPaquete(socketId, textoVisual, preInput, modoEntrada, limpiarPantalla);
 }

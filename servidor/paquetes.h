@@ -2,10 +2,13 @@
 #define PAQUETE_H
 
 #include "../cliente/input.h"
+#include "sesion.h"
 #include <iostream>
 
+// Paquete => Mensaje que se manda desde el servidor hacia el cliente.
+namespace paquetes {
 class Paquete {
-      public:
+  public:
 	Paquete() : TextoVisual(""), PreInput(""), Codigo(""){};
 	Paquete(std::string textoVisual, std::string preInput, std::string codigo) : TextoVisual(textoVisual), PreInput(preInput), Codigo(codigo){};
 
@@ -20,7 +23,10 @@ class Paquete {
 	std::string Codigo;
 };
 
-void mandarPaquete(int socketId, Paquete paquete);
-void mandarPaquete(int socketId, std::string textoVisual, std::string preInput, ModosEntrada modoEntrada, bool limpiarPantalla);
+void MandarPaquete(int socketId, Paquete paquete);
+void MandarPaqueteDesconexion(int socketId);
+void MandarPaquete(int socketId, std::string textoVisual, std::string preInput, ModosEntrada modoEntrada, bool limpiarPantalla);
+void MandarPaqueteDeMenu(int socketId, Sesion sesion, std::string mensajeError);
+} // namespace paquetes
 
 #endif

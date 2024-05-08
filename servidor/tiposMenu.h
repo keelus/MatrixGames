@@ -10,7 +10,6 @@ enum class TiposMenu {
 	Menu1,			// Menu principal
 	Menu2,			// Menu de juegos disponibles
 	Menu3,			// Menu estadisticas
-	Cerrar
 };
 
 #endif

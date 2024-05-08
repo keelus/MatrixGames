@@ -5,8 +5,8 @@
 #include <iostream>
 #include <string>
 
-#include "../../mensaje.h"
-#include "../../paquete.h"
+#include "../../mensajes.h"
+#include "../../paquetes.h"
 
 #include <unistd.h> // Para linux
 
@@ -24,22 +24,22 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		TableroCPU.AContenidoColor(bufferContenido, true);
 		matrizLED->SetMatrizColor(bufferContenido);
 
-		mandarPaquete(socketId, contenidoPrincipal, "Introduce una coordenada: ", TEXTO, true);
+		paquetes::MandarPaquete(socketId, contenidoPrincipal, "Introduce una coordenada: ", TEXTO, true);
 		std::cout << contenidoPrincipal;
 
 		bool ataqueRealizado = false;
 		while (!ataqueRealizado) {
 			try {
-				MensajeDeCliente mensajeDeCliente = leerDesdeCliente(socketId);
-				if (mensajeDeCliente.desconectar)
+				mensajes::Mensaje mensajeDeCliente = mensajes::LeerDesdeCliente(socketId);
+				if (mensajeDeCliente.SeQuiereDesconectar)
 					return true;
 
 				// TODO: Eliminar espacios desde el input
 
-				Coordenada coordenada = ParsearCoordenada(mensajeDeCliente.contenido);
+				Coordenada coordenada = ParsearCoordenada(mensajeDeCliente.Contenido);
 				if (TableroCPU.AtaqueYaRecibido(coordenada)) {
 					std::cout << "Ataque ya realizado!\n";
-					mandarPaquete(socketId, "", "Ataque ya realizado! Introduce otra coordenada: ", TEXTO, false);
+					paquetes::MandarPaquete(socketId, "", "Ataque ya realizado! Introduce otra coordenada: ", TEXTO, false);
 				} else {
 					ataqueRealizado = true;
 					Ataque resultadoAtaque = TableroCPU.RecibirAtaque(coordenada);
@@ -63,19 +63,19 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 					TableroCPU.AContenidoColor(bufferContenido, true);
 					matrizLED->SetMatrizColor(bufferContenido);
 
-					mandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
+					paquetes::MandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 					std::cout << contenidoFinal << std::endl;
 
-					mensajeDeCliente = leerDesdeCliente(socketId); // Bloquear programa hast recibir mensaje
+					mensajeDeCliente = mensajes::LeerDesdeCliente(socketId); // Bloquear programa hast recibir mensaje
 
-					if (mensajeDeCliente.desconectar)
+					if (mensajeDeCliente.SeQuiereDesconectar)
 						return true;
 				}
 
 			} catch (char const *e) {
 				std::cout << "Llegamos aqui..." << std::endl;
 				std::cout << "La coordenada introducida es invalida! Introduce otra:" << std::endl;
-				mandarPaquete(socketId, "", "La coordenada introducida es invalida! Introduce otra: ", TEXTO, false);
+				paquetes::MandarPaquete(socketId, "", "La coordenada introducida es invalida! Introduce otra: ", TEXTO, false);
 			}
 		}
 	} else {
@@ -88,11 +88,11 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		TableroJugador.AContenidoColor(bufferContenido, false);
 		matrizLED->SetMatrizColor(bufferContenido);
 
-		mandarPaquete(socketId, contenidoPrincipal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
+		paquetes::MandarPaquete(socketId, contenidoPrincipal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoPrincipal;
 
-		MensajeDeCliente mensajeDeCliente = leerDesdeCliente(socketId); // Bloquear hasta continuar
-		if (mensajeDeCliente.desconectar)
+		mensajes::Mensaje mensajeDeCliente = mensajes::LeerDesdeCliente(socketId); // Bloquear hasta continuar
+		if (mensajeDeCliente.SeQuiereDesconectar)
 			return true;
 
 		Ataque resultadoAtaque = TableroJugador.RecibirAtaqueComoIA();
@@ -118,11 +118,11 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 
 		matrizLED->SetMatrizColor(bufferContenido);
 
-		mandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
+		paquetes::MandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoFinal << std::endl;
 
-		mensajeDeCliente = leerDesdeCliente(socketId); // Bloquear programa hast recibir mensaje
-		if (mensajeDeCliente.desconectar)
+		mensajeDeCliente = mensajes::LeerDesdeCliente(socketId); // Bloquear programa hast recibir mensaje
+		if (mensajeDeCliente.SeQuiereDesconectar)
 			return true;
 	}
 

@@ -1,8 +1,8 @@
 #include "logger.h"
 #include "matrizLED.h"
-#include "mensaje.h"
+#include "mensajes.h"
 #include "menu.h"
-#include "paquete.h"
+#include "paquetes.h"
 #include "sesion.h"
 #include "tiposMenu.h"
 #include <string>
@@ -29,6 +29,9 @@ MatrizLED *matrizLED;
 
 Logger logger;
 Sesion sesion;
+int socketUsuario;
+
+void BuclePrincipal();
 
 int main(void) {
 	logger.Log("Servidor iniciado.", CategoriaLog::Otro);
@@ -47,7 +50,7 @@ int main(void) {
 		   " \\__/_||_|_| |_|___|___/\n"
 		   "  ====  SERVIDOR  ====  \n");
 
-	int server_fd, socketUsuario;
+	int server_fd;
 	struct sockaddr_in address;
 	int opt = 1;
 	socklen_t addrlen = sizeof(address);
@@ -72,60 +75,81 @@ int main(void) {
 		perror("bind failed");
 		exit(EXIT_FAILURE);
 	}
+
 	if (listen(server_fd, 3) < 0) {
-		logger.Log("Esperando conexion.", CategoriaLog::Otro);
 		perror("listen");
 		exit(EXIT_FAILURE);
 	}
+
+	logger.Log("Esperando conexion.", CategoriaLog::Otro);
+	std::cout << "Esperando conexion." << std::endl;
+
+	// Escuchar y esperar a la conexion de un usuario
 	if ((socketUsuario = accept(server_fd, (struct sockaddr *)&address, &addrlen)) < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
 	}
 
+	// Bucle principal con la logica del servidor, menus, juegos, etc.
+	// Una vez se salga de este, significara que el usuario se ha desconectado, o se ha perdido la conexion.
 	logger.Log("Usuario conectado.", CategoriaLog::Conexion);
+	std::cout << "Usuario conectado." << std::endl;
 
+	BuclePrincipal();
+
+	matrizLED->RellenarDeColor(ColorLED::Negro);
+
+	if (sesion.GetNombreUsuario() == "") {
+		logger.Log("Usuario desconectado.", CategoriaLog::Desconexion);
+	} else {
+		logger.Log("Usuario desconectado. (\" " + sesion.GetNombreUsuario() + " \").", CategoriaLog::Desconexion);
+	}
+
+	std::cout << "Un cliente se ha desconectado. Cerrando servidor." << std::endl;
+
+	close(socketUsuario);
+	close(server_fd); // Cerrar escucha
+	return 0;
+}
+
+void BuclePrincipal() {
 	std::string ultimoError = "";
-
-	CrearYMandarPaqueteDeMenu(socketUsuario, sesion, ultimoError);
+	paquetes::MandarPaqueteDeMenu(socketUsuario, sesion, ultimoError);
 
 	while (true) {
 		matrizLED->RellenarDeColor(ColorLED::Naranja);
 
-		MensajeDeCliente mensajeDeCliente = leerDesdeCliente(socketUsuario);
-		if (mensajeDeCliente.desconectar)
+		mensajes::Mensaje mensajeDeCliente = mensajes::LeerDesdeCliente(socketUsuario);
+		if (mensajeDeCliente.SeQuiereDesconectar)
 			break;
 
 		switch (sesion.GetMenuActual()) {
 		case TiposMenu::Menu0: {
-			char accionElegida = mensajeDeCliente.contenido[0];
+			char accionElegida = mensajeDeCliente.Contenido[0];
 
 			if (accionElegida == '1') {
 				sesion.SetMenuActual(TiposMenu::Menu0_Login);
 			} else if (accionElegida == '2') {
 				sesion.SetMenuActual(TiposMenu::Menu0_Registro);
 			} else if (accionElegida == '3') {
-				// Desconectar usuario
-				sesion.SetMenuActual(TiposMenu::Cerrar);
-			} else {
-				// Error!
+				return;
 			}
 
 			break;
 		}
 		case TiposMenu::Menu1: {
-			char accionElegida = mensajeDeCliente.contenido[0];
+			char accionElegida = mensajeDeCliente.Contenido[0];
 			if (accionElegida == '1') {
 				sesion.SetMenuActual(TiposMenu::Menu2); // Ir al menu de juegos
 			} else if (accionElegida == '2') {
 				sesion.SetMenuActual(TiposMenu::Menu3); // Ir a estadisticas
 			} else if (accionElegida == '3') {
-				// Desconectar usuario
-				sesion.SetMenuActual(TiposMenu::Cerrar);
+				return;
 			}
 			break;
 		}
 		case TiposMenu::Menu2: {
-			char accionElegida = mensajeDeCliente.contenido[0];
+			char accionElegida = mensajeDeCliente.Contenido[0];
 			// estas opciones son para iniciar los juesgos, menos el 6 que es para ir al menu anterior
 			if (accionElegida == '1') { // Snake
 
@@ -142,7 +166,7 @@ int main(void) {
 
 				std::string stringDelTablero = partida.TableroJugador.AString(false);
 
-				Paquete paquete = {};
+				paquetes::Paquete paquete;
 				paquete.Codigo = "2000";
 				paquete.PreInput = "Nada por aqui.";
 				paquete.TextoVisual = stringDelTablero.c_str();
@@ -156,8 +180,7 @@ int main(void) {
 					bool desconectar = partida.Iteracion(socketUsuario, matrizLED);
 					std::cout << "Iteracion finalizada";
 					if (desconectar) {
-						std::cout << "Desconexion forzosa. Juego finalizado." << std::endl;
-						break; // TODO: Desconectar correctamente, no con break
+						return;
 					}
 				}
 
@@ -165,13 +188,13 @@ int main(void) {
 
 				if (partida.TableroJugador.CompletamenteHundido()) {
 					std::cout << "Has perdido! No te quedan mas barcos. Suerte a la proxima!";
-					mandarPaquete(socketUsuario, "Has perdido! No te quedan mas barcos. Suerte a la proxima!\n", "[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
+					paquetes::MandarPaquete(socketUsuario, "Has perdido! No te quedan mas barcos. Suerte a la proxima!\n", "[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
 				} else {
 					std::cout << "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!";
-					mandarPaquete(socketUsuario, "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!\n", "[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
+					paquetes::MandarPaquete(socketUsuario, "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!\n", "[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
 				}
 
-				leerDesdeCliente(socketUsuario); // Bloquear hasta respuesta
+				mensajes::LeerDesdeCliente(socketUsuario); // Bloquear hasta respuesta
 				logger.Log("Finalizado juego \"flota\".", CategoriaLog::Partida);
 
 				break;
@@ -180,13 +203,11 @@ int main(void) {
 			} else if (accionElegida == '6') {
 				sesion.SetMenuActual(TiposMenu::Menu1);
 				// Devuelve a la pestaña anterior
-			} else {
-				// Error!
 			}
 			break;
 		}
 		case TiposMenu::Menu0_Login: {
-			std::string textoIntroducido = mensajeDeCliente.contenido;
+			std::string textoIntroducido = mensajeDeCliente.Contenido;
 
 			switch (sesion.GetEstadoLogin()) {
 			case EstadosLoginRegistro::EsperandoUsuario: {
@@ -219,7 +240,7 @@ int main(void) {
 			break;
 		}
 		case TiposMenu::Menu0_Registro: {
-			std::string textoIntroducido = mensajeDeCliente.contenido;
+			std::string textoIntroducido = mensajeDeCliente.Contenido;
 
 			switch (sesion.GetEstadoLogin()) {
 			case EstadosLoginRegistro::EsperandoUsuario: {
@@ -267,25 +288,8 @@ int main(void) {
 			sesion.SetMenuActual(TiposMenu::Menu1);
 			break;
 		}
-
-		default: {
-			printf("Input de menu no handleado.\n");
-
-			break;
-		}
 		}
 
-		CrearYMandarPaqueteDeMenu(socketUsuario, sesion, ultimoError);
+		paquetes::MandarPaqueteDeMenu(socketUsuario, sesion, ultimoError);
 	}
-
-	matrizLED->RellenarDeColor(ColorLED::Negro);
-
-	std::cout << "Un cliente se ha desconectado. Cerrando servidor." << std::endl;
-	logger.Log("Usuario desconectado. (\" " + sesion.GetNombreUsuario() + " \").", CategoriaLog::Desconexion);
-	logger.Log("Cierre del servidor.", CategoriaLog::Otro);
-	// closing the connected socket
-	close(socketUsuario);
-	// closing the listening socket
-	close(server_fd);
-	return 0;
 }
