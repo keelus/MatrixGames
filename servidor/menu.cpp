@@ -5,10 +5,10 @@
 #include <iostream>
 #include <string>
 
-Paquete CrearPaqueteDeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, std::string mensajeError, std::string usuario, std::string juegoSeleccionadoConf) {
+Paquete CrearPaqueteDeMenu(Sesion sesion, std::string mensajeError) {
 	Paquete paquete = {};
 
-	switch (menuActual) {
+	switch (sesion.GetMenuActual()) {
 	case MENU_0: {
 		paquete.TextoVisual = "\nSelecciona una opcion:\n\t1) Iniciar sesion\n\t2) Crear una cuenta\n\n\t3) Salir";
 		if (!mensajeError.empty()) {
@@ -21,10 +21,10 @@ Paquete CrearPaqueteDeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, s
 		break;
 	}
 	case MENU_0_LOGIN: {
-		if (estadoLogin == ESPERANDO_USUARIO) {
+		if (sesion.GetEstadoLogin() == ESPERANDO_USUARIO) {
 			paquete.TextoVisual = "== INICIAR SESION ==";
 			paquete.PreInput = "\nIntroduce tu nombre de usuario: ";
-		} else if (estadoLogin == ESPERANDO_CONTRASENYA) {
+		} else if (sesion.GetEstadoLogin() == ESPERANDO_CONTRASENYA) {
 			paquete.TextoVisual = "";
 			paquete.PreInput = "Introduce tu contrasena: ";
 		}
@@ -35,7 +35,7 @@ Paquete CrearPaqueteDeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, s
 	case MENU_1: {
 		std::string kira = "";
 		paquete.TextoVisual = "\n\nHola, ";
-		paquete.TextoVisual.append(usuario);
+		paquete.TextoVisual.append(sesion.GetNombreUsuario());
 		paquete.TextoVisual.append("!\n\nSelecciona una opcion:\n\t1) Jugar\n\t2) Configuracion\n\t3) Estadisticas\n\n\t4) Salir");
 
 		paquete.PreInput = "\nElige una de las opciones:  ";
@@ -59,10 +59,10 @@ Paquete CrearPaqueteDeMenu(TiposMenu menuActual, EstadosMenuLogin estadoLogin, s
 	}
 
 	case MENU_0_REGISTRO: {
-		if (estadoLogin == ESPERANDO_USUARIO) {
+		if (sesion.GetEstadoLogin() == ESPERANDO_USUARIO) {
 			paquete.TextoVisual = "== REGISTRO ==";
 			paquete.PreInput = "\nIntroduce tu nombre de usuario: ";
-		} else if (estadoLogin == ESPERANDO_CONTRASENYA) {
+		} else if (sesion.GetEstadoLogin() == ESPERANDO_CONTRASENYA) {
 			paquete.TextoVisual = "";
 			paquete.PreInput = "Introduce tu contrasena: ";
 		}

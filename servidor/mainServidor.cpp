@@ -3,6 +3,8 @@
 #include "mensaje.h"
 #include "menu.h"
 #include "paquete.h"
+#include "sesion.h"
+#include "tiposMenu.h"
 #include <string>
 #undef UNICODE
 
@@ -25,8 +27,10 @@
 #define USANDO_RASPBERRY_CON_MATRIZ_LED false
 MatrizLED *matrizLED;
 
+Logger logger;
+Sesion sesion;
+
 int main(void) {
-	Logger logger;
 	logger.Log("Servidor iniciado.", CategoriaLog::Otro);
 
 	matrizLED = new MatrizLED(USANDO_RASPBERRY_CON_MATRIZ_LED);
@@ -80,13 +84,9 @@ int main(void) {
 
 	logger.Log("Usuario conectado.", CategoriaLog::Conexion);
 
-	TiposMenu menuActual = MENU_0;
-	EstadosMenuLogin estadoLogin = ESPERANDO_USUARIO;
 	std::string ultimoError = "";
 
-	std::string nombreUsuarioActual = "";
-
-	Paquete paquete = CrearPaqueteDeMenu(menuActual, estadoLogin, ultimoError, nombreUsuarioActual, "");
+	Paquete paquete = CrearPaqueteDeMenu(sesion, ultimoError);
 	std::string paqueteStr = paquete.AString();
 
 	mandarPaquete(new_socket, paquete);
@@ -98,17 +98,17 @@ int main(void) {
 		if (mensajeDeCliente.desconectar)
 			break;
 
-		switch (menuActual) {
+		switch (sesion.GetMenuActual()) {
 		case MENU_0: {
 			char accionElegida = mensajeDeCliente.contenido[0];
 
 			if (accionElegida == '1') {
-				menuActual = MENU_0_LOGIN;
+				sesion.SetMenuActual(MENU_0_LOGIN);
 			} else if (accionElegida == '2') {
-				menuActual = MENU_0_REGISTRO;
+				sesion.SetMenuActual(MENU_0_REGISTRO);
 			} else if (accionElegida == '3') {
 				// Desconectar usuario
-				menuActual = CLOSE;
+				sesion.SetMenuActual(CLOSE);
 			} else {
 				// Error!
 			}
@@ -118,14 +118,14 @@ int main(void) {
 		case MENU_1: {
 			char accionElegida = mensajeDeCliente.contenido[0];
 			if (accionElegida == '1') {
-				menuActual = MENU_2;
+				sesion.SetMenuActual(MENU_2);
 			} else if (accionElegida == '2') {
-				menuActual = MENU_3;
+				sesion.SetMenuActual(MENU_3);
 			} else if (accionElegida == '3') {
 
 			} else if (accionElegida == '4') {
 				// Desconectar usuario
-				menuActual = CLOSE;
+				sesion.SetMenuActual(CLOSE);
 			} else {
 				// Error!
 			}
@@ -185,7 +185,7 @@ int main(void) {
 			} else if (accionElegida == '5') { // 4 en raya (vs CPU)
 
 			} else if (accionElegida == '6') {
-				menuActual = MENU_1;
+				sesion.SetMenuActual(MENU_1);
 				// Devuelve a la pestaña anterior
 			} else {
 				// Error!
@@ -206,7 +206,7 @@ int main(void) {
 			} else if (accionElegida == '5') {
 
 			} else if (accionElegida == '6') {
-				menuActual = MENU_1;
+				sesion.SetMenuActual(MENU_1);
 				// ddevuelve a la pestaña anterior
 			} else {
 				// Error!
@@ -223,30 +223,30 @@ int main(void) {
 			//  	*(textoIntroducido + i) = *(bufferEntrante + i);
 			//  }
 			//  *(textoIntroducido + strlen(bufferEntrante)) = '\0';
-			switch (estadoLogin) {
+			switch (sesion.GetEstadoLogin()) {
 			case ESPERANDO_USUARIO: {
-				nombreUsuarioActual = textoIntroducido;
-				estadoLogin = ESPERANDO_CONTRASENYA;
+				sesion.SetNombreIntroducidoLoginRegistro(textoIntroducido);
+				sesion.SetEstadoLogin(ESPERANDO_CONTRASENYA);
 				break;
 			}
 			case ESPERANDO_CONTRASENYA: {
 				int idUsuario = -1;
-				bool correctas = CredencialesCorrectas(nombreUsuarioActual, textoIntroducido, &idUsuario);
+				bool correctas = CredencialesCorrectas(sesion.GetNombreIntroducidoLoginRegistro(), textoIntroducido, &idUsuario);
+				sesion.SetSesion(idUsuario, sesion.GetNombreIntroducidoLoginRegistro());
 
-				estadoLogin = ESPERANDO_USUARIO; // Reiniciamos estado para futuros logins
 				if (correctas) {
 					// Si es correcta, iniciamos sesion correctamente
-					logger.Log("Usuario logueado (\"" + nombreUsuarioActual + "\").", CategoriaLog::Otro);
+					logger.Log("Usuario logueado (\"" + sesion.GetNombreUsuario() + "\").", CategoriaLog::Otro);
 					ultimoError = "";
-					menuActual = MENU_1;
+					sesion.SetMenuActual(MENU_1);
 				} else {
 					// Si no lo es, limpiamos usuario, y pasamos al menu 0.
 					std::string mensajeError = "El usuario y/o contrasena son incorrectos. Intentalo de nuevo o crea una cuenta.";
 
 					ultimoError = mensajeError;
 
-					menuActual = MENU_0;
-					nombreUsuarioActual = "";
+					sesion.SetMenuActual(MENU_0);
+					sesion.SetNombreIntroducidoLoginRegistro("");
 				}
 				break;
 			}
@@ -259,36 +259,40 @@ int main(void) {
 				textoIntroducido = textoIntroducido + mensajeDeCliente.contenido[i];
 			}
 
-			switch (estadoLogin) {
+			switch (sesion.GetEstadoLogin()) {
 			case ESPERANDO_USUARIO: {
-				nombreUsuarioActual = textoIntroducido;
+				sesion.SetNombreIntroducidoLoginRegistro(textoIntroducido);
 
-				bool existe = VerUsuario(nombreUsuarioActual);
+				bool existe = VerUsuario(sesion.GetNombreIntroducidoLoginRegistro());
 				if (existe) {
 					std::string mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
 					ultimoError = mensajeError;
-					menuActual = MENU_0;
-					nombreUsuarioActual = "";
+
+					sesion.SetMenuActual(MENU_0);
+					sesion.SetNombreIntroducidoLoginRegistro("");
 					break;
 				}
-				estadoLogin = ESPERANDO_CONTRASENYA;
+				sesion.SetEstadoLogin(ESPERANDO_CONTRASENYA);
 				break;
 			}
 			case ESPERANDO_CONTRASENYA: {
 				int idUsuario = -1;
-				bool correctas = CrearUsuario(nombreUsuarioActual, textoIntroducido, &idUsuario);
+
+				bool correctas = CrearUsuario(sesion.GetNombreIntroducidoLoginRegistro(), textoIntroducido, &idUsuario);
 				if (correctas) {
-					logger.Log("Usuario registrado (\" " + nombreUsuarioActual + " \").", CategoriaLog::Otro);
 					ultimoError = "";
-					menuActual = MENU_1;
+					sesion.SetSesion(idUsuario, sesion.GetNombreIntroducidoLoginRegistro());
+
+					logger.Log("Usuario registrado (\" " + sesion.GetNombreUsuario() + " \").", CategoriaLog::Otro);
+
+					sesion.SetMenuActual(MENU_1);
 				} else {
 					std::string mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
 					ultimoError = mensajeError;
 
-					menuActual = MENU_0;
-
-					nombreUsuarioActual = "";
-					estadoLogin = ESPERANDO_USUARIO;
+					sesion.SetMenuActual(MENU_0);
+					sesion.SetNombreIntroducidoLoginRegistro("");
+					sesion.SetEstadoLogin(ESPERANDO_USUARIO);
 				}
 				break;
 			}
@@ -304,13 +308,13 @@ int main(void) {
 
 		default: {
 			printf("Input de menu no handleado.\n");
-			printf("%i", menuActual);
+			printf("%i", sesion.GetMenuActual());
 
 			break;
 		}
 		}
 
-		Paquete paquete = CrearPaqueteDeMenu(menuActual, estadoLogin, ultimoError, nombreUsuarioActual, "");
+		Paquete paquete = CrearPaqueteDeMenu(sesion, ultimoError);
 		std::string paqueteStr = paquete.AString();
 
 		mandarPaquete(new_socket, paquete);
@@ -319,7 +323,7 @@ int main(void) {
 	matrizLED->RellenarDeColor(ColorLED::Negro);
 
 	std::cout << "Un cliente se ha desconectado. Cerrando servidor." << std::endl;
-	logger.Log("Usuario desconectado. (\" " + nombreUsuarioActual + " \").", CategoriaLog::Desconexion);
+	logger.Log("Usuario desconectado. (\" " + sesion.GetNombreUsuario() + " \").", CategoriaLog::Desconexion);
 	logger.Log("Cierre del servidor.", CategoriaLog::Otro);
 	// closing the connected socket
 	close(new_socket);
