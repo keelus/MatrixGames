@@ -14,20 +14,35 @@ char *leerInput(ModosEntrada modo, char *textoVisual) {
 	switch (modo) {
 	case TEXTO:
 		fgets(buffer, TAMANO_BUFFER, stdin);
-		if (strlen(buffer) == 0 || strlen(buffer) == 1) { // Si mensaje vacio, o mensaje vacio + enter ( TODO: Prevenir guardar caracter enter )
-			buffer[0] = ' ';			  // Añadir espacio, para prevenir un mensaje vacio que el servidor ignorará. Esto haría que los mensajes y visuales irían desincronizaods."
+
+		// Si mensaje vacio, o mensaje vacio + enter ( TODO: Prevenir guardar caracter enter )
+		if (strlen(buffer) == 0 || strlen(buffer) == 1) {
+			// Añadir espacio, para prevenir un mensaje vacio que el servidor ignorara.
+			// Esto haría que los mensajes y visuales irian desincronizados."
+			buffer[0] = ' ';
 			buffer[1] = '\0';
 		} else {
+			// Si no, simplemente añadimos caracter nulo al final
 			buffer[strlen(buffer) - 1] = '\0';
 		}
+
+		// Finalmente, evitar que el mensaje empiece por \, pues causaria lo ya mencionado antes.
+		if (buffer[0] == '\\') {
+			buffer[0] = ' ';
+		}
+
 		break;
 	case PULSACION:
 		while (1) {
 			if (kbhit()) {
-				buffer[0] = getch(); // Nota: Las flechas (arriba, abajo, derecha, izquierda) estan mapeadas raras. Mejor seria comprobar en cliente y reemplazar con letras (izquierda = a, derecha = b) etc
+				buffer[0] = getch();
 
-				// Si se manda la tecla enter, reemplazarla por un espacio, para prevenir un mensaje vacio que el servidor ignorará. Esto haría que los mensajes y visuales irían desincronizaods."
+				// Prevenir caracter enter (vacio)
 				if (buffer[0] == 10) {
+					buffer[0] = ' ';
+				}
+
+				if (buffer[0] == '\\') {
 					buffer[0] = ' ';
 				}
 
