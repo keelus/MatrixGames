@@ -2,90 +2,117 @@
 #include "paquete.h"
 #include "tiposMenu.h"
 #include <string>
+#include <sys/socket.h>
 
-Paquete CrearPaqueteDeMenu(Sesion sesion, std::string mensajeError) {
-	Paquete paquete = {};
+void CrearYMandarPaqueteDeMenu(int socketId, Sesion sesion, std::string mensajeError) {
+	std::string textoVisual, preInput;
+	ModosEntrada modoEntrada;
+	bool limpiarPantalla;
 
 	switch (sesion.GetMenuActual()) {
 	case TiposMenu::Menu0: {
-		paquete.TextoVisual = "\nSelecciona una opcion:\n\t1) Iniciar sesion\n\t2) Crear una cuenta\n\n\t3) Salir";
+		textoVisual = "\nSelecciona una opcion:\n\t1) Iniciar sesion\n\t2) Crear una cuenta\n\n\t3) Salir";
 		if (!mensajeError.empty()) {
-			paquete.TextoVisual = mensajeError.append(paquete.TextoVisual);
+			textoVisual = mensajeError.append(textoVisual);
 		}
 
-		paquete.PreInput = "\nOpcion seleccionada: ";
-		paquete.Codigo = "2010";
+		preInput = "\nOpcion seleccionada: ";
+		limpiarPantalla = true;
+		modoEntrada = TEXTO;
 
 		break;
 	}
 	case TiposMenu::Menu0_Login: {
 		if (sesion.GetEstadoLogin() == EstadosLoginRegistro::EsperandoUsuario) {
-			paquete.TextoVisual = "== INICIAR SESION ==";
-			paquete.PreInput = "\nIntroduce tu nombre de usuario: ";
+			textoVisual = "== INICIAR SESION ==";
+			preInput = "\nIntroduce tu nombre de usuario: ";
 		} else if (sesion.GetEstadoLogin() == EstadosLoginRegistro::EsperandoContrasenya) {
-			paquete.TextoVisual = "";
-			paquete.PreInput = "Introduce tu contrasena: ";
+			textoVisual = "";
+			preInput = "Introduce tu contrasena: ";
 		}
-		paquete.Codigo = "2000";
+
+		limpiarPantalla = false;
+		modoEntrada = TEXTO;
+
+		break;
+	}
+	case TiposMenu::Menu0_Registro: {
+		if (sesion.GetEstadoLogin() == EstadosLoginRegistro::EsperandoUsuario) {
+			textoVisual = "== REGISTRO ==";
+			preInput = "\nIntroduce tu nombre de usuario: ";
+		} else if (sesion.GetEstadoLogin() == EstadosLoginRegistro::EsperandoContrasenya) {
+			textoVisual = "";
+			preInput = "Introduce tu contrasena: ";
+		}
+
+		limpiarPantalla = false;
+		modoEntrada = TEXTO;
 
 		break;
 	}
 	case TiposMenu::Menu1: {
-		std::string kira = "";
-		paquete.TextoVisual = "\n\nHola, ";
-		paquete.TextoVisual.append(sesion.GetNombreUsuario());
-		paquete.TextoVisual.append("!\n\nSelecciona una opcion:\n\t1) Jugar\n\t2) Configuracion\n\t3) Estadisticas\n\n\t4) Salir");
+		textoVisual = "Hola, ";
+		textoVisual += sesion.GetNombreUsuario();
+		textoVisual.append("!\n\nSelecciona una opcion:\n\t1) Jugar\n\t2) Estadisticas\n\n\t3) Salir");
 
-		paquete.PreInput = "\nElige una de las opciones:  ";
-		paquete.Codigo = "2010";
+		preInput = "\nElige una de las opciones:  ";
+
+		limpiarPantalla = true;
+		modoEntrada = TEXTO;
 
 		break;
 	}
+
 	case TiposMenu::Menu2: {
-		paquete.TextoVisual = "Selecciona un juego:\n\n\t1) Snake\n\t2) Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) 4 en raya (vs CPU)\n\n\t6) Volver atras";
+		textoVisual = "Selecciona un juego:\n\n\t1) Snake\n\t2) Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) 4 en raya (vs CPU)\n\n\t6) Volver atras";
 
-		paquete.PreInput = "\nElige una de las opciones:  ";
-		paquete.Codigo = "2010";
+		preInput = "\nElige una de las opciones:  ";
+
+		limpiarPantalla = true;
+		modoEntrada = TEXTO;
+
 		break;
 	}
+
 	case TiposMenu::Menu3: {
-		paquete.TextoVisual = "Selecciona el juego a configurar:\n\n\t1) Snake\n\t2)Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) 4 en raya (vs CPU)\n\n\t6) Volver atras";
+		textoVisual = "Aqui irian tus estadisticas...";
+		preInput = "\n[ Pulsa cualquier tecla para volver al menu principal ]";
 
-		paquete.PreInput = "\nElige una de las opciones:  ";
-		paquete.Codigo = "2010";
-		break;
-	}
+		limpiarPantalla = true;
+		modoEntrada = PULSACION;
 
-	case TiposMenu::Menu0_Registro: {
-		if (sesion.GetEstadoLogin() == EstadosLoginRegistro::EsperandoUsuario) {
-			paquete.TextoVisual = "== REGISTRO ==";
-			paquete.PreInput = "\nIntroduce tu nombre de usuario: ";
-		} else if (sesion.GetEstadoLogin() == EstadosLoginRegistro::EsperandoContrasenya) {
-			paquete.TextoVisual = "";
-			paquete.PreInput = "Introduce tu contrasena: ";
-		}
-
-		paquete.Codigo = "2000";
 		break;
 	}
 
 	case TiposMenu::Cerrar: {
-		paquete.TextoVisual = "CLOSE";
+		textoVisual = "CLOSE";
 
-		paquete.PreInput = " ";
-		paquete.Codigo = "9000";
+		preInput = " ";
+
+		limpiarPantalla = true;
+		modoEntrada = TEXTO;
+
 		break;
 	}
 	default: {
-		printf("Usado un menu no definido. Cuidado.\n");
+		textoVisual = "El menu actual no esta hecho.";
 
-		paquete.TextoVisual = "El menu actual no esta hecho.";
+		preInput = "\nCierra el programa.";
 
-		paquete.PreInput = "\nCierra el programa.";
-		paquete.Codigo = "2000";
+		limpiarPantalla = true;
+		modoEntrada = TEXTO;
+
 		break;
 	}
 	}
 
-	return paquete;
+	if (textoVisual == "CLOSE") {
+		Paquete paqueteDesconexion;
+		paqueteDesconexion.Codigo = "9000";
+		paqueteDesconexion.TextoVisual = textoVisual;
+		paqueteDesconexion.PreInput = preInput;
+		mandarPaquete(socketId, paqueteDesconexion);
+	} else {
+		mandarPaquete(socketId, textoVisual, preInput, modoEntrada, limpiarPantalla);
+	}
 }

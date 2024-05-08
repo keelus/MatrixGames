@@ -7,6 +7,6 @@
 #include "tiposMenu.h"
 #include <string>
 
-Paquete CrearPaqueteDeMenu(Sesion sesion, std::string mensajeError);
+void CrearYMandarPaqueteDeMenu(int socketId, Sesion sesion, std::string mensajeError);
 
 #endif

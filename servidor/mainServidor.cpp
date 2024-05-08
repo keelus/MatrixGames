@@ -47,7 +47,7 @@ int main(void) {
 		   " \\__/_||_|_| |_|___|___/\n"
 		   "  ====  SERVIDOR  ====  \n");
 
-	int server_fd, new_socket;
+	int server_fd, socketUsuario;
 	struct sockaddr_in address;
 	int opt = 1;
 	socklen_t addrlen = sizeof(address);
@@ -77,7 +77,7 @@ int main(void) {
 		perror("listen");
 		exit(EXIT_FAILURE);
 	}
-	if ((new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen)) < 0) {
+	if ((socketUsuario = accept(server_fd, (struct sockaddr *)&address, &addrlen)) < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
 	}
@@ -86,15 +86,12 @@ int main(void) {
 
 	std::string ultimoError = "";
 
-	Paquete paquete = CrearPaqueteDeMenu(sesion, ultimoError);
-	std::string paqueteStr = paquete.AString();
-
-	mandarPaquete(new_socket, paquete);
+	CrearYMandarPaqueteDeMenu(socketUsuario, sesion, ultimoError);
 
 	while (true) {
 		matrizLED->RellenarDeColor(ColorLED::Naranja);
 
-		MensajeDeCliente mensajeDeCliente = leerDesdeCliente(new_socket);
+		MensajeDeCliente mensajeDeCliente = leerDesdeCliente(socketUsuario);
 		if (mensajeDeCliente.desconectar)
 			break;
 
@@ -118,16 +115,12 @@ int main(void) {
 		case TiposMenu::Menu1: {
 			char accionElegida = mensajeDeCliente.contenido[0];
 			if (accionElegida == '1') {
-				sesion.SetMenuActual(TiposMenu::Menu2);
+				sesion.SetMenuActual(TiposMenu::Menu2); // Ir al menu de juegos
 			} else if (accionElegida == '2') {
-				sesion.SetMenuActual(TiposMenu::Menu3);
+				sesion.SetMenuActual(TiposMenu::Menu3); // Ir a estadisticas
 			} else if (accionElegida == '3') {
-
-			} else if (accionElegida == '4') {
 				// Desconectar usuario
 				sesion.SetMenuActual(TiposMenu::Cerrar);
-			} else {
-				// Error!
 			}
 			break;
 		}
@@ -160,7 +153,7 @@ int main(void) {
 				char bufferFlota[TAMANO_BUFFER] = {0};
 
 				while (!partida.HaFinalizado()) {
-					bool desconectar = partida.Iteracion(new_socket, matrizLED);
+					bool desconectar = partida.Iteracion(socketUsuario, matrizLED);
 					std::cout << "Iteracion finalizada";
 					if (desconectar) {
 						std::cout << "Desconexion forzosa. Juego finalizado." << std::endl;
@@ -172,13 +165,13 @@ int main(void) {
 
 				if (partida.TableroJugador.CompletamenteHundido()) {
 					std::cout << "Has perdido! No te quedan mas barcos. Suerte a la proxima!";
-					mandarPaquete(new_socket, "Has perdido! No te quedan mas barcos. Suerte a la proxima!\n", "[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
+					mandarPaquete(socketUsuario, "Has perdido! No te quedan mas barcos. Suerte a la proxima!\n", "[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
 				} else {
 					std::cout << "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!";
-					mandarPaquete(new_socket, "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!\n", "[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
+					mandarPaquete(socketUsuario, "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!\n", "[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
 				}
 
-				leerDesdeCliente(new_socket); // Bloquear hasta respuesta
+				leerDesdeCliente(socketUsuario); // Bloquear hasta respuesta
 				logger.Log("Finalizado juego \"flota\".", CategoriaLog::Partida);
 
 				break;
@@ -192,37 +185,9 @@ int main(void) {
 			}
 			break;
 		}
-		case TiposMenu::Menu3: {
-			char accionElegida = mensajeDeCliente.contenido[0];
-			// estas opciones son para la eleccion de un juego a configurar
-			if (accionElegida == '1') {
-
-			} else if (accionElegida == '2') {
-
-			} else if (accionElegida == '3') {
-
-			} else if (accionElegida == '4') {
-
-			} else if (accionElegida == '5') {
-
-			} else if (accionElegida == '6') {
-				sesion.SetMenuActual(TiposMenu::Menu1);
-				// ddevuelve a la pestaña anterior
-			} else {
-				// Error!
-			}
-			break;
-		}
 		case TiposMenu::Menu0_Login: {
-			std::string textoIntroducido = "";
-			for (int i = 0; i < mensajeDeCliente.contenido.length(); i++) {
-				textoIntroducido = textoIntroducido + mensajeDeCliente.contenido[i];
-			}
-			// char *textoIntroducido = (char *)malloc(strlen(bufferEntrante) * sizeof(char) + 1 * sizeof(char)); // porque? +1??
-			//  for (int i = 0; i < strlen(bufferEntrante); i++) {
-			//  	*(textoIntroducido + i) = *(bufferEntrante + i);
-			//  }
-			//  *(textoIntroducido + strlen(bufferEntrante)) = '\0';
+			std::string textoIntroducido = mensajeDeCliente.contenido;
+
 			switch (sesion.GetEstadoLogin()) {
 			case EstadosLoginRegistro::EsperandoUsuario: {
 				sesion.SetNombreIntroducidoLoginRegistro(textoIntroducido);
@@ -254,10 +219,7 @@ int main(void) {
 			break;
 		}
 		case TiposMenu::Menu0_Registro: {
-			std::string textoIntroducido = "";
-			for (int i = 0; i < mensajeDeCliente.contenido.length(); i++) {
-				textoIntroducido = textoIntroducido + mensajeDeCliente.contenido[i];
-			}
+			std::string textoIntroducido = mensajeDeCliente.contenido;
 
 			switch (sesion.GetEstadoLogin()) {
 			case EstadosLoginRegistro::EsperandoUsuario: {
@@ -299,10 +261,10 @@ int main(void) {
 			}
 			break;
 		}
-		case TiposMenu::Menu4: { // Menu de estadisticas
-			// Hay que cargar las estadisticas de un usuario en concreto de la bd
-			printf("Tus estadisticas");
-
+		case TiposMenu::Menu3: { // Menu de estadisticas
+			// El menu ya se habra mostrado (en el paquete al principio del switch).
+			// Cuando lleguemos aqui, significa que el usuario ha pulsado una tecla para volver atras.
+			sesion.SetMenuActual(TiposMenu::Menu1);
 			break;
 		}
 
@@ -313,10 +275,7 @@ int main(void) {
 		}
 		}
 
-		Paquete paquete = CrearPaqueteDeMenu(sesion, ultimoError);
-		std::string paqueteStr = paquete.AString();
-
-		mandarPaquete(new_socket, paquete);
+		CrearYMandarPaqueteDeMenu(socketUsuario, sesion, ultimoError);
 	}
 
 	matrizLED->RellenarDeColor(ColorLED::Negro);
@@ -325,7 +284,7 @@ int main(void) {
 	logger.Log("Usuario desconectado. (\" " + sesion.GetNombreUsuario() + " \").", CategoriaLog::Desconexion);
 	logger.Log("Cierre del servidor.", CategoriaLog::Otro);
 	// closing the connected socket
-	close(new_socket);
+	close(socketUsuario);
 	// closing the listening socket
 	close(server_fd);
 	return 0;

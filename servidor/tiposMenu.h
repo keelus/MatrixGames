@@ -9,10 +9,7 @@ enum class TiposMenu {
 	Menu0_Registro, // Registro de cuenta
 	Menu1,			// Menu principal
 	Menu2,			// Menu de juegos disponibles
-	Menu3,
-	Menu3_Juego,
-	Menu3_JuegoColor,
-	Menu4, // Menu estadisticas
+	Menu3,			// Menu estadisticas
 	Cerrar
 };
 
