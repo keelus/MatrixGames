@@ -5,7 +5,6 @@
 #include <iostream>
 #include <string>
 
-#include "../../mensajes.h"
 #include "../../paquetes.h"
 
 #include <unistd.h> // Para linux
@@ -30,13 +29,13 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		bool ataqueRealizado = false;
 		while (!ataqueRealizado) {
 			try {
-				mensajes::Mensaje mensajeDeCliente = mensajes::LeerDesdeCliente(socketId);
-				if (mensajeDeCliente.SeQuiereDesconectar)
+				paquetes::PaqueteDeCliente paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketId);
+				if (paqueteDeCliente.SeQuiereDesconectar())
 					return true;
 
 				// TODO: Eliminar espacios desde el input
 
-				Coordenada coordenada = ParsearCoordenada(mensajeDeCliente.Contenido);
+				Coordenada coordenada = ParsearCoordenada(paqueteDeCliente.GetContenido());
 				if (TableroCPU.AtaqueYaRecibido(coordenada)) {
 					std::cout << "Ataque ya realizado!\n";
 					paquetes::MandarPaquete(socketId, "", "Ataque ya realizado! Introduce otra coordenada: ", TEXTO, false);
@@ -66,9 +65,9 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 					paquetes::MandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 					std::cout << contenidoFinal << std::endl;
 
-					mensajeDeCliente = mensajes::LeerDesdeCliente(socketId); // Bloquear programa hast recibir mensaje
+					paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketId); // Bloquear programa hast recibir mensaje
 
-					if (mensajeDeCliente.SeQuiereDesconectar)
+					if (paqueteDeCliente.SeQuiereDesconectar())
 						return true;
 				}
 
@@ -91,8 +90,8 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		paquetes::MandarPaquete(socketId, contenidoPrincipal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoPrincipal;
 
-		mensajes::Mensaje mensajeDeCliente = mensajes::LeerDesdeCliente(socketId); // Bloquear hasta continuar
-		if (mensajeDeCliente.SeQuiereDesconectar)
+		paquetes::PaqueteDeCliente paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketId); // Bloquear hasta continuar
+		if (paqueteDeCliente.SeQuiereDesconectar())
 			return true;
 
 		Ataque resultadoAtaque = TableroJugador.RecibirAtaqueComoIA();
@@ -121,8 +120,8 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		paquetes::MandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoFinal << std::endl;
 
-		mensajeDeCliente = mensajes::LeerDesdeCliente(socketId); // Bloquear programa hast recibir mensaje
-		if (mensajeDeCliente.SeQuiereDesconectar)
+		paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketId); // Bloquear programa hast recibir mensaje
+		if (paqueteDeCliente.SeQuiereDesconectar())
 			return true;
 	}
 

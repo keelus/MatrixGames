@@ -1,6 +1,5 @@
 #include "logger.h"
 #include "matrizLED.h"
-#include "mensajes.h"
 #include "menu.h"
 #include "paquetes.h"
 #include "sesion.h"
@@ -119,37 +118,41 @@ void BuclePrincipal() {
 	while (true) {
 		matrizLED->RellenarDeColor(ColorLED::Naranja);
 
-		mensajes::Mensaje mensajeDeCliente = mensajes::LeerDesdeCliente(socketUsuario);
-		if (mensajeDeCliente.SeQuiereDesconectar)
+		paquetes::PaqueteDeCliente paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketUsuario);
+		if (paqueteDeCliente.SeQuiereDesconectar())
 			break;
 
 		switch (sesion.GetMenuActual()) {
 		case TiposMenu::Menu0: {
-			char accionElegida = mensajeDeCliente.Contenido[0];
+			char accionElegida = paqueteDeCliente.GetContenido()[0];
 
 			if (accionElegida == '1') {
 				sesion.SetMenuActual(TiposMenu::Menu0_Login);
 			} else if (accionElegida == '2') {
 				sesion.SetMenuActual(TiposMenu::Menu0_Registro);
 			} else if (accionElegida == '3') {
+				paquetes::MandarPaqueteDesconexion(socketUsuario);
 				return;
 			}
 
 			break;
 		}
 		case TiposMenu::Menu1: {
-			char accionElegida = mensajeDeCliente.Contenido[0];
+			char accionElegida = paqueteDeCliente.GetContenido()[0];
+
 			if (accionElegida == '1') {
 				sesion.SetMenuActual(TiposMenu::Menu2); // Ir al menu de juegos
 			} else if (accionElegida == '2') {
 				sesion.SetMenuActual(TiposMenu::Menu3); // Ir a estadisticas
 			} else if (accionElegida == '3') {
+				paquetes::MandarPaqueteDesconexion(socketUsuario);
 				return;
 			}
 			break;
 		}
 		case TiposMenu::Menu2: {
-			char accionElegida = mensajeDeCliente.Contenido[0];
+			char accionElegida = paqueteDeCliente.GetContenido()[0];
+
 			// estas opciones son para iniciar los juesgos, menos el 6 que es para ir al menu anterior
 			if (accionElegida == '1') { // Snake
 
@@ -166,10 +169,7 @@ void BuclePrincipal() {
 
 				std::string stringDelTablero = partida.TableroJugador.AString(false);
 
-				paquetes::Paquete paquete;
-				paquete.Codigo = "2000";
-				paquete.PreInput = "Nada por aqui.";
-				paquete.TextoVisual = stringDelTablero.c_str();
+				paquetes::PaqueteDeServidor paquete(stringDelTablero.c_str(), "Nada por aqui.", "2000");
 
 				std::cout << "Enviado tablero" << std::endl;
 
@@ -180,6 +180,7 @@ void BuclePrincipal() {
 					bool desconectar = partida.Iteracion(socketUsuario, matrizLED);
 					std::cout << "Iteracion finalizada";
 					if (desconectar) {
+						paquetes::MandarPaqueteDesconexion(socketUsuario);
 						return;
 					}
 				}
@@ -194,7 +195,7 @@ void BuclePrincipal() {
 					paquetes::MandarPaquete(socketUsuario, "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!\n", "[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
 				}
 
-				mensajes::LeerDesdeCliente(socketUsuario); // Bloquear hasta respuesta
+				paquetes::LeerPaqueteDesdeCliente(socketUsuario); // Bloquear hasta respuesta
 				logger.Log("Finalizado juego \"flota\".", CategoriaLog::Partida);
 
 				break;
@@ -207,7 +208,7 @@ void BuclePrincipal() {
 			break;
 		}
 		case TiposMenu::Menu0_Login: {
-			std::string textoIntroducido = mensajeDeCliente.Contenido;
+			std::string textoIntroducido = paqueteDeCliente.GetContenido();
 
 			switch (sesion.GetEstadoLogin()) {
 			case EstadosLoginRegistro::EsperandoUsuario: {
@@ -240,7 +241,7 @@ void BuclePrincipal() {
 			break;
 		}
 		case TiposMenu::Menu0_Registro: {
-			std::string textoIntroducido = mensajeDeCliente.Contenido;
+			std::string textoIntroducido = paqueteDeCliente.GetContenido();
 
 			switch (sesion.GetEstadoLogin()) {
 			case EstadosLoginRegistro::EsperandoUsuario: {

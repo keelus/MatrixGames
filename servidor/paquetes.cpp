@@ -1,33 +1,79 @@
 #include "paquetes.h"
 #include "sesion.h"
 #include "tiposMenu.h"
+#include <cstring>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-void paquetes::MandarPaqueteDesconexion(int socketId) {
-	Paquete paquete;
-	paquete.TextoVisual = "CLOSE";
-	paquete.PreInput = " ";
-	paquete.Codigo = "9000";
-	MandarPaquete(socketId, paquete);
+#define TAMANO_BUFFER 1024
+
+// Paquetes de cliente
+paquetes::PaqueteDeCliente::PaqueteDeCliente(std::string contenido, bool quiereDesconectarse) {
+	this->contenido = contenido;
+	this->desconectar = quiereDesconectarse;
 }
 
-void paquetes::MandarPaquete(int socketId, Paquete paquete) {
+std::string paquetes::PaqueteDeCliente::GetContenido() { return this->contenido; }
+
+bool paquetes::PaqueteDeCliente::SeQuiereDesconectar() { return this->desconectar; }
+
+paquetes::PaqueteDeCliente paquetes::LeerPaqueteDesdeCliente(int socketId) {
+	ssize_t valread;
+	char buffer[TAMANO_BUFFER] = {0};
+
+	while (true) {
+		valread = read(socketId, buffer, TAMANO_BUFFER - 1);
+
+		if (valread == 0) { // Desconexion
+			return PaqueteDeCliente("", true);
+		}
+
+		if (buffer[0] != '\0' && buffer[0] != '\\') { // Es valido
+			std::cout << "> Recibido desde cliente: \"" << buffer << "\" [tamano: " << valread << ", " << strlen(buffer) << "]" << std::endl;
+
+			return PaqueteDeCliente(buffer, false);
+		} else {
+			std::cout << "\t> Ignorado: \"" << buffer << "\" [tamano: " << valread << ", " << strlen(buffer) << "]" << std::endl;
+		}
+	}
+}
+
+// Paquetes de servidor
+
+paquetes::PaqueteDeServidor::PaqueteDeServidor(std::string textoVisual, std::string preInput, ModosEntrada modoEntrada, bool limpiarPantalla) {
+	this->textoVisual = textoVisual;
+	this->preInput = preInput;
+
+	this->codigo = "2000";
+	this->codigo[1] = modoEntrada == TEXTO ? '0' : '1';
+	this->codigo[2] = limpiarPantalla ? '1' : '0';
+}
+
+paquetes::PaqueteDeServidor::PaqueteDeServidor(std::string textoVisual, std::string preInput, std::string codigo) {
+	this->textoVisual = textoVisual;
+	this->preInput = preInput;
+	this->codigo = codigo;
+}
+
+std::string paquetes::PaqueteDeServidor::AString() {
+	std::string stringFinal = this->codigo.append(";").append(this->textoVisual).append(";").append(this->preInput).append(";");
+	return stringFinal;
+}
+
+void paquetes::MandarPaquete(int socketId, PaqueteDeServidor paquete) {
 	std::string paqueteStr = paquete.AString();
 	send(socketId, paqueteStr.c_str(), paqueteStr.length(), 0);
 	std::cout << "### Mensaje enviado a cliente ###" << std::endl;
 }
 
+void paquetes::MandarPaqueteDesconexion(int socketId) {
+	PaqueteDeServidor paquete("CLOSE", " ", "9000");
+	MandarPaquete(socketId, paquete);
+}
+
 void paquetes::MandarPaquete(int socketId, std::string textoVisual, std::string preInput, ModosEntrada modoEntrada, bool limpiarPantalla) {
-	Paquete paquete = {};
-	paquete.TextoVisual = textoVisual;
-	paquete.PreInput = preInput;
-
-	std::string codigo = "2000";
-	codigo[1] = modoEntrada == TEXTO ? '0' : '1';
-	codigo[2] = limpiarPantalla ? '1' : '0';
-
-	paquete.Codigo = codigo;
-
+	PaqueteDeServidor paquete(textoVisual, preInput, modoEntrada, limpiarPantalla);
 	MandarPaquete(socketId, paquete);
 }
 
