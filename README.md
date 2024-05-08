@@ -1,4 +1,6 @@
 # MatrixGames
+### Conexiones
+<img src="https://github.com/keelus/MatrixGames/assets/86611436/769ddb2d-e215-458e-a1db-927b1fb459ba" width="500px">
 
 ### Identificacion
 El usuario default para iniciar sesion es "admin" y la contraseña "admin".
