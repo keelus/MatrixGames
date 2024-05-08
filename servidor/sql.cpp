@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stdbool.h>
 
-bool credencialesCorrectas(std::string usuario, std::string contrasenya, int *idUsuario) {
+bool CredencialesCorrectas(std::string usuario, std::string contrasenya, int *idUsuario) {
 
 	sqlite3pp::database db("baseDeDatos.db");
 
@@ -17,29 +17,32 @@ bool credencialesCorrectas(std::string usuario, std::string contrasenya, int *id
 
 	return *idUsuario >= 0;
 }
-bool crearUsuario(std::string usuario, std::string contrasenya, int *idusuario) {
+
+bool CrearUsuario(std::string usuario, std::string contrasenya, int *idusuario) {
 
 	sqlite3pp::database db("baseDeDatos.db");
 	sqlite3pp::command cmd(db, "INSERT INTO usuario (nombre, contrasena) VALUES (:usuario, :contrasena)");
 	cmd.bind(":usuario", usuario, sqlite3pp::nocopy);
 	cmd.bind(":contrasena", contrasenya, sqlite3pp::nocopy);
 	cmd.execute();
-	bool confirmar = credencialesCorrectas(usuario, contrasenya, idusuario);
+	bool confirmar = CredencialesCorrectas(usuario, contrasenya, idusuario);
 	return confirmar;
 }
-bool verUsuario(std::string usuario) {
+
+bool VerUsuario(std::string usuario) {
 	sqlite3pp::database db("baseDeDatos.db");
 
 	sqlite3pp::query qry(db, "SELECT id FROM USUARIO WHERE nombre = :nombre "); // Consulta
-	qry.bind(":nombre", usuario, sqlite3pp::nocopy);			    // Une la busqueda
-	int idUsuario = -1;							    // Torna el ID del usuario a -1
-	for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {	    // For desde el principio al final del qry
+	qry.bind(":nombre", usuario, sqlite3pp::nocopy);							// Une la busqueda
+	int idUsuario = -1;															// Torna el ID del usuario a -1
+	for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {		// For desde el principio al final del qry
 		std::tie(idUsuario) = (*i).get_columns<int>(0);
 	}
 
 	return idUsuario >= 0;
 }
-bool verStats(std::string idUsuario) {
+
+bool VerStats(std::string idUsuario) {
 	sqlite3pp::database db("baseDeDatos.db"); // Esto conecta con la bd
 
 	sqlite3pp::query qryA(db, "SELECT A.nombre, A.id, (MAX(puntuacion)) AS puntuacion_max FROM USUARIO A INNER JOIN PARTIDAS_SINGLEPLAYER B ON A.id = B.idUsuario GROUP BY B.idJuego WHERE A.id = :id ");

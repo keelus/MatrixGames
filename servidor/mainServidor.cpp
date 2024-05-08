@@ -1,3 +1,4 @@
+#include "logger.h"
 #include "matrizLED.h"
 #include "mensaje.h"
 #include "menu.h"
@@ -21,12 +22,17 @@
 #define TAMANO_BUFFER 1024
 #define DEFAULT_PORT 3000
 
-#define USANDO_RASPBERRY_CON_MATRIZ_LED true
+#define USANDO_RASPBERRY_CON_MATRIZ_LED false
 MatrizLED *matrizLED;
 
 int main(void) {
+	Logger logger;
+	logger.Log("Servidor iniciado.", CategoriaLog::Otro);
+
 	matrizLED = new MatrizLED(USANDO_RASPBERRY_CON_MATRIZ_LED);
 	matrizLED->RellenarDeColor(ColorLED::Blanco);
+
+	logger.Log("Matriz LED iniciada.", CategoriaLog::Otro);
 
 	printf("__ __  __ _____ ___ ___   __ \n"
 		   "|  V  |/  \\_   _| _ \\ \\ \\_/ / \n"
@@ -63,6 +69,7 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 	if (listen(server_fd, 3) < 0) {
+		logger.Log("Esperando conexion.", CategoriaLog::Otro);
 		perror("listen");
 		exit(EXIT_FAILURE);
 	}
@@ -71,7 +78,7 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 
-	std::cout << "Client connected." << std::endl;
+	logger.Log("Usuario conectado.", CategoriaLog::Conexion);
 
 	TiposMenu menuActual = MENU_0;
 	EstadosMenuLogin estadoLogin = ESPERANDO_USUARIO;
@@ -134,6 +141,7 @@ int main(void) {
 			} else if (accionElegida == '3') { // Slip Grave
 
 			} else if (accionElegida == '4') { // Hundir la flota (vs CPU)
+				logger.Log("Iniciando juego \"flota\".", CategoriaLog::Partida);
 				std::cout << "Se desea jugar a hundir la flota" << std::endl;
 				flota::Partida partida;
 
@@ -171,6 +179,7 @@ int main(void) {
 				}
 
 				leerDesdeCliente(new_socket); // Bloquear hasta respuesta
+				logger.Log("Finalizado juego \"flota\".", CategoriaLog::Partida);
 
 				break;
 			} else if (accionElegida == '5') { // 4 en raya (vs CPU)
@@ -222,11 +231,12 @@ int main(void) {
 			}
 			case ESPERANDO_CONTRASENYA: {
 				int idUsuario = -1;
-				bool correctas = credencialesCorrectas(nombreUsuarioActual, textoIntroducido, &idUsuario);
+				bool correctas = CredencialesCorrectas(nombreUsuarioActual, textoIntroducido, &idUsuario);
 
 				estadoLogin = ESPERANDO_USUARIO; // Reiniciamos estado para futuros logins
 				if (correctas) {
 					// Si es correcta, iniciamos sesion correctamente
+					logger.Log("Usuario logueado (\"" + nombreUsuarioActual + "\").", CategoriaLog::Otro);
 					ultimoError = "";
 					menuActual = MENU_1;
 				} else {
@@ -253,7 +263,7 @@ int main(void) {
 			case ESPERANDO_USUARIO: {
 				nombreUsuarioActual = textoIntroducido;
 
-				bool existe = verUsuario(nombreUsuarioActual);
+				bool existe = VerUsuario(nombreUsuarioActual);
 				if (existe) {
 					std::string mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
 					ultimoError = mensajeError;
@@ -266,9 +276,9 @@ int main(void) {
 			}
 			case ESPERANDO_CONTRASENYA: {
 				int idUsuario = -1;
-				bool correctas = crearUsuario(nombreUsuarioActual, textoIntroducido, &idUsuario);
-				printf("id de usuario%i \n", idUsuario);
+				bool correctas = CrearUsuario(nombreUsuarioActual, textoIntroducido, &idUsuario);
 				if (correctas) {
+					logger.Log("Usuario registrado (\" " + nombreUsuarioActual + " \").", CategoriaLog::Otro);
 					ultimoError = "";
 					menuActual = MENU_1;
 				} else {
@@ -309,6 +319,8 @@ int main(void) {
 	matrizLED->RellenarDeColor(ColorLED::Negro);
 
 	std::cout << "Un cliente se ha desconectado. Cerrando servidor." << std::endl;
+	logger.Log("Usuario desconectado. (\" " + nombreUsuarioActual + " \").", CategoriaLog::Desconexion);
+	logger.Log("Cierre del servidor.", CategoriaLog::Otro);
 	// closing the connected socket
 	close(new_socket);
 	// closing the listening socket
