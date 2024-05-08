@@ -38,7 +38,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 				Coordenada coordenada = ParsearCoordenada(paqueteDeCliente.GetContenido());
 				if (TableroCPU.AtaqueYaRecibido(coordenada)) {
 					std::cout << "Ataque ya realizado!\n";
-					paquetes::MandarPaquete(socketId, "Ya has realizado ese ataque!", "\nIntroduce otra coordenada (ejemplo: d4): ", TEXTO, false);
+					paquetes::MandarPaquete(socketId, "\nYa has realizado ese ataque!", "\nIntroduce otra coordenada (ejemplo: d4): ", TEXTO, false);
 				} else {
 					ataqueRealizado = true;
 					Ataque resultadoAtaque = TableroCPU.RecibirAtaque(coordenada);
@@ -72,7 +72,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 				}
 
 			} catch (char const *e) {
-				paquetes::MandarPaquete(socketId, "", "La coordenada introducida es invalida! \n Introduce otra coordenada (ejemplo: d4): ", TEXTO, false);
+				paquetes::MandarPaquete(socketId, "", "\nLa coordenada introducida es invalida! \nIntroduce otra coordenada (ejemplo: d4): ", TEXTO, false);
 			}
 		}
 	} else {
@@ -96,7 +96,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		haAcertado = resultadoAtaque.EsHit;
 
 		std::string tableroStr = TableroJugador.AString(false);
-		std::string resultadoStr = "La CPU ha atacado!";
+		std::string resultadoStr = "La CPU ha atacado! ";
 
 		if (resultadoAtaque.EsHundido) {
 			resultadoStr += "Tocado y hundido!\nTe quedan ";
