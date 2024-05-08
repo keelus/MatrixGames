@@ -17,13 +17,13 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 	ColorLED bufferContenido[8][8];
 
 	if (Turno == TiposTurno::TURNO_JUGADOR) {
-		std::string contenidoPrincipal = "Te toca atacar!\nPuedes ver el tablero de tu rival, y tus ataques en la matriz LED.:";
+		std::string contenidoPrincipal = "Te toca atacar!\nPuedes ver el tablero de tu rival, y tus ataques en la matriz LED.";
 		// contenidoPrincipal += TableroCPU.AString(true);
 
 		TableroCPU.AContenidoColor(bufferContenido, true);
 		matrizLED->SetMatrizColor(bufferContenido);
 
-		paquetes::MandarPaquete(socketId, contenidoPrincipal, "Introduce la coordenada de ataque (ejemplo: d4): ", TEXTO, true);
+		paquetes::MandarPaquete(socketId, contenidoPrincipal, "\nIntroduce la coordenada de ataque (ejemplo: d4): ", TEXTO, true);
 		std::cout << contenidoPrincipal;
 
 		bool ataqueRealizado = false;
@@ -38,7 +38,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 				Coordenada coordenada = ParsearCoordenada(paqueteDeCliente.GetContenido());
 				if (TableroCPU.AtaqueYaRecibido(coordenada)) {
 					std::cout << "Ataque ya realizado!\n";
-					paquetes::MandarPaquete(socketId, "Ya has realizado ese ataque!", "Introduce otra coordenada (ejemplo: d4): ", TEXTO, false);
+					paquetes::MandarPaquete(socketId, "Ya has realizado ese ataque!", "\nIntroduce otra coordenada (ejemplo: d4): ", TEXTO, false);
 				} else {
 					ataqueRealizado = true;
 					Ataque resultadoAtaque = TableroCPU.RecibirAtaque(coordenada);
@@ -50,11 +50,11 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 					if (resultadoAtaque.EsHundido) {
 						resultadoStr = "Tocado y hundido! A la CPU le quedan ";
 						resultadoStr += std::to_string(TableroCPU.BarcosRestantes());
-						resultadoStr += " barcos. Puedes ver el tablero de la CPU actual en la matriz LED.";
+						resultadoStr += " barcos. \nPuedes ver el tablero de la CPU actual en la matriz LED.";
 					} else if (resultadoAtaque.EsHit) {
-						resultadoStr = "Tocado! Puedes ver el tablero de la CPU actual en la matriz LED.";
+						resultadoStr = "Tocado! \nPuedes ver el tablero de la CPU actual en la matriz LED.";
 					} else {
-						resultadoStr = "Agua! Puedes ver el tablero de la CPU actual en la matriz LED.";
+						resultadoStr = "Agua! \nPuedes ver el tablero de la CPU actual en la matriz LED.";
 					}
 
 					std::string contenidoFinal = resultadoStr /* + tableroStr*/;
@@ -62,7 +62,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 					TableroCPU.AContenidoColor(bufferContenido, true);
 					matrizLED->SetMatrizColor(bufferContenido);
 
-					paquetes::MandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
+					paquetes::MandarPaquete(socketId, contenidoFinal, "\n[ Pulsa una tecla para continuar ]", PULSACION, true);
 					std::cout << contenidoFinal << std::endl;
 
 					paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketId); // Bloquear programa hast recibir mensaje
@@ -72,22 +72,20 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 				}
 
 			} catch (char const *e) {
-				std::cout << "Llegamos aqui..." << std::endl;
-				std::cout << "La coordenada introducida es invalida! Introduce otra:" << std::endl;
-				paquetes::MandarPaquete(socketId, "", "La coordenada introducida es invalida! Introduce otra: ", TEXTO, false);
+				paquetes::MandarPaquete(socketId, "", "La coordenada introducida es invalida! \n Introduce otra coordenada (ejemplo: d4): ", TEXTO, false);
 			}
 		}
 	} else {
 		// MensajeDeCliente mensajeDeCliente = leerDesdeCliente(socketId);
 		// if (mensajeDeCliente.desconectar)
 		// 	return true;
-		std::string contenidoPrincipal = "Turno de la CPU! Puedes ver tu tablero y los ataques del rival en la matriz LED.";
+		std::string contenidoPrincipal = "Turno de la CPU!\nPuedes ver tu tablero y los ataques del rival en la matriz LED.";
 		// contenidoPrincipal += TableroJugador.AString(false);
 
 		TableroJugador.AContenidoColor(bufferContenido, false);
 		matrizLED->SetMatrizColor(bufferContenido);
 
-		paquetes::MandarPaquete(socketId, contenidoPrincipal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
+		paquetes::MandarPaquete(socketId, contenidoPrincipal, "\n[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoPrincipal;
 
 		paquetes::PaqueteDeCliente paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketId); // Bloquear hasta continuar
@@ -98,16 +96,16 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		haAcertado = resultadoAtaque.EsHit;
 
 		std::string tableroStr = TableroJugador.AString(false);
-		std::string resultadoStr = "La CPU ha atacado! ";
+		std::string resultadoStr = "La CPU ha atacado!";
 
 		if (resultadoAtaque.EsHundido) {
-			resultadoStr += "Tocado y hundido! Te quedan ";
+			resultadoStr += "Tocado y hundido!\nTe quedan ";
 			resultadoStr += std::to_string(TableroJugador.BarcosRestantes());
-			resultadoStr += " barcos.  Puedes ver tu tablero y los ataques del rival en la matriz LED.";
+			resultadoStr += " barcos.\nPuedes ver tu tablero y los ataques del rival en la matriz LED.";
 		} else if (resultadoAtaque.EsHit) {
-			resultadoStr += "Tocado!  Puedes ver tu tablero y los ataques del rival en la matriz LED.";
+			resultadoStr += "Tocado!\nPuedes ver tu tablero y los ataques del rival en la matriz LED.";
 		} else {
-			resultadoStr += "Agua!  Puedes ver tu tablero y los ataques del rival en la matriz LED.";
+			resultadoStr += "Agua!\nPuedes ver tu tablero y los ataques del rival en la matriz LED.";
 		}
 
 		std::cout << resultadoStr << std::endl;
@@ -117,7 +115,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 
 		matrizLED->SetMatrizColor(bufferContenido);
 
-		paquetes::MandarPaquete(socketId, contenidoFinal, "[ Pulsa una tecla para continuar ]", PULSACION, true);
+		paquetes::MandarPaquete(socketId, contenidoFinal, "\n[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoFinal << std::endl;
 
 		paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketId); // Bloquear programa hast recibir mensaje

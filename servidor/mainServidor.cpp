@@ -163,34 +163,23 @@ void BuclePrincipal() {
 				std::cout << "Se desea jugar a hundir la flota" << std::endl;
 				flota::Partida partida;
 
-				// Prueba: Mandar tablero al jugador
-
-				std::string stringDelTablero = partida.TableroJugador.AString(false);
-
-				paquetes::PaqueteDeServidor paquete(stringDelTablero.c_str(), "Nada por aqui.", "2000");
-
-				std::cout << "Enviado tablero" << std::endl;
-
-				ssize_t valorLeido = -1;
-				char bufferFlota[TAMANO_BUFFER] = {0};
-
 				while (!partida.HaFinalizado()) {
 					bool desconectar = partida.Iteracion(socketUsuario, matrizLED);
-					std::cout << "Iteracion finalizada";
+
 					if (desconectar) {
 						paquetes::MandarPaqueteDesconexion(socketUsuario);
 						return;
 					}
 				}
 
-				// TODO: Guardar resultado
+				// TODO: Registrar resultado en la base de datos SQL
 
 				if (partida.TableroJugador.CompletamenteHundido()) {
 					std::cout << "Has perdido! No te quedan mas barcos. Suerte a la proxima!";
-					paquetes::MandarPaquete(socketUsuario, "Has perdido! No te quedan mas barcos. Suerte a la proxima!\n", "[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
+					paquetes::MandarPaquete(socketUsuario, "Has perdido! No te quedan mas barcos. Suerte a la proxima!", "\n[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
 				} else {
 					std::cout << "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!";
-					paquetes::MandarPaquete(socketUsuario, "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!\n", "[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
+					paquetes::MandarPaquete(socketUsuario, "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!", "\n[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
 				}
 
 				paquetes::LeerPaqueteDesdeCliente(socketUsuario); // Bloquear hasta respuesta
