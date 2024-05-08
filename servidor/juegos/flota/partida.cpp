@@ -23,7 +23,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		TableroCPU.AContenidoColor(bufferContenido, true);
 		matrizLED->SetMatrizColor(bufferContenido);
 
-		paquetes::MandarPaquete(socketId, contenidoPrincipal, "\nIntroduce la coordenada de ataque (ejemplo: d4): ", TEXTO, true);
+		paquetes::MandarPaquete(socketId, contenidoPrincipal, "\n\nIntroduce la coordenada de ataque (ejemplo: d4): ", TEXTO, true);
 		std::cout << contenidoPrincipal;
 
 		bool ataqueRealizado = false;
@@ -62,7 +62,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 					TableroCPU.AContenidoColor(bufferContenido, true);
 					matrizLED->SetMatrizColor(bufferContenido);
 
-					paquetes::MandarPaquete(socketId, contenidoFinal, "\n[ Pulsa una tecla para continuar ]", PULSACION, true);
+					paquetes::MandarPaquete(socketId, contenidoFinal, "\n\n[ Pulsa una tecla para continuar ]", PULSACION, true);
 					std::cout << contenidoFinal << std::endl;
 
 					paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketId); // Bloquear programa hast recibir mensaje
@@ -85,7 +85,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		TableroJugador.AContenidoColor(bufferContenido, false);
 		matrizLED->SetMatrizColor(bufferContenido);
 
-		paquetes::MandarPaquete(socketId, contenidoPrincipal, "\n[ Pulsa una tecla para continuar ]", PULSACION, true);
+		paquetes::MandarPaquete(socketId, contenidoPrincipal, "\n\n[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoPrincipal;
 
 		paquetes::PaqueteDeCliente paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketId); // Bloquear hasta continuar
@@ -115,7 +115,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 
 		matrizLED->SetMatrizColor(bufferContenido);
 
-		paquetes::MandarPaquete(socketId, contenidoFinal, "\n[ Pulsa una tecla para continuar ]", PULSACION, true);
+		paquetes::MandarPaquete(socketId, contenidoFinal, "\n\n[ Pulsa una tecla para continuar ]", PULSACION, true);
 		std::cout << contenidoFinal << std::endl;
 
 		paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketId); // Bloquear programa hast recibir mensaje
