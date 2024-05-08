@@ -1,13 +1,11 @@
 #include "logger.h"
 #include "matrizLED.h"
-#include "menu.h"
 #include "paquetes.h"
 #include "sesion.h"
 #include "tiposMenu.h"
 #include <string>
 #undef UNICODE
 
-#include "menu.h"
 #include "sql.h"
 #include <sqlite3.h>
 #include <stdio.h>
@@ -23,7 +21,7 @@
 #define TAMANO_BUFFER 1024
 #define DEFAULT_PORT 3000
 
-#define USANDO_RASPBERRY_CON_MATRIZ_LED false
+#define USANDO_RASPBERRY_CON_MATRIZ_LED true
 MatrizLED *matrizLED;
 
 Logger logger;

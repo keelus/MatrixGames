@@ -13,4 +13,4 @@ echo "## Compilando servidor ##"
 echo "    $COMANDO_COMPILACION_SERVIDOR"
 eval "$COMANDO_COMPILACION_SERVIDOR"
 
-echo "Fin de compilacion (revisa los mensajevoy a seguir un poco con Aes anteriores, si hay errores)."
+echo "Fin de compilacion (revisa los mensajes anteriores, por si hay errores)."
