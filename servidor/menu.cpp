@@ -1,15 +1,13 @@
 #include "menu.h"
 #include "paquete.h"
-#include "sql.h"
-#include <cmath>
-#include <iostream>
+#include "tiposMenu.h"
 #include <string>
 
 Paquete CrearPaqueteDeMenu(Sesion sesion, std::string mensajeError) {
 	Paquete paquete = {};
 
 	switch (sesion.GetMenuActual()) {
-	case MENU_0: {
+	case TiposMenu::Menu0: {
 		paquete.TextoVisual = "\nSelecciona una opcion:\n\t1) Iniciar sesion\n\t2) Crear una cuenta\n\n\t3) Salir";
 		if (!mensajeError.empty()) {
 			paquete.TextoVisual = mensajeError.append(paquete.TextoVisual);
@@ -20,11 +18,11 @@ Paquete CrearPaqueteDeMenu(Sesion sesion, std::string mensajeError) {
 
 		break;
 	}
-	case MENU_0_LOGIN: {
-		if (sesion.GetEstadoLogin() == ESPERANDO_USUARIO) {
+	case TiposMenu::Menu0_Login: {
+		if (sesion.GetEstadoLogin() == EstadosLoginRegistro::EsperandoUsuario) {
 			paquete.TextoVisual = "== INICIAR SESION ==";
 			paquete.PreInput = "\nIntroduce tu nombre de usuario: ";
-		} else if (sesion.GetEstadoLogin() == ESPERANDO_CONTRASENYA) {
+		} else if (sesion.GetEstadoLogin() == EstadosLoginRegistro::EsperandoContrasenya) {
 			paquete.TextoVisual = "";
 			paquete.PreInput = "Introduce tu contrasena: ";
 		}
@@ -32,7 +30,7 @@ Paquete CrearPaqueteDeMenu(Sesion sesion, std::string mensajeError) {
 
 		break;
 	}
-	case MENU_1: {
+	case TiposMenu::Menu1: {
 		std::string kira = "";
 		paquete.TextoVisual = "\n\nHola, ";
 		paquete.TextoVisual.append(sesion.GetNombreUsuario());
@@ -43,14 +41,14 @@ Paquete CrearPaqueteDeMenu(Sesion sesion, std::string mensajeError) {
 
 		break;
 	}
-	case MENU_2: {
+	case TiposMenu::Menu2: {
 		paquete.TextoVisual = "Selecciona un juego:\n\n\t1) Snake\n\t2) Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) 4 en raya (vs CPU)\n\n\t6) Volver atras";
 
 		paquete.PreInput = "\nElige una de las opciones:  ";
 		paquete.Codigo = "2010";
 		break;
 	}
-	case MENU_3: {
+	case TiposMenu::Menu3: {
 		paquete.TextoVisual = "Selecciona el juego a configurar:\n\n\t1) Snake\n\t2)Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) 4 en raya (vs CPU)\n\n\t6) Volver atras";
 
 		paquete.PreInput = "\nElige una de las opciones:  ";
@@ -58,11 +56,11 @@ Paquete CrearPaqueteDeMenu(Sesion sesion, std::string mensajeError) {
 		break;
 	}
 
-	case MENU_0_REGISTRO: {
-		if (sesion.GetEstadoLogin() == ESPERANDO_USUARIO) {
+	case TiposMenu::Menu0_Registro: {
+		if (sesion.GetEstadoLogin() == EstadosLoginRegistro::EsperandoUsuario) {
 			paquete.TextoVisual = "== REGISTRO ==";
 			paquete.PreInput = "\nIntroduce tu nombre de usuario: ";
-		} else if (sesion.GetEstadoLogin() == ESPERANDO_CONTRASENYA) {
+		} else if (sesion.GetEstadoLogin() == EstadosLoginRegistro::EsperandoContrasenya) {
 			paquete.TextoVisual = "";
 			paquete.PreInput = "Introduce tu contrasena: ";
 		}
@@ -71,7 +69,7 @@ Paquete CrearPaqueteDeMenu(Sesion sesion, std::string mensajeError) {
 		break;
 	}
 
-	case CLOSE: {
+	case TiposMenu::Cerrar: {
 		paquete.TextoVisual = "CLOSE";
 
 		paquete.PreInput = " ";

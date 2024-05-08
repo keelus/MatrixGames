@@ -1,10 +1,9 @@
 #include "sesion.h"
-#include "menu.h"
-#include "sql.h"
+#include "tiposMenu.h"
 
 Sesion::Sesion() {
-	this->menuActual = MENU_0;
-	this->estadoLogin = ESPERANDO_USUARIO;
+	this->menuActual = TiposMenu::Menu0;
+	this->estadoLogin = EstadosLoginRegistro::EsperandoUsuario;
 
 	this->nombreIntroducidoLoginRegistro = "";
 
@@ -18,9 +17,9 @@ void Sesion::SetMenuActual(TiposMenu menu) { this->menuActual = menu; }
 
 TiposMenu Sesion::GetMenuActual() { return this->menuActual; }
 
-void Sesion::SetEstadoLogin(EstadosMenuLogin estado) { this->estadoLogin = estado; }
+void Sesion::SetEstadoLogin(EstadosLoginRegistro estado) { this->estadoLogin = estado; }
 
-EstadosMenuLogin Sesion::GetEstadoLogin() { return this->estadoLogin; }
+EstadosLoginRegistro Sesion::GetEstadoLogin() { return this->estadoLogin; }
 
 std::string Sesion::GetNombreUsuario() { return this->nombreUsuario; }
 
@@ -31,12 +30,12 @@ void Sesion::SetSesion(int idUsuario, std::string nombreUsuario) {
 	this->idUsuario = idUsuario;
 
 	this->nombreIntroducidoLoginRegistro = "";
-	this->estadoLogin = ESPERANDO_USUARIO; // Reiniciar para futuros Logins
+	this->estadoLogin = EstadosLoginRegistro::EsperandoUsuario; // Reiniciar para futuros Logins
 }
 
 void Sesion::CerrarSesion() {
-	this->menuActual = MENU_0;
-	this->estadoLogin = ESPERANDO_USUARIO;
+	this->menuActual = TiposMenu::Menu0;
+	this->estadoLogin = EstadosLoginRegistro::EsperandoUsuario;
 
 	this->nombreUsuario = "";
 	this->nombreIntroducidoLoginRegistro = "";

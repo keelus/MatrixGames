@@ -10,7 +10,6 @@ class Logger {
 	Logger();
 	~Logger();
 	void Log(std::string mensaje, CategoriaLog categoria);
-	void ConseguirFecha(int &dia, int &mes, int &anyo, int &hora, int &minuto, int &segundo);
 
   private:
 	std::ofstream archivoLog;

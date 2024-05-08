@@ -1,7 +1,6 @@
 #ifndef SESION_H
 #define SESION_H
 
-#include "sql.h"
 #include "tiposMenu.h"
 #include <string>
 
@@ -13,8 +12,8 @@ class Sesion {
 	void SetMenuActual(TiposMenu menu);
 	TiposMenu GetMenuActual();
 
-	void SetEstadoLogin(EstadosMenuLogin estado);
-	EstadosMenuLogin GetEstadoLogin();
+	void SetEstadoLogin(EstadosLoginRegistro estado);
+	EstadosLoginRegistro GetEstadoLogin();
 
 	std::string GetNombreUsuario();
 	int GetIdUsuario();
@@ -27,7 +26,7 @@ class Sesion {
 
   private:
 	TiposMenu menuActual;
-	EstadosMenuLogin estadoLogin;
+	EstadosLoginRegistro estadoLogin;
 
 	std::string nombreIntroducidoLoginRegistro;
 

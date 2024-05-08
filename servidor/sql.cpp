@@ -1,4 +1,6 @@
 #include "externo/sqlite3pp/sqlite3pp.h"
+#include "fecha.h"
+#include "sesion.h"
 #include <iostream>
 #include <stdbool.h>
 
@@ -92,4 +94,19 @@ bool VerStats(std::string idUsuario) {
 	}
 
 	return true;
+}
+
+void GrabarPartidaMultijugador(Sesion sesion, int idJuego, int duracionSegundos, int resultado) {
+	sqlite3pp::database db("baseDeDatos.db");
+	sqlite3pp::command cmd(db, "INSERT INTO PARTIDAS_MULTIPLAYER (idJugador, fecha, idJuego, duracionS, resultado) VALUES (:idJugador, :fecha, :idJuego, :duracionS, :resultado)");
+
+	int dia, mes, anyo, hora, minuto, segundo;
+	Fecha::ConseguirFecha(dia, mes, anyo, hora, minuto, segundo);
+
+	cmd.bind(":idJugador", sesion.GetIdUsuario());
+	cmd.bind(":fecha", Fecha::ConseguirFechaVisual(), sqlite3pp::nocopy);
+	cmd.bind(":idJuego", idJuego);
+	cmd.bind(":duracionS", duracionSegundos);
+	cmd.bind(":resultado", resultado);
+	cmd.execute();
 }
