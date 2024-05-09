@@ -38,7 +38,7 @@ char *leerInput(ModosEntrada modo, char *textoVisual) {
 				buffer[0] = getch();
 
 				// Prevenir caracter enter (vacio)
-				if (buffer[0] == 10) {
+				if (buffer[0] == 10 || buffer[0] == 13) {
 					buffer[0] = ' ';
 				}
 
