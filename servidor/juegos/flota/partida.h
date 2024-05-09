@@ -13,9 +13,9 @@ enum class TiposTurno {
 
 class Partida {
   public:
-	Partida() {
-		// TableroJugador = CrearTableroManualmente();
-		TableroJugador = CrearTableroAleatoriamente();
+	Partida(int idSocket, MatrizLED *matrizLED) {
+		TableroJugador = CrearTableroManualmente(idSocket, matrizLED);
+		// TableroJugador = CrearTableroAleatoriamente();
 		TableroCPU = CrearTableroAleatoriamente();
 		Turno = TiposTurno::TURNO_JUGADOR;
 	};

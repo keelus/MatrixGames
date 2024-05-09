@@ -2,6 +2,7 @@
 #define TABLERO_H
 
 #include "../../colorLED.h"
+#include "../../matrizLED.h"
 #include "ataque.h"
 #include "barco.h"
 #include "flota.h"
@@ -33,7 +34,7 @@ class Tablero {
 	std::vector<Ataque> AtaquesRecibidos;
 };
 
-flota::Tablero CrearTableroManualmente();
+flota::Tablero CrearTableroManualmente(int idSocket, MatrizLED *matrizLED);
 flota::Tablero CrearTableroAleatoriamente();
 } // namespace flota
 

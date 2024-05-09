@@ -1,9 +1,12 @@
 #include "tablero.h"
+#include "../../../cliente/input.h"
+#include "../../paquetes.h"
 #include "barco.h"
 #include "casilla.h"
 #include <algorithm>
 #include <iostream>
 #include <random>
+#include <unistd.h>
 
 void flota::Tablero::AContenidoColor(ColorLED referenciaContenido[8][8], bool esconderBarcos) const {
 	for (int i = 0; i < 8; i++) {
@@ -247,7 +250,7 @@ flota::Barco *flota::Tablero::BarcoEn(Coordenada coordenada) {
 	return nullptr;
 }
 
-flota::Tablero flota::CrearTableroManualmente() {
+flota::Tablero flota::CrearTableroManualmente(int socketId, MatrizLED *matrizLED) {
 	Tablero tablero;
 
 	TipoBarco tiposBarco[5] = {TipoBarco::PORTAVIONES, TipoBarco::ACORAZADO, TipoBarco::CRUCERO, TipoBarco::SUBMARINO, TipoBarco::DESTRUCTOR};
@@ -259,8 +262,11 @@ flota::Tablero flota::CrearTableroManualmente() {
 		Barco barco(tipo, Orientacion::VERTICAL, 0, 0, true);
 		tablero.Colocar(barco, b);
 
+		ColorLED bufferContenido[8][8];
+
 		bool colocado = false;
 		bool primerPrintHecho = false;
+		bool errorAlColocar = false;
 		while (!colocado) {
 			if (!primerPrintHecho) {
 				system("cls");
@@ -268,77 +274,83 @@ flota::Tablero flota::CrearTableroManualmente() {
 				primerPrintHecho = true;
 			}
 
-			/*
-			if (kbhit()) {
-				char teclaPulsada = getch();
+			std::string contenidoPrincipal = "Coloca tus barcos!\nPuedes ver tu tablero actual en la matriz LED.\n\nPara mover el barco, usa W A S y D.\nPara rotarlo, pulsa R.\nUsa la tecla Enter para colocarlo.";
 
-				switch (teclaPulsada) {
-				case 'A':
-				case 'a':
-					if (barco.X > 0) {
-						barco.X--;
-					}
-					break;
-				case 'D':
-				case 'd':
-					if (barco.Orientacion == Orientacion::HORIZONTAL && barco.X + int(barco.Tipo) < 8) {
-						barco.X++;
-					} else if (barco.Orientacion == Orientacion::VERTICAL && barco.X + 1 < 8) {
-						barco.X++;
-					}
-					break;
-				case 'W':
-				case 'w':
-					if (barco.Y > 0) {
-						barco.Y--;
-					}
-					break;
-				case 'S':
-				case 's':
-					if (barco.Orientacion == Orientacion::HORIZONTAL && barco.Y + 1 < 8) {
-						barco.Y++;
-					} else if (barco.Orientacion == Orientacion::VERTICAL && barco.Y + int(barco.Tipo) < 8) {
-						barco.Y++;
-					}
-					break;
-				case 'R':
-				case 'r':
-					if (barco.Orientacion == Orientacion::VERTICAL) {
-						if (barco.X + int(barco.Tipo) >= 8) {
-							barco.X += 8 - (barco.X + int(barco.Tipo));
-						}
-						barco.Orientacion = Orientacion::HORIZONTAL;
-					} else {
-						if (barco.Y + int(barco.Tipo) >= 8) {
-							barco.Y += 8 - (barco.Y + int(barco.Tipo));
-						}
-						barco.Orientacion = Orientacion::VERTICAL;
-					}
-					break;
-				case 'X':
-				case 'x':
-					exit(0);
-					break;
-				case 13:
-					if (tablero.Colocable(barco.Tipo, barco.Orientacion, barco.X, barco.Y)) {
-						barco.EsGuia = false;
-						// Crear de nuevo el barco, para que las coordenadas de las casillas sean las correctas
-						Barco barcoAColocar = Barco(barco.Tipo, barco.Orientacion, barco.X, barco.Y, false);
-						tablero.Colocar(barcoAColocar, b);
-						colocado = true;
-					}
-					break;
+			if (errorAlColocar)
+				contenidoPrincipal += "\n\nYa hay un barco ahi! Colocalo en otra parte.";
+
+			// contenidoPrincipal += tablero.AString(false);
+
+			tablero.AContenidoColor(bufferContenido, false);
+			matrizLED->SetMatrizColor(bufferContenido);
+
+			paquetes::MandarPaquete(socketId, contenidoPrincipal, "\n\n[ Pulsa una tecla ] ", PULSACION, true);
+			std::cout << contenidoPrincipal;
+
+			paquetes::PaqueteDeCliente paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketId);
+			std::cout << std::endl << "Caracter: \"" << paqueteDeCliente.GetContenido()[0] << "\"" << std::endl;
+			switch (paqueteDeCliente.GetContenido()[0]) {
+			case 'A':
+			case 'a':
+				if (barco.X > 0) {
+					barco.X--;
 				}
-
-				if (!colocado) {
-					// Al haber pulsado una tecla que no sea enter, lo recolocamos
-					tablero.Colocar(barco, b);
+				break;
+			case 'D':
+			case 'd':
+				if (barco.Orientacion == Orientacion::HORIZONTAL && barco.X + int(barco.Tipo) < 8) {
+					barco.X++;
+				} else if (barco.Orientacion == Orientacion::VERTICAL && barco.X + 1 < 8) {
+					barco.X++;
 				}
+				break;
+			case 'W':
+			case 'w':
+				if (barco.Y > 0) {
+					barco.Y--;
+				}
+				break;
+			case 'S':
+			case 's':
+				if (barco.Orientacion == Orientacion::HORIZONTAL && barco.Y + 1 < 8) {
+					barco.Y++;
+				} else if (barco.Orientacion == Orientacion::VERTICAL && barco.Y + int(barco.Tipo) < 8) {
+					barco.Y++;
+				}
+				break;
 
-				system("cls");
-				tablero.Imprimir(false);
+			case 'R':
+			case 'r':
+				if (barco.Orientacion == Orientacion::VERTICAL) {
+					if (barco.X + int(barco.Tipo) >= 8) {
+						barco.X += 8 - (barco.X + int(barco.Tipo));
+					}
+					barco.Orientacion = Orientacion::HORIZONTAL;
+				} else {
+					if (barco.Y + int(barco.Tipo) >= 8) {
+						barco.Y += 8 - (barco.Y + int(barco.Tipo));
+					}
+					barco.Orientacion = Orientacion::VERTICAL;
+				}
+				break;
+			case ' ':
+				if (tablero.Colocable(barco.Tipo, barco.Orientacion, barco.X, barco.Y)) {
+					barco.EsGuia = false;
+					// Crear de nuevo el barco, para que las coordenadas de las casillas sean las correctas
+					Barco barcoAColocar = Barco(barco.Tipo, barco.Orientacion, barco.X, barco.Y, false);
+					tablero.Colocar(barcoAColocar, b);
+					colocado = true;
+					errorAlColocar = false;
+				} else {
+					errorAlColocar = true;
+				}
+				break;
 			}
-			*/
+
+			if (!colocado) {
+				// Al haber pulsado una tecla que no sea enter, lo recolocamos
+				tablero.Colocar(barco, b);
+			}
 		}
 	}
 

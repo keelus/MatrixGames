@@ -21,7 +21,7 @@
 #define TAMANO_BUFFER 1024
 #define DEFAULT_PORT 3000
 
-#define USANDO_RASPBERRY_CON_MATRIZ_LED true
+#define USANDO_RASPBERRY_CON_MATRIZ_LED false
 MatrizLED *matrizLED;
 
 Logger logger;
@@ -161,7 +161,7 @@ void BuclePrincipal() {
 			} else if (accionElegida == '4') { // Hundir la flota (vs CPU)
 				logger.Log("Iniciando juego \"flota\".", CategoriaLog::Partida);
 				std::cout << "Se desea jugar a hundir la flota" << std::endl;
-				flota::Partida partida;
+				flota::Partida partida(socketUsuario);
 
 				while (!partida.HaFinalizado()) {
 					bool desconectar = partida.Iteracion(socketUsuario, matrizLED);
