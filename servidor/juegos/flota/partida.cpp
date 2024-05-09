@@ -31,7 +31,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 			if (errorAtaqueYaRealizado)
 				contenidoPrincipal += "\n\nYa has realizado ese ataque!";
 
-			TableroCPU.AContenidoColor(bufferContenido, false, true);
+			TableroCPU.AContenidoColor(bufferContenido, true, true);
 			matrizLED->SetMatrizColor(bufferContenido);
 
 			paquetes::MandarPaquete(socketId, contenidoPrincipal, "\n\n[ Pulsa una tecla ] ", PULSACION, true);
