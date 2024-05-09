@@ -21,7 +21,7 @@
 #define TAMANO_BUFFER 1024
 #define DEFAULT_PORT 3000
 
-#define USANDO_RASPBERRY_CON_MATRIZ_LED false
+#define USANDO_RASPBERRY_CON_MATRIZ_LED true
 MatrizLED *matrizLED;
 
 Logger logger;
