@@ -26,9 +26,7 @@ class Casilla {
 	EstadoCasilla Estado;
 };
 
-std::string EmoticonoCasilla(EstadoCasilla estado);
 ColorLED ColorCasilla(EstadoCasilla estado);
-std::string Ftemporal(ColorLED color);
 } // namespace flota
 
 #endif

@@ -71,7 +71,6 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 					Ataque resultadoAtaque = TableroCPU.RecibirAtaque(TableroCPU.CoordenadaDeAtaque);
 					haAcertado = resultadoAtaque.EsHit;
 
-					std::string tableroStr = TableroCPU.AString(true, false);
 					std::string resultadoStr;
 
 					if (resultadoAtaque.EsHundido) {
@@ -84,7 +83,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 						resultadoStr = "Agua! \nPuedes ver el tablero de la CPU actual en la matriz LED.";
 					}
 
-					std::string contenidoFinal = resultadoStr /* + tableroStr*/;
+					std::string contenidoFinal = resultadoStr;
 
 					TableroCPU.AContenidoColor(bufferContenido, true, false);
 					matrizLED->SetMatrizColor(bufferContenido);
@@ -105,7 +104,6 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		// if (mensajeDeCliente.desconectar)
 		// 	return true;
 		std::string contenidoPrincipal = "Turno de la CPU!\nPuedes ver tu tablero y los ataques del rival en la matriz LED.";
-		// contenidoPrincipal += TableroJugador.AString(false);
 
 		TableroJugador.AContenidoColor(bufferContenido, false, false);
 		matrizLED->SetMatrizColor(bufferContenido);
@@ -120,7 +118,6 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		Ataque resultadoAtaque = TableroJugador.RecibirAtaqueComoIA();
 		haAcertado = resultadoAtaque.EsHit;
 
-		std::string tableroStr = TableroJugador.AString(false, false);
 		std::string resultadoStr = "La CPU ha atacado! ";
 
 		if (resultadoAtaque.EsHundido) {
@@ -134,7 +131,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		}
 
 		std::cout << resultadoStr << std::endl;
-		std::string contenidoFinal = resultadoStr /* + tableroStr*/;
+		std::string contenidoFinal = resultadoStr;
 
 		TableroJugador.AContenidoColor(bufferContenido, false, false);
 

@@ -1,10 +1,11 @@
+#include "sql.h"
 #include "externo/sqlite3pp/sqlite3pp.h"
 #include "fecha.h"
 #include "sesion.h"
 #include <iostream>
 #include <stdbool.h>
 
-bool CredencialesCorrectas(std::string usuario, std::string contrasenya, int *idUsuario) {
+bool baseDeDatos::CredencialesCorrectas(std::string usuario, std::string contrasenya, int *idUsuario) {
 
 	sqlite3pp::database db("baseDeDatos.db");
 
@@ -20,7 +21,7 @@ bool CredencialesCorrectas(std::string usuario, std::string contrasenya, int *id
 	return *idUsuario >= 0;
 }
 
-bool CrearUsuario(std::string usuario, std::string contrasenya, int *idusuario) {
+bool baseDeDatos::CrearUsuario(std::string usuario, std::string contrasenya, int *idusuario) {
 
 	sqlite3pp::database db("baseDeDatos.db");
 	sqlite3pp::command cmd(db, "INSERT INTO usuario (nombre, contrasena) VALUES (:usuario, :contrasena)");
@@ -31,7 +32,7 @@ bool CrearUsuario(std::string usuario, std::string contrasenya, int *idusuario) 
 	return confirmar;
 }
 
-bool VerUsuario(std::string usuario) {
+bool baseDeDatos::VerUsuario(std::string usuario) {
 	sqlite3pp::database db("baseDeDatos.db");
 
 	sqlite3pp::query qry(db, "SELECT id FROM USUARIO WHERE nombre = :nombre "); // Consulta
@@ -44,7 +45,8 @@ bool VerUsuario(std::string usuario) {
 	return idUsuario >= 0;
 }
 
-bool VerStats(std::string idUsuario) {
+// TODO: Testear esto
+bool baseDeDatos::VerStats(std::string idUsuario) {
 	sqlite3pp::database db("baseDeDatos.db"); // Esto conecta con la bd
 
 	sqlite3pp::query qryA(db, "SELECT A.nombre, A.id, (MAX(puntuacion)) AS puntuacion_max FROM USUARIO A INNER JOIN PARTIDAS_SINGLEPLAYER B ON A.id = B.idUsuario GROUP BY B.idJuego WHERE A.id = :id ");

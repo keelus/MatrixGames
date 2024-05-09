@@ -102,7 +102,7 @@ void MatrizLED::ImprimirMatrizColor() {
 	for (int i = 0; i < 8; ++i) {
 		std::cout << numeros[8 - i - 1] << " ";
 		for (int j = 0; j < 8; ++j) {
-			std::string s = flota::Ftemporal(this->MatrizColor[i][j]);
+			std::string s = ColorString(this->MatrizColor[i][j]);
 			std::cout << " " << s << " ";
 		}
 		std::cout << std::endl;

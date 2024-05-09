@@ -152,11 +152,14 @@ void BuclePrincipal() {
 			char accionElegida = paqueteDeCliente.GetContenido()[0];
 
 			// estas opciones son para iniciar los juesgos, menos el 6 que es para ir al menu anterior
-			if (accionElegida == '1') { // Snake
+			if (accionElegida == '1') {
+				// BUCLE PRINCIPAL SNAKE
 
-			} else if (accionElegida == '2') { // Flappy Bird
+			} else if (accionElegida == '2') {
+				// BUCLE PRINCIPAL FLAPPY BIRD
 
-			} else if (accionElegida == '3') { // Slip Grave
+			} else if (accionElegida == '3') {
+				// BUCLE PRINCIPAL SLIP GRAVE
 
 			} else if (accionElegida == '4') { // Hundir la flota (vs CPU)
 				logger.Log("Iniciando juego \"flota\".", CategoriaLog::Partida);
@@ -172,21 +175,28 @@ void BuclePrincipal() {
 					}
 				}
 
-				// TODO: Registrar resultado en la base de datos SQL
-
 				if (partida.TableroJugador.CompletamenteHundido()) {
 					std::cout << "Has perdido! No te quedan mas barcos. Suerte a la proxima!";
 					paquetes::MandarPaquete(socketUsuario, "Has perdido! No te quedan mas barcos. Suerte a la proxima!", "\n[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
+
+					// baseDeDatos::GrabarPartidaMultijugador(sesion, 4, 0, 0);
+
+					matrizLED->RellenarDeColor(ColorLED::Rojo);
 				} else {
 					std::cout << "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!";
 					paquetes::MandarPaquete(socketUsuario, "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!", "\n[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
+
+					// baseDeDatos::GrabarPartidaMultijugador(sesion, 4, 0, 1);
+
+					matrizLED->RellenarDeColor(ColorLED::Verde);
 				}
 
 				paquetes::LeerPaqueteDesdeCliente(socketUsuario); // Bloquear hasta respuesta
 				logger.Log("Finalizado juego \"flota\".", CategoriaLog::Partida);
 
 				break;
-			} else if (accionElegida == '5') { // 4 en raya (vs CPU)
+			} else if (accionElegida == '5') {
+				// BUCLE PRINCIPAL 4 EN RAYA
 
 			} else if (accionElegida == '6') {
 				sesion.SetMenuActual(TiposMenu::Menu1);
@@ -205,7 +215,7 @@ void BuclePrincipal() {
 			}
 			case EstadosLoginRegistro::EsperandoContrasenya: {
 				int idUsuario = -1;
-				bool correctas = CredencialesCorrectas(sesion.GetNombreIntroducidoLoginRegistro(), textoIntroducido, &idUsuario);
+				bool correctas = baseDeDatos::CredencialesCorrectas(sesion.GetNombreIntroducidoLoginRegistro(), textoIntroducido, &idUsuario);
 				sesion.SetSesion(idUsuario, sesion.GetNombreIntroducidoLoginRegistro());
 
 				if (correctas) {
@@ -234,7 +244,7 @@ void BuclePrincipal() {
 			case EstadosLoginRegistro::EsperandoUsuario: {
 				sesion.SetNombreIntroducidoLoginRegistro(textoIntroducido);
 
-				bool existe = VerUsuario(sesion.GetNombreIntroducidoLoginRegistro());
+				bool existe = baseDeDatos::VerUsuario(sesion.GetNombreIntroducidoLoginRegistro());
 				if (existe) {
 					std::string mensajeError = "Este usuario ya existe, por favor cree la cuenta con otro nombre de usuario.";
 					ultimoError = mensajeError;
@@ -249,7 +259,7 @@ void BuclePrincipal() {
 			case EstadosLoginRegistro::EsperandoContrasenya: {
 				int idUsuario = -1;
 
-				bool correctas = CrearUsuario(sesion.GetNombreIntroducidoLoginRegistro(), textoIntroducido, &idUsuario);
+				bool correctas = baseDeDatos::CrearUsuario(sesion.GetNombreIntroducidoLoginRegistro(), textoIntroducido, &idUsuario);
 				if (correctas) {
 					ultimoError = "";
 					sesion.SetSesion(idUsuario, sesion.GetNombreIntroducidoLoginRegistro());
