@@ -17,9 +17,6 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 	ColorLED bufferContenido[8][8];
 
 	if (Turno == TiposTurno::TURNO_JUGADOR) {
-		TableroCPU.AContenidoColor(bufferContenido, false, true);
-		matrizLED->SetMatrizColor(bufferContenido);
-
 		TableroCPU.CoordenadaDeAtaque.X = 0;
 		TableroCPU.CoordenadaDeAtaque.Y = 0;
 
@@ -33,6 +30,9 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 
 			if (errorAtaqueYaRealizado)
 				contenidoPrincipal += "\n\nYa has realizado ese ataque!";
+
+			TableroCPU.AContenidoColor(bufferContenido, false, true);
+			matrizLED->SetMatrizColor(bufferContenido);
 
 			paquetes::MandarPaquete(socketId, contenidoPrincipal, "\n\n[ Pulsa una tecla ] ", PULSACION, true);
 			std::cout << contenidoPrincipal;
