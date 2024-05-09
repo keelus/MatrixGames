@@ -28,6 +28,8 @@ ColorLED flota::ColorCasilla(EstadoCasilla estado) {
 		return ColorLED::Blanco;
 	case EstadoCasilla::COLOCANDO:
 		return ColorLED::Verde;
+	case EstadoCasilla::ATACANDO:
+		return ColorLED::Amarillo;
 	case EstadoCasilla::HIT:
 		return ColorLED::Amarillo;
 	case EstadoCasilla::HIT_HUNDIDO:
