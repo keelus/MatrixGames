@@ -2,6 +2,7 @@
 #define PARTIDA_H
 
 #include "../../matrizLED.h"
+#include "coordenada.h"
 #include "flota.h"
 #include "tablero.h"
 
@@ -15,12 +16,13 @@ class Partida {
   public:
 	Partida(int idSocket, MatrizLED *matrizLED) {
 		TableroJugador = CrearTableroManualmente(idSocket, matrizLED);
-		// TableroJugador = CrearTableroAleatoriamente();
 		TableroCPU = CrearTableroAleatoriamente();
 		Turno = TiposTurno::TURNO_JUGADOR;
 	};
+
 	bool Iteracion(int socketId, MatrizLED *matrizLED);
 	bool HaFinalizado();
+
 	Tablero TableroJugador;
 	Tablero TableroCPU;
 	TiposTurno Turno;

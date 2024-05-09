@@ -17,34 +17,60 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 	ColorLED bufferContenido[8][8];
 
 	if (Turno == TiposTurno::TURNO_JUGADOR) {
-		std::string contenidoPrincipal = "Te toca atacar!\nPuedes ver el tablero de tu rival, y tus ataques en la matriz LED.";
-		// contenidoPrincipal += TableroCPU.AString(true);
-
-		TableroCPU.AContenidoColor(bufferContenido, true);
+		TableroJugador.AContenidoColor(bufferContenido, false, true);
 		matrizLED->SetMatrizColor(bufferContenido);
 
-		paquetes::MandarPaquete(socketId, contenidoPrincipal, "\n\nIntroduce la coordenada de ataque (ejemplo: d4): ", TEXTO, true);
-		std::cout << contenidoPrincipal;
+		Coordenada coordenadaDeAtaque(0, 0);
 
 		bool ataqueRealizado = false;
+		bool errorAtaqueYaRealizao = false;
+
 		while (!ataqueRealizado) {
-			try {
-				paquetes::PaqueteDeCliente paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketId);
-				if (paqueteDeCliente.SeQuiereDesconectar())
-					return true;
+			std::string contenidoPrincipal = "Te toca atacar!\nPuedes ver el tablero de tu rival, y tus ataques en la matriz LED.";
+			contenidoPrincipal += "\n\nMueve el punto de ataque con W A S y D.\nUsa la tecla Enter para atacar!";
+			contenidoPrincipal += "\n\nCoordenada de ataque actual -> (Fila: " + std::to_string(coordenadaDeAtaque.Y) + ", Columna: " + std::to_string(coordenadaDeAtaque.X) + ")";
 
-				// TODO: Eliminar espacios desde el input
+			if (errorAtaqueYaRealizao)
+				contenidoPrincipal += "\n\nYa has realizado ese ataque!";
 
-				Coordenada coordenada = ParsearCoordenada(paqueteDeCliente.GetContenido());
-				if (TableroCPU.AtaqueYaRecibido(coordenada)) {
+			paquetes::MandarPaquete(socketId, contenidoPrincipal, "\n\n[ Pulsa una tecla ] ", PULSACION, true);
+			std::cout << contenidoPrincipal;
+
+			paquetes::PaqueteDeCliente paqueteDeCliente = paquetes::LeerPaqueteDesdeCliente(socketId);
+			if (paqueteDeCliente.SeQuiereDesconectar())
+				return true;
+
+			switch (paqueteDeCliente.GetContenido()[0]) {
+			case 'A':
+			case 'a':
+				if (coordenadaDeAtaque.X > 0)
+					coordenadaDeAtaque.X--;
+				break;
+			case 'D':
+			case 'd':
+				if (coordenadaDeAtaque.X < 7)
+					coordenadaDeAtaque.X++;
+				break;
+			case 'W':
+			case 'w':
+				if (coordenadaDeAtaque.Y > 0)
+					coordenadaDeAtaque.Y--;
+				break;
+			case 'S':
+			case 's':
+				if (coordenadaDeAtaque.Y < 7)
+					coordenadaDeAtaque.Y++;
+				break;
+			case ' ':
+				if (TableroCPU.AtaqueYaRecibido(coordenadaDeAtaque)) {
+					errorAtaqueYaRealizao = true;
 					std::cout << "Ataque ya realizado!\n";
-					paquetes::MandarPaquete(socketId, "\nYa has realizado ese ataque!", "\nIntroduce otra coordenada (ejemplo: d4): ", TEXTO, false);
 				} else {
 					ataqueRealizado = true;
-					Ataque resultadoAtaque = TableroCPU.RecibirAtaque(coordenada);
+					Ataque resultadoAtaque = TableroCPU.RecibirAtaque(coordenadaDeAtaque);
 					haAcertado = resultadoAtaque.EsHit;
 
-					std::string tableroStr = TableroCPU.AString(true);
+					std::string tableroStr = TableroCPU.AString(true, false);
 					std::string resultadoStr;
 
 					if (resultadoAtaque.EsHundido) {
@@ -59,7 +85,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 
 					std::string contenidoFinal = resultadoStr /* + tableroStr*/;
 
-					TableroCPU.AContenidoColor(bufferContenido, true);
+					TableroCPU.AContenidoColor(bufferContenido, true, false);
 					matrizLED->SetMatrizColor(bufferContenido);
 
 					paquetes::MandarPaquete(socketId, contenidoFinal, "\n\n[ Pulsa una tecla para continuar ]", PULSACION, true);
@@ -70,9 +96,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 					if (paqueteDeCliente.SeQuiereDesconectar())
 						return true;
 				}
-
-			} catch (char const *e) {
-				paquetes::MandarPaquete(socketId, "", "\nLa coordenada introducida es invalida! \nIntroduce otra coordenada (ejemplo: d4): ", TEXTO, false);
+				break;
 			}
 		}
 	} else {
@@ -82,7 +106,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		std::string contenidoPrincipal = "Turno de la CPU!\nPuedes ver tu tablero y los ataques del rival en la matriz LED.";
 		// contenidoPrincipal += TableroJugador.AString(false);
 
-		TableroJugador.AContenidoColor(bufferContenido, false);
+		TableroJugador.AContenidoColor(bufferContenido, false, false);
 		matrizLED->SetMatrizColor(bufferContenido);
 
 		paquetes::MandarPaquete(socketId, contenidoPrincipal, "\n\n[ Pulsa una tecla para continuar ]", PULSACION, true);
@@ -95,7 +119,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		Ataque resultadoAtaque = TableroJugador.RecibirAtaqueComoIA();
 		haAcertado = resultadoAtaque.EsHit;
 
-		std::string tableroStr = TableroJugador.AString(false);
+		std::string tableroStr = TableroJugador.AString(false, false);
 		std::string resultadoStr = "La CPU ha atacado! ";
 
 		if (resultadoAtaque.EsHundido) {
@@ -111,7 +135,7 @@ bool flota::Partida::Iteracion(int socketId, MatrizLED *matrizLED) {
 		std::cout << resultadoStr << std::endl;
 		std::string contenidoFinal = resultadoStr /* + tableroStr*/;
 
-		TableroJugador.AContenidoColor(bufferContenido, false);
+		TableroJugador.AContenidoColor(bufferContenido, false, false);
 
 		matrizLED->SetMatrizColor(bufferContenido);
 

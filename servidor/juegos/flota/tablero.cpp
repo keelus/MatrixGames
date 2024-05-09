@@ -8,7 +8,7 @@
 #include <random>
 #include <unistd.h>
 
-void flota::Tablero::AContenidoColor(ColorLED referenciaContenido[8][8], bool esconderBarcos) const {
+void flota::Tablero::AContenidoColor(ColorLED referenciaContenido[8][8], bool esconderBarcos, bool mostrarCoordenadaDeAtaque) const {
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			referenciaContenido[i][j] = ColorCasilla(EstadoCasilla::AGUA);
@@ -51,9 +51,12 @@ void flota::Tablero::AContenidoColor(ColorLED referenciaContenido[8][8], bool es
 			}
 		}
 	}
+
+	if (mostrarCoordenadaDeAtaque)
+		referenciaContenido[this->CoordenadaDeAtaque.Y][this->CoordenadaDeAtaque.X] = ColorCasilla(EstadoCasilla::ATACANDO);
 }
 
-std::string flota::Tablero::AString(bool esconderBarcos) const {
+std::string flota::Tablero::AString(bool esconderBarcos, bool mostrarCoordenadaDeAtaque) const {
 	std::string numeros[] = {u8"❶", u8"❷", u8"❸", u8"❹", u8"❺", u8"❻", u8"❼", u8"❽"};
 
 	std::string outStr[8][8];
@@ -96,6 +99,9 @@ std::string flota::Tablero::AString(bool esconderBarcos) const {
 			}
 		}
 	}
+
+	if (mostrarCoordenadaDeAtaque)
+		outStr[this->CoordenadaDeAtaque.Y][this->CoordenadaDeAtaque.X] = EmoticonoCasilla(EstadoCasilla::ATACANDO);
 
 	std::string stringFinal = "";
 	// SetConsoleOutputCP(CP_UTF8); // Necesario para emoticonos
@@ -114,7 +120,7 @@ std::string flota::Tablero::AString(bool esconderBarcos) const {
 	return stringFinal;
 }
 
-void flota::Tablero::Imprimir(bool esconderBarcos) const {
+void flota::Tablero::Imprimir(bool esconderBarcos, bool mostrarCoordenadaDeAtaque) const {
 	std::string numeros[] = {u8"❶", u8"❷", u8"❸", u8"❹", u8"❺", u8"❻", u8"❼", u8"❽"};
 
 	std::string outStr[8][8];
@@ -157,6 +163,9 @@ void flota::Tablero::Imprimir(bool esconderBarcos) const {
 			}
 		}
 	}
+
+	if (mostrarCoordenadaDeAtaque)
+		outStr[this->CoordenadaDeAtaque.Y][this->CoordenadaDeAtaque.X] = EmoticonoCasilla(EstadoCasilla::ATACANDO);
 
 	// SetConsoleOutputCP(CP_UTF8); // Necesario para emoticonos
 
@@ -265,15 +274,8 @@ flota::Tablero flota::CrearTableroManualmente(int socketId, MatrizLED *matrizLED
 		ColorLED bufferContenido[8][8];
 
 		bool colocado = false;
-		bool primerPrintHecho = false;
 		bool errorAlColocar = false;
 		while (!colocado) {
-			if (!primerPrintHecho) {
-				system("cls");
-				tablero.Imprimir(false);
-				primerPrintHecho = true;
-			}
-
 			std::string contenidoPrincipal = "Coloca tus barcos!\nPuedes ver tu tablero actual en la matriz LED.\n\nPara mover el barco, usa W A S y D.\nPara rotarlo, pulsa R.\nUsa la tecla Enter para colocarlo.";
 
 			if (errorAlColocar)
@@ -281,7 +283,7 @@ flota::Tablero flota::CrearTableroManualmente(int socketId, MatrizLED *matrizLED
 
 			// contenidoPrincipal += tablero.AString(false);
 
-			tablero.AContenidoColor(bufferContenido, false);
+			tablero.AContenidoColor(bufferContenido, false, false);
 			matrizLED->SetMatrizColor(bufferContenido);
 
 			paquetes::MandarPaquete(socketId, contenidoPrincipal, "\n\n[ Pulsa una tecla ] ", PULSACION, true);

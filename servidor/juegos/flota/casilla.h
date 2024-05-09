@@ -11,9 +11,10 @@ enum class EstadoCasilla {
 	AGUA = 0,
 	BARCO = 1,
 	COLOCANDO = 2,
-	HIT_HUNDIDO = 3,
-	HIT = 4,
-	MISS = 5,
+	ATACANDO = 3,
+	HIT_HUNDIDO = 4,
+	HIT = 5,
+	MISS = 6,
 };
 
 class Casilla {
