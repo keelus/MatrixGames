@@ -7,6 +7,18 @@ namespace pajaro{
         HORIZONTAL = 1,
         VERTICAL = 2
     };
+
+    enum class Estado {
+        NULO = 0,
+        VIVO = 1,
+        MUERTO = 2
+    }
+
+    class pajaro{//Hacen falta: direccion, vuelo, estado, posicion
+        public:
+        pajaro(Direccion direccion, Estado estado, int px, int py);
+
+    }
 }
 
 #endif
