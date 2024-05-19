@@ -11,7 +11,7 @@ Mapa::Mapa(MatrizLED *matriz, int socketUsuario) {
 	while (accion) {
 		/* code */
 		printf("1");
-		int valor = this->personaje.interaccion(socketUsuario, this->mapeado);
+		int valor = this->personaje.interaccion(&socketUsuario, &this->mapeado,matriz);
 		if (valor == 1) {
 			accion = false;
 		}
@@ -21,8 +21,8 @@ Mapa::Mapa(MatrizLED *matriz, int socketUsuario) {
 	accion = true;
 	while (accion) {
 		/* code */
-		int valor = this->personaje.interaccion(socketUsuario, this->mapeado);
-		if (valor == 1) {
+			int valor = this->personaje.interaccion(&socketUsuario, &this->mapeado,matriz);		
+			if (valor == 1) {
 			accion = false;
 		}
 	}
@@ -61,6 +61,7 @@ void Mapa::cargarmapas(int nivel) {
 			this->mapeado[i][j] = mapa1[i][j];
 		}
 	}
+	
 }
 
 void Mapa::mapacolor(ColorLED mapeado[8][8], MatrizLED *matriz) {

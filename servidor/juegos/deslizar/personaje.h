@@ -7,8 +7,8 @@ namespace grave {
 class Personaje {
   public:
 	Personaje();
-	int interaccion(int socketUsuario, ColorLED mapa[8][8]);
-	int movimiento(char tecla, ColorLED mapa[8][8]);
+	int interaccion(int *socketUsuario, ColorLED (*mapa)[8][8], MatrizLED *matriz);
+	int movimiento(char tecla, ColorLED (*mapa)[8][8],MatrizLED* matriz);
 	~Personaje();
 	int x;
 	int y;
