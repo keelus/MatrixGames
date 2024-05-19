@@ -17,7 +17,7 @@
 
 // Flota
 #include "juegos/flota/partida.h"
-
+#include "juegos/deslizar/mapa.h"
 #define TAMANO_BUFFER 1024
 #define DEFAULT_PORT 3000
 
@@ -160,6 +160,9 @@ void BuclePrincipal() {
 
 			} else if (accionElegida == '3') {
 				// BUCLE PRINCIPAL SLIP GRAVE
+				logger.Log("Iniciando juego \"grave\".", CategoriaLog::Partida);
+				std::cout << "Se desea jugar a slip grave" << std::endl;
+				grave::Mapa Mapa(matrizLED,socketUsuario);
 
 			} else if (accionElegida == '4') { // Hundir la flota (vs CPU)
 				logger.Log("Iniciando juego \"flota\".", CategoriaLog::Partida);
