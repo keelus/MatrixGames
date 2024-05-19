@@ -4,6 +4,7 @@
 #include "juegos/flota/casilla.h"
 
 MatrizLED::MatrizLED(bool usandoRaspberry) { // Debera de ser false, si se esta compilando en Linux, cuando no esta la LED conectada o no se esta usando la Raspberry. Si no, no se podra usar el programa.
+	std::cout << "###### LLAMADO A CONSTRUCTOR MATRIZ LED ######" << std::endl;
 	this->UsandoRaspberry = usandoRaspberry;
 
 	if (usandoRaspberry) {
