@@ -182,14 +182,14 @@ void BuclePrincipal() {
 				std::cout << "Se desea jugar a hundir la flota" << std::endl;
 				flota::Partida partida(socketUsuario, matrizLED);
 
-				// while (!partida.HaFinalizado()) {
-				// 	bool desconectar = partida.Iteracion(socketUsuario, matrizLED);
+				while (!partida.HaFinalizado()) {
+					bool desconectar = partida.Iteracion(socketUsuario, matrizLED);
 
-				// 	if (desconectar) {
-				// 		paquetes::MandarPaqueteDesconexion(socketUsuario);
-				// 		return;
-				// 	}
-				// }
+					if (desconectar) {
+						paquetes::MandarPaqueteDesconexion(socketUsuario);
+						return;
+					}
+				}
 
 				bool resultado = partida.TableroJugador.CompletamenteHundido() ? 0 : 1;
 				int duracionPartida = static_cast<int>(difftime(std::time(nullptr), inicio));
