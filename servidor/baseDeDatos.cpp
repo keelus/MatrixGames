@@ -4,7 +4,15 @@
 #include "sesion.h"
 #include <chrono>
 #include <iostream>
+#include <sstream>
 #include <stdbool.h>
+#include <string>
+
+#define ID_JUEGO_SNAKE 1
+#define ID_JUEGO_FLAPPY 2
+#define ID_JUEGO_SLIPGRAVE 3
+#define ID_JUEGO_FLOTA 4
+#define ID_JUEGO_4RAYA 5
 
 bool baseDeDatos::CredencialesCorrectas(std::string usuario, std::string contrasenya, int *idUsuario) {
 
@@ -47,56 +55,52 @@ bool baseDeDatos::VerUsuario(std::string usuario) {
 }
 
 // TODO: Testear esto
-bool baseDeDatos::VerStats(std::string idUsuario) {
+std::string baseDeDatos::ConseguirEstadisticas(Sesion sesion) {
 	sqlite3pp::database db("baseDeDatos.db"); // Esto conecta con la bd
 
-	sqlite3pp::query qryA(db, "SELECT A.nombre, A.id, (MAX(puntuacion)) AS puntuacion_max FROM USUARIO A INNER JOIN PARTIDAS_SINGLEPLAYER B ON A.id = B.idUsuario GROUP BY B.idJuego WHERE A.id = :id ");
-	qryA.bind(":id", idUsuario, sqlite3pp::nocopy); // Hacemos la consulta y le pasamos el Id del usuario que tenemos de referencia
-	printf("\n");
+	// Ya que solo hay 2 juegos programados (un singleplayer y uno multi), a mano:
+	sqlite3pp::query querySlipGrave(db, "SELECT puntuacion FROM PARTIDAS_SINGLEPLAYER WHERE idUsuario=:idUsuario and idJuego=:idJuego");
+	querySlipGrave.bind(":idUsuario", sesion.GetIdUsuario());
+	querySlipGrave.bind(":idJuego", ID_JUEGO_SLIPGRAVE);
 
-	sqlite3pp::query qryBjUG(db, "SELECT (COUNT(B.RESULTADO)) AS partidas_jugadas, B.idUsuario FROM USUARIO A INNER JOIN (SELECT BB.nombre, AA.resultado, AA.idUsuario FROM PARTIDAS_MULTIPLAYER INNER JOIN TIPO_JUEGO ON AA.idJuego = BB.id) B ON A.id = B.idUsuario GROUP BY B.idJuego WHERE A.id = :id ");
-	qryBjUG.bind(":id", idUsuario, sqlite3pp::nocopy); // Carga la consulta de la cantidad de partidas jugadas por el jugador indicado agrupadas por cada juego
+	sqlite3pp::query queryFlota(db, "SELECT resultado FROM PARTIDAS_MULTIPLAYER WHERE idUsuario=:idUsuario and idJuego=:idJuego");
+	queryFlota.bind(":idUsuario", sesion.GetIdUsuario());
+	queryFlota.bind(":idJuego", ID_JUEGO_FLOTA);
 
-	sqlite3pp::query qryBgan(db, "SELECT (COUNT(B.RESULTADO)) AS partidas_ganadas,  B.idUsuario FROM USUARIO A INNER JOIN (SELECT BB.nombre, AA.resultado, AA.idUsuario FROM PARTIDAS_MULTIPLAYER INNER JOIN TIPO_JUEGO ON AA.idJuego = BB.id where AA.resultado = 1) B ON A.id = B.idUsuario GROUP BY B.idJuego WHERE (A.id = :id) ");
-	qryBgan.bind(":id", idUsuario, sqlite3pp::nocopy); // Carga las partidas ganadas por el usuario que se le pasa en las partidas multiplayer agrupadas por cada juego
+	int cantidadPartidasSlipGrave = 0;
+	int puntuacionMaximaSlipGrave = 0;
 
-	// Muestra la puntuacion maxima de cada juego conseguida por el jugador
-	printf("PARTIDAS UN SOLO JUGADOR:\n");
-	printf("juego    puntuacion max");
-	for (sqlite3pp::query::iterator i = qryA.begin(); i != qryA.end(); ++i) {
-		char const *nombre;
-		int id = 0;
-		int puntuacionMax = 0;
-		std::tie(nombre, id, puntuacionMax) = (*i).get_columns<char const *, int, int>(0, 1, 2);
+	int cantidadPartidasFlota = 0;
+	int cantidadVictoriasFlota = 0;
 
-		std::cout << nombre << "   " << puntuacionMax << std::endl;
+	for (sqlite3pp::query::iterator i = querySlipGrave.begin(); i != querySlipGrave.end(); ++i) {
+		cantidadPartidasSlipGrave++;
+		int puntuacion = 0;
+		std::tie(puntuacion) = (*i).get_columns<int>(0);
+
+		if (puntuacion > puntuacionMaximaSlipGrave)
+			puntuacionMaximaSlipGrave = puntuacion;
 	}
 
-	// Muestra la cantidad de partidas jugadas por caga juego multijugador (contra PC)
-	printf("PARTIDAS MULTIJUGADOR:\n");
-	printf("Juego    partidas jugadas\n");
-	for (sqlite3pp::query::iterator i = qryBjUG.begin(); i != qryBjUG.end(); ++i) {
-		char const *nombre;
-		int id = 0;
-		int cantPartJug = 0;
-		std::tie(nombre, id, cantPartJug) = (*i).get_columns<char const *, int, int>(0, 1, 2);
+	for (sqlite3pp::query::iterator i = queryFlota.begin(); i != queryFlota.end(); ++i) {
+		cantidadPartidasFlota++;
+		int resultado = 0;
+		std::tie(resultado) = (*i).get_columns<int>(0);
 
-		std::cout << nombre << "    " << cantPartJug << std::endl;
+		if (resultado == 1)
+			cantidadVictoriasFlota++;
 	}
 
-	// Muestra la cantidad de partidas ganadas por caga juego multijugador (contra PC)
-	// Estos querys estan actualizados? todos son iguales y aqui aparecen como que reciben 3 resultados, pero veo las SQL no todas reciben esto
-	printf("Juego    partidas ganadas\n");
-	for (sqlite3pp::query::iterator i = qryBgan.begin(); i != qryBgan.end(); ++i) {
-		char const *nombre;
-		int id = 0;
-		int cantPartGan = 0;
-		std::tie(nombre, id, cantPartGan) = (*i).get_columns<char const *, int, int>(0, 1, 2);
+	std::stringstream textoRespuesta;
+	textoRespuesta << "Tus estadisticas" << std::endl << std::endl;
+	textoRespuesta << "JUEGO\t\t\tRECORD\tVICTORIAS\tPARTIDAS JUGADAS" << std::endl;
+	textoRespuesta << "Snake\t\t\t-\t-\t\t-" << std::endl;
+	textoRespuesta << "Flappy Bird\t\t-\t-\t\t-" << std::endl;
+	textoRespuesta << "Slip Grave\t\t" << puntuacionMaximaSlipGrave << "\t-\t\t" << cantidadPartidasSlipGrave << std::endl;
+	textoRespuesta << "Hundir la flota\t\t-\t" << cantidadVictoriasFlota << "\t\t" << cantidadPartidasFlota << std::endl;
+	textoRespuesta << "4 en raya\t\t-\t-\t\t-" << std::endl;
 
-		std::cout << nombre << "    " << cantPartGan << std::endl;
-	}
-
-	return true;
+	return textoRespuesta.str();
 }
 
 void baseDeDatos::GrabarPartidaMultijugador(Sesion sesion, int idJuego, int duracionSegundos, int resultado) {

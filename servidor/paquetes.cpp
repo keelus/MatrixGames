@@ -1,4 +1,5 @@
 #include "paquetes.h"
+#include "baseDeDatos.h"
 #include "sesion.h"
 #include "tiposMenu.h"
 #include <cstring>
@@ -136,8 +137,12 @@ void paquetes::MandarPaqueteDeMenu(int socketId, Sesion sesion, std::string mens
 	}
 
 	case TiposMenu::Menu2: {
-		textoVisual = "Selecciona un juego:\n\n\t1) Snake\n\t2) Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) 4 en raya (vs CPU)\n\n\t6) Volver atras";
+		textoVisual = "Selecciona un juego:\n\n\t1) [NO IMPLEMENTADO] Snake\n\t2) [NO IMPLEMENTADO] Flappy Bird\n\t3) Slip Grave\n\t4) Hundir la flota (vs CPU)\n\t5) [NO IMPLEMENTADO] 4 en raya (vs CPU)\n\n\t6) Volver atras";
 		preInput = "\nElige una de las opciones:  ";
+
+		if (!mensajeError.empty()) {
+			textoVisual = mensajeError.append(textoVisual);
+		}
 
 		limpiarPantalla = true;
 		modoEntrada = TEXTO;
@@ -146,7 +151,8 @@ void paquetes::MandarPaqueteDeMenu(int socketId, Sesion sesion, std::string mens
 	}
 
 	case TiposMenu::Menu3: {
-		textoVisual = "Aqui irian tus estadisticas...";
+		textoVisual = baseDeDatos::ConseguirEstadisticas(sesion);
+
 		preInput = "\n[ Pulsa cualquier tecla para volver al menu principal ]";
 
 		limpiarPantalla = true;

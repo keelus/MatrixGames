@@ -161,9 +161,11 @@ void BuclePrincipal() {
 
 			// estas opciones son para iniciar los juesgos, menos el 6 que es para ir al menu anterior
 			if (accionElegida == '1') {
+				ultimoError = "Este juego no esta implementado...\n";
 				// BUCLE PRINCIPAL SNAKE
 
 			} else if (accionElegida == '2') {
+				ultimoError = "Este juego no esta implementado...\n";
 				// BUCLE PRINCIPAL FLAPPY BIRD
 
 			} else if (accionElegida == '3') {
@@ -171,7 +173,7 @@ void BuclePrincipal() {
 				logger.Log("Iniciando juego \"grave\".", CategoriaLog::Partida);
 				std::cout << "Se desea jugar a slip grave" << std::endl;
 				grave::Mapa Mapa(matrizLED, socketUsuario);
-				baseDeDatos::GrabarPartidaUnJugador(sesion, ID_JUEGO_SLIPGRAVE, 0, 1000);
+				baseDeDatos::GrabarPartidaUnJugador(sesion, ID_JUEGO_SLIPGRAVE, 1000);
 
 			} else if (accionElegida == '4') { // Hundir la flota (vs CPU)
 				std::time_t inicio = std::time(nullptr);
@@ -198,14 +200,10 @@ void BuclePrincipal() {
 					std::cout << "Has perdido! No te quedan mas barcos. Suerte a la proxima!";
 					paquetes::MandarPaquete(socketUsuario, "Has perdido! No te quedan mas barcos. Suerte a la proxima!", "\n[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
 
-					// baseDeDatos::GrabarPartidaMultijugador(sesion, 4, 0, 0);
-
 					matrizLED->RellenarDeColor(ColorLED::Rojo);
 				} else {
 					std::cout << "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!";
 					paquetes::MandarPaquete(socketUsuario, "Has ganado! A la CPU no le quedan mas barcos. Bien hecho!", "\n[ Pulsa una tecla para finalizar el juego ]", PULSACION, true);
-
-					// baseDeDatos::GrabarPartidaMultijugador(sesion, 4, 0, 1);
 
 					matrizLED->RellenarDeColor(ColorLED::Verde);
 				}
@@ -215,6 +213,7 @@ void BuclePrincipal() {
 
 				break;
 			} else if (accionElegida == '5') {
+				ultimoError = "Este juego no esta implementado...\n";
 				// BUCLE PRINCIPAL 4 EN RAYA
 
 			} else if (accionElegida == '6') {
