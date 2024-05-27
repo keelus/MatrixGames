@@ -10,6 +10,7 @@ bool CredencialesCorrectas(std::string usuario, std::string contrasenya, int *id
 bool CrearUsuario(std::string usuario, std::string contrasenya, int *idUsuario);
 bool VerUsuario(std::string usuario);
 bool VerStats(std::string usuario);
+void GrabarPartidaUnJugador(Sesion sesion, int idJuego, int puntuacion);
 void GrabarPartidaMultijugador(Sesion sesion, int idJuego, int duracionSegundos, int resultado);
 } // namespace baseDeDatos
 

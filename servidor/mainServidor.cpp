@@ -3,10 +3,12 @@
 #include "paquetes.h"
 #include "sesion.h"
 #include "tiposMenu.h"
+#include <ctime>
+#include <locale>
 #include <string>
 #undef UNICODE
 
-#include "sql.h"
+#include "baseDeDatos.h"
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,8 +23,14 @@
 #define TAMANO_BUFFER 1024
 #define DEFAULT_PORT 3000
 
-#define USANDO_RASPBERRY_CON_MATRIZ_LED true
+#define USANDO_RASPBERRY_CON_MATRIZ_LED false
 MatrizLED *matrizLED;
+
+#define ID_JUEGO_SNAKE 1
+#define ID_JUEGO_FLAPPY 2
+#define ID_JUEGO_SLIPGRAVE 3
+#define ID_JUEGO_FLOTA 4
+#define ID_JUEGO_4RAYA 5
 
 Logger logger;
 Sesion sesion;
@@ -163,20 +171,28 @@ void BuclePrincipal() {
 				logger.Log("Iniciando juego \"grave\".", CategoriaLog::Partida);
 				std::cout << "Se desea jugar a slip grave" << std::endl;
 				grave::Mapa Mapa(matrizLED, socketUsuario);
+				baseDeDatos::GrabarPartidaUnJugador(sesion, ID_JUEGO_SLIPGRAVE, 0, 1000);
 
 			} else if (accionElegida == '4') { // Hundir la flota (vs CPU)
+				std::time_t inicio = std::time(nullptr);
+
 				logger.Log("Iniciando juego \"flota\".", CategoriaLog::Partida);
 				std::cout << "Se desea jugar a hundir la flota" << std::endl;
 				flota::Partida partida(socketUsuario, matrizLED);
 
-				while (!partida.HaFinalizado()) {
-					bool desconectar = partida.Iteracion(socketUsuario, matrizLED);
+				// while (!partida.HaFinalizado()) {
+				// 	bool desconectar = partida.Iteracion(socketUsuario, matrizLED);
 
-					if (desconectar) {
-						paquetes::MandarPaqueteDesconexion(socketUsuario);
-						return;
-					}
-				}
+				// 	if (desconectar) {
+				// 		paquetes::MandarPaqueteDesconexion(socketUsuario);
+				// 		return;
+				// 	}
+				// }
+
+				bool resultado = partida.TableroJugador.CompletamenteHundido() ? 0 : 1;
+				int duracionPartida = static_cast<int>(difftime(std::time(nullptr), inicio));
+
+				baseDeDatos::GrabarPartidaMultijugador(sesion, ID_JUEGO_FLOTA, duracionPartida, resultado);
 
 				if (partida.TableroJugador.CompletamenteHundido()) {
 					std::cout << "Has perdido! No te quedan mas barcos. Suerte a la proxima!";

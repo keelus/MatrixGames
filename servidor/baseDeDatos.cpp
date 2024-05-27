@@ -1,7 +1,8 @@
-#include "sql.h"
+#include "baseDeDatos.h"
 #include "externo/sqlite3pp/sqlite3pp.h"
 #include "fecha.h"
 #include "sesion.h"
+#include <chrono>
 #include <iostream>
 #include <stdbool.h>
 
@@ -53,10 +54,10 @@ bool baseDeDatos::VerStats(std::string idUsuario) {
 	qryA.bind(":id", idUsuario, sqlite3pp::nocopy); // Hacemos la consulta y le pasamos el Id del usuario que tenemos de referencia
 	printf("\n");
 
-	sqlite3pp::query qryBjUG(db, "SELECT (COUNT(B.RESULTADO)) AS partidas_jugadas, B.idJugador FROM USUARIO A INNER JOIN (SELECT BB.nombre, AA.resultado, AA.idJugador FROM PARTIDAS_MULTIPLAYER INNER JOIN TIPO_JUEGO ON AA.idJuego = BB.id) B ON A.id = B.idJugador GROUP BY B.idJuego WHERE A.id = :id ");
+	sqlite3pp::query qryBjUG(db, "SELECT (COUNT(B.RESULTADO)) AS partidas_jugadas, B.idUsuario FROM USUARIO A INNER JOIN (SELECT BB.nombre, AA.resultado, AA.idUsuario FROM PARTIDAS_MULTIPLAYER INNER JOIN TIPO_JUEGO ON AA.idJuego = BB.id) B ON A.id = B.idUsuario GROUP BY B.idJuego WHERE A.id = :id ");
 	qryBjUG.bind(":id", idUsuario, sqlite3pp::nocopy); // Carga la consulta de la cantidad de partidas jugadas por el jugador indicado agrupadas por cada juego
 
-	sqlite3pp::query qryBgan(db, "SELECT (COUNT(B.RESULTADO)) AS partidas_ganadas,  B.idJugador FROM USUARIO A INNER JOIN (SELECT BB.nombre, AA.resultado, AA.idJugador FROM PARTIDAS_MULTIPLAYER INNER JOIN TIPO_JUEGO ON AA.idJuego = BB.id where AA.resultado = 1) B ON A.id = B.idJugador GROUP BY B.idJuego WHERE (A.id = :id) ");
+	sqlite3pp::query qryBgan(db, "SELECT (COUNT(B.RESULTADO)) AS partidas_ganadas,  B.idUsuario FROM USUARIO A INNER JOIN (SELECT BB.nombre, AA.resultado, AA.idUsuario FROM PARTIDAS_MULTIPLAYER INNER JOIN TIPO_JUEGO ON AA.idJuego = BB.id where AA.resultado = 1) B ON A.id = B.idUsuario GROUP BY B.idJuego WHERE (A.id = :id) ");
 	qryBgan.bind(":id", idUsuario, sqlite3pp::nocopy); // Carga las partidas ganadas por el usuario que se le pasa en las partidas multiplayer agrupadas por cada juego
 
 	// Muestra la puntuacion maxima de cada juego conseguida por el jugador
@@ -98,17 +99,35 @@ bool baseDeDatos::VerStats(std::string idUsuario) {
 	return true;
 }
 
-void GrabarPartidaMultijugador(Sesion sesion, int idJuego, int duracionSegundos, int resultado) {
+void baseDeDatos::GrabarPartidaMultijugador(Sesion sesion, int idJuego, int duracionSegundos, int resultado) {
 	sqlite3pp::database db("baseDeDatos.db");
-	sqlite3pp::command cmd(db, "INSERT INTO PARTIDAS_MULTIPLAYER (idJugador, fecha, idJuego, duracionS, resultado) VALUES (:idJugador, :fecha, :idJuego, :duracionS, :resultado)");
+	sqlite3pp::command cmd(db, "INSERT INTO PARTIDAS_MULTIPLAYER (idUsuario, fechaUnix, idJuego, duracionS, resultado) VALUES (:idUsuario, :fechaUnix, :idJuego, :duracionS, :resultado)");
 
-	int dia, mes, anyo, hora, minuto, segundo;
-	Fecha::ConseguirFecha(dia, mes, anyo, hora, minuto, segundo);
+	auto ahora = std::chrono::system_clock::now();
+	std::time_t ahora_t = std::chrono::system_clock::to_time_t(ahora);
 
-	cmd.bind(":idJugador", sesion.GetIdUsuario());
-	cmd.bind(":fecha", Fecha::ConseguirFechaVisual(), sqlite3pp::nocopy);
+	int ahoraUnix = static_cast<int>(ahora_t);
+
+	cmd.bind(":idUsuario", sesion.GetIdUsuario());
+	cmd.bind(":fechaUnix", ahoraUnix);
 	cmd.bind(":idJuego", idJuego);
 	cmd.bind(":duracionS", duracionSegundos);
 	cmd.bind(":resultado", resultado);
+	cmd.execute();
+}
+
+void baseDeDatos::GrabarPartidaUnJugador(Sesion sesion, int idJuego, int puntuacion) {
+	sqlite3pp::database db("baseDeDatos.db");
+	sqlite3pp::command cmd(db, "INSERT INTO PARTIDAS_SINGLEPLAYER (idUsuario, fechaUnix, idJuego, puntuacion) VALUES (:idUsuario, :fechaUnix, :idJuego, :puntuacion)");
+
+	auto ahora = std::chrono::system_clock::now();
+	std::time_t ahora_t = std::chrono::system_clock::to_time_t(ahora);
+
+	int ahoraUnix = static_cast<int>(ahora_t);
+
+	cmd.bind(":idUsuario", sesion.GetIdUsuario());
+	cmd.bind(":fechaUnix", ahoraUnix);
+	cmd.bind(":idJuego", idJuego);
+	cmd.bind(":puntuacion", puntuacion);
 	cmd.execute();
 }
