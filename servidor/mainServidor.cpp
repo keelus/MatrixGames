@@ -18,8 +18,8 @@
 #include <unistd.h>
 
 // Flota
-#include "juegos/deslizar/mapa.h"
 #include "juegos/flota/partida.h"
+#include "juegos/slipGrave/mapa.h"
 #define TAMANO_BUFFER 1024
 #define DEFAULT_PORT 3000
 

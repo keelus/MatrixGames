@@ -1,5 +1,0 @@
-[08/05/2024 - 17:54:00][] Servidor iniciado.
-[08/05/2024 - 17:54:00][] Matriz LED iniciada.
-[08/05/2024 - 17:54:21][Conexion] Usuario conectado.
-[08/05/2024 - 17:54:28][] Usuario logueado ("admin").
-[08/05/2024 - 17:54:29][Partida] Iniciando juego "flota".
