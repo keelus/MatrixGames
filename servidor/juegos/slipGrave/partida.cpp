@@ -2,15 +2,15 @@
 
 namespace grave {
 
-Partida::Partida() {
-	this->personaje = Personaje();
+Partida::Partida() { this->personaje = Personaje(); };
 
+void Partida::vaciarMapa() {
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			this->mapeado[i][j] = ColorLED::Negro;
 		}
 	}
-};
+}
 
 void Partida::BuclePrincipal(MatrizLED *matriz, int socketUsuario) {
 	// Primer mapa
@@ -37,6 +37,7 @@ void Partida::BuclePrincipal(MatrizLED *matriz, int socketUsuario) {
 }
 
 void Partida::cargarMapa(int nivel) {
+	this->vaciarMapa();
 	switch (nivel) {
 	case 1:
 		for (int i = 0; i < 8; i++) {
@@ -63,7 +64,7 @@ void Partida::cargarMapa(int nivel) {
 		this->mapeado[4][1] = ColorLED::Amarillo;
 
 		this->mapeado[5][2] = ColorLED::Verde;
-		this->personaje.SetPosicion(5, 2);
+		this->personaje.SetPosicion(2, 5);
 
 		break;
 	case 2:
@@ -89,7 +90,7 @@ void Partida::cargarMapa(int nivel) {
 		this->mapeado[2][3] = ColorLED::Amarillo;
 
 		this->mapeado[5][1] = ColorLED::Verde;
-		this->personaje.SetPosicion(5, 1);
+		this->personaje.SetPosicion(1, 5);
 
 		break;
 	}

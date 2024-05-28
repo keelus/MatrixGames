@@ -15,6 +15,7 @@ class Partida {
 	ColorLED mapeado[8][8];
 	Personaje personaje;
 
+	void vaciarMapa();
 	void cargarMapa(int nivel);
 };
 
