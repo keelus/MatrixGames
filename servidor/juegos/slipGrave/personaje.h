@@ -5,13 +5,15 @@
 
 namespace grave {
 class Personaje {
+  private:
+	int x, y;
+
   public:
 	Personaje();
+	void SetPosicion(int x, int y);
+
 	int interaccion(int *socketUsuario, ColorLED (*mapa)[8][8], MatrizLED *matriz);
-	int movimiento(char tecla, ColorLED (*mapa)[8][8],MatrizLED* matriz);
-	~Personaje();
-	int x;
-	int y;
+	int movimiento(char tecla, ColorLED (*mapa)[8][8], MatrizLED *matriz);
 };
 
 } // namespace grave

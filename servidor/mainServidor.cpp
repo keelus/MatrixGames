@@ -4,7 +4,6 @@
 #include "sesion.h"
 #include "tiposMenu.h"
 #include <ctime>
-#include <locale>
 #include <string>
 #undef UNICODE
 
@@ -19,7 +18,7 @@
 
 // Flota
 #include "juegos/flota/partida.h"
-#include "juegos/slipGrave/mapa.h"
+#include "juegos/slipGrave/partida.h"
 #define TAMANO_BUFFER 1024
 #define DEFAULT_PORT 3000
 
@@ -172,7 +171,10 @@ void BuclePrincipal() {
 				// BUCLE PRINCIPAL SLIP GRAVE
 				logger.Log("Iniciando juego \"grave\".", CategoriaLog::Partida);
 				std::cout << "Se desea jugar a slip grave" << std::endl;
-				grave::Mapa Mapa(matrizLED, socketUsuario);
+
+				grave::Partida partida;
+				partida.BuclePrincipal(matrizLED, socketUsuario);
+
 				baseDeDatos::GrabarPartidaUnJugador(sesion, ID_JUEGO_SLIPGRAVE, 1000);
 
 			} else if (accionElegida == '4') { // Hundir la flota (vs CPU)
