@@ -3,6 +3,7 @@
 #include "paquetes.h"
 #include "sesion.h"
 #include "tiposMenu.h"
+#include <algorithm>
 #include <ctime>
 #include <string>
 #undef UNICODE
@@ -172,10 +173,25 @@ void BuclePrincipal() {
 				logger.Log("Iniciando juego \"grave\".", CategoriaLog::Partida);
 				std::cout << "Se desea jugar a slip grave" << std::endl;
 
+				std::time_t inicio = std::time(nullptr);
+
 				grave::Partida partida;
 				partida.BuclePrincipal(matrizLED, socketUsuario);
 
-				baseDeDatos::GrabarPartidaUnJugador(sesion, ID_JUEGO_SLIPGRAVE, 1000);
+				int duracionPartida = static_cast<int>(difftime(std::time(nullptr), inicio));
+
+				// Tras jugar unos intentos, tiempo mas rapido posible -> 3 segundos, que se daran 1000 puntos
+				// De ahi hacia abajo, con un minimo de 10 puntos
+
+				const static int minTiempoPosible = 3; // Segundos
+				const static int maxCantidadPuntos = 1000;
+
+				// Regla del 3 simple
+				float puntuacionFloat = static_cast<float>((60 - duracionPartida) * maxCantidadPuntos) / static_cast<float>(60 - minTiempoPosible);
+
+				int puntuacionFinal = std::max(static_cast<int>(puntuacionFloat), 10);
+
+				baseDeDatos::GrabarPartidaUnJugador(sesion, ID_JUEGO_SLIPGRAVE, puntuacionFinal);
 
 			} else if (accionElegida == '4') { // Hundir la flota (vs CPU)
 				std::time_t inicio = std::time(nullptr);
